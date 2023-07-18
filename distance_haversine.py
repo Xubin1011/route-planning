@@ -1,3 +1,8 @@
+# Date: 2023-07-18
+# Author: Xubin Zhang
+# Description: Calculate haversine distance between two points
+
+
 import numpy as np
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -18,11 +23,11 @@ def haversine(lat1, lon1, lat2, lon2):
 
     return distance_meters
 
-# Example: Calculate the distance between two points
-lat1 = 40.7128
-lon1 = -74.0060
-lat2 = 34.0522
-lon2 = -118.2437
-
-result = haversine(lat1, lon1, lat2, lon2)
-print(f"The distance is {result:.2f} meters")
+# # Example: Calculate the distance between two points
+# lat1 = 40.7128
+# lon1 = -74.0060
+# lat2 = 34.0522
+# lon2 = -118.2437
+#
+# result = haversine(lat1, lon1, lat2, lon2)
+# print(f"The distance is {result:.2f} meters")

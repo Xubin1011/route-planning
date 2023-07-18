@@ -1,3 +1,9 @@
+# Date: 7/18/2023
+# Author: Xubin Zhang
+# Description: Obtain the latitude and longitude of parking lots through the overpass-api
+
+
+
 import requests
 import pandas as pd
 
@@ -25,7 +31,7 @@ def get_parking_rest_area_services_data(bbox):
             data.append((lat, lon))
     return data
 
-# Set the bounding box coordinates
+# example:Set the bounding box coordinates
 bbox = "(49.013,8.409,52.525,13.369)"
 
 data = get_parking_rest_area_services_data(bbox)
@@ -34,4 +40,4 @@ data = get_parking_rest_area_services_data(bbox)
 df = pd.DataFrame(data, columns=["Latitude", "Longitude"])
 
 # Save to CSV
-df.to_csv("parking_rest_area_services_filtered.csv", index=False)
+df.to_csv("parking_location.csv", index=False)

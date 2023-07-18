@@ -1,3 +1,9 @@
+# Date: 2023-07-18
+# Author: Xubin Zhang
+# Description: Extract latitude and longitude within the specified bounding box range
+# from charging_stations_location.excel
+
+
 import pandas as pd
 
 # Define the bounding box format

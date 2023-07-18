@@ -1,3 +1,10 @@
+# Date: 2023-07-18
+# Author: Xubin Zhang
+# Description:read the first rows_num rows of the charging_stations_location.excl,
+# obtain the altitude through the openrouteservice api and insert the third column,
+# delete the first rows_num rows of the original file
+
+
 import pandas as pd
 import requests
 import time

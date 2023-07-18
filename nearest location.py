@@ -1,3 +1,8 @@
+# Date: 2023-07-18
+# Author: Xubin Zhang
+# Description: This file contains the implementation of...
+
+
 import csv
 from distance_haversine import haversine
 
@@ -24,7 +29,7 @@ def find_nearest_locations(current_lat, current_lon, locations_table, dmax, n=2)
 
     return nearest_locations
 
-# Assume these are your current latitude, longitude, and dmax
+# example:
 current_latitude = 37.7749
 current_longitude = -122.4194
 dmax = 5000  # Assume dmax is 5000 meters
