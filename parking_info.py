@@ -13,7 +13,7 @@ def get_elevation(api_key, latitude, longitude):
     base_url = "https://api.openrouteservice.org/elevation/point"
     params = {
         "api_key": api_key,
-        "geometry": f"{latitude},{longitude}",
+        "geometry": f"{longitude},{latitude}",
     }
 
     response = requests.get(base_url, params=params)
@@ -29,7 +29,7 @@ def get_elevation(api_key, latitude, longitude):
 #input api key, file path, the number of rows
 api_key = "5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe"
 file_path = "parking_location.csv"
-rows_num = 5
+rows_num = 10
 
 # read file
 df = pd.read_csv(file_path)
@@ -41,11 +41,11 @@ for i, row in df.iloc[:rows_num].iterrows():
     time.sleep(1)  # Wait 1 second after each request
 
 # save to csv file
-output_file_path = "parking_location_alt_test.csv"  # 替换为您希望保存数据的文件路径
+output_file_path = "parking_info_01.csv"
 df.iloc[:rows_num].to_csv(output_file_path, index=False)
 
 #Delete the first rows_num rows of the original table
 df = df.iloc[rows_num:]
-df.to_excel(file_path, index=False)
+df.to_csv(file_path, index=False)
 
 print("done")

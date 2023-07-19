@@ -1,7 +1,7 @@
 # Date: 2023-07-18
 # Author: Xubin Zhang
 # Description:read the first rows_num rows of the charging_stations_location.excl,
-# obtain the altitude through the openrouteservice api and insert the third column,
+# obtain the altitude through the openrouteservice api and insert the new column,
 # delete the first rows_num rows of the original file
 
 
@@ -13,7 +13,7 @@ def get_elevation(api_key, latitude, longitude):
     base_url = "https://api.openrouteservice.org/elevation/point"
     params = {
         "api_key": api_key,
-        "geometry": f"{latitude},{longitude}",
+        "geometry": f"{longitude},{latitude}",
     }
 
     response = requests.get(base_url, params=params)
@@ -29,7 +29,7 @@ def get_elevation(api_key, latitude, longitude):
 #input api key, file path, the number of rows
 api_key = "5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe"
 file_path = "cs_filtered_02.csv"
-rows_num = 5
+rows_num = 10
 
 # read file
 df = pd.read_csv(file_path)
@@ -40,7 +40,7 @@ for i, row in df.iloc[:rows_num].iterrows():
     df.at[i, "Elevation"] = get_elevation(api_key, row["Latitude"], row["Longitude"])
     time.sleep(1)  # Wait 1 second after each request
 
-# Swap the "Power" column with the "Elevation" column
+# extract data
 df = df[["Latitude", "Longitude", "Elevation", "Max_power"]]
 
 # save to csv file
