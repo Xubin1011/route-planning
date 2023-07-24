@@ -16,7 +16,7 @@ def get_parking_rest_area_services_data(bbox):
     query = f"""
     [out:json];
     (
-        node["amenity"="parking"]["access"~"^(yes|permissive)$"]{bbox};
+        node["amenity"="parking"]["access"="yes"]{bbox};
         node["highway"="rest_area"]{bbox};
         node["highway"="services"]{bbox};
     );
