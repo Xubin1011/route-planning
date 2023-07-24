@@ -28,7 +28,7 @@ def get_elevation(api_key, latitude, longitude):
 
 #input api key, file path, the number of rows
 api_key = "5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe"
-file_path = "cs_filtered_02.csv"
+file_path = "cs_location_bbox.csv"
 rows_num = 10
 
 # read file

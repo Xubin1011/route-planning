@@ -4,7 +4,7 @@
 
 
 
-
+# Description: Check duplicate rows of parking
 
 # import pandas as pd
 #
@@ -31,7 +31,7 @@
 
 
 
-
+# Description: Check duplicate rows of charging stations
 
 # import pandas as pd
 #
@@ -57,7 +57,7 @@
 
 
 
-
+# Description: Extract needed info of CS
 
 # import pandas as pd
 #
@@ -74,7 +74,7 @@
 
 
 
-
+# Description: Check duplicate rows after extract
 
 # import pandas as pd
 #
@@ -94,29 +94,29 @@
 
 
 
+# Description: Check duplicate based on 'Latitude' and 'Longitude'
+
+# import pandas as pd
+#
+# # Read the CSV file
+# df = pd.read_csv('cs_filtered_02_noduplicate_02.csv')
+#
+# # Find duplicate rows based on 'Latitude' and 'Longitude'
+# duplicate_coords = df[df.duplicated(['Latitude', 'Longitude'], keep=False)]
+#
+# # Output the duplicate rows
+# if duplicate_coords.shape[0] == 0:
+#     print("No duplicate rows found.")
+# else:
+#     print("Duplicate rows found:")
+#     print(duplicate_coords)
 
 
-import pandas as pd
-
-# Read the CSV file
-df = pd.read_csv('cs_filtered_02_noduplicate_02.csv')
-
-# Find duplicate rows based on 'Latitude' and 'Longitude'
-duplicate_coords = df[df.duplicated(['Latitude', 'Longitude'], keep=False)]
-
-# Output the duplicate rows
-if duplicate_coords.shape[0] == 0:
-    print("No duplicate rows found.")
-else:
-    print("Duplicate rows found:")
-    print(duplicate_coords)
 
 
 
-
-
-#Same 'Latitude' and 'Longitude', the row with the maximum 'Max_power' values will be saved.
-#Duplicate rows will be removed
+# Find same 'Latitude' and 'Longitude',
+# save the row with the maximum 'Max_power' value
 
 # import pandas as pd
 #
@@ -127,15 +127,35 @@ else:
 # duplicate_coords = df[df.duplicated(['Latitude', 'Longitude'], keep=False)]
 #
 # # Find the row with the maximum 'Max_power' value among duplicates
-# max_power_row = duplicate_coords.loc[duplicate_coords.groupby(['Latitude', 'Longitude'])['Max_power'].idxmax()]
+# max_power_rows = duplicate_coords.loc[duplicate_coords.groupby(['Latitude', 'Longitude'])['Max_power'].idxmax()]
 #
-# # Concatenate the row with the maximum 'Max_power' value and rows with unique coordinates
-# result_df = pd.concat([df.drop(duplicate_coords.index), max_power_row])
+# # Drop duplicate rows and keep the row with the maximum 'Max_power' value
+# df.drop_duplicates(subset=['Latitude', 'Longitude'], keep=False, inplace=True)
+#
+# # Concatenate the rows with the maximum 'Max_power' value and rows with unique coordinates
+# result_df = pd.concat([df, max_power_rows])
 #
 # # Save the final result to a new CSV file
 # result_df.to_csv('cs_filtered_02_noduplicate_final.csv', index=False)
 # print("done")
 
+
+#check again
+
+import pandas as pd
+
+# Read the CSV file
+df = pd.read_csv('cs_filtered_02_noduplicate_final.csv')
+
+# Find duplicate rows based on 'Latitude' and 'Longitude'
+duplicate_coords = df[df.duplicated(['Latitude', 'Longitude'], keep=False)]
+
+# Output the duplicate rows
+if duplicate_coords.shape[0] == 0:
+    print("No duplicate rows found.")
+else:
+    print("Duplicate rows found:")
+    print(duplicate_coords)
 
 
 

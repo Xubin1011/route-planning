@@ -14,7 +14,7 @@ bbox_values = bbox.strip('()').split(',')
 south_lat, west_lon, north_lat, east_lon = map(float, bbox_values)
 
 # Read data from excel file into a Pandas DataFrame
-df = pd.read_csv('cs_filtered_02.csv')
+df = pd.read_csv('cs_filtered_02_noduplicate_final.csv')
 
 # Filter the rows within the bounding box range
 filtered_df = df[
@@ -23,7 +23,7 @@ filtered_df = df[
 ]
 
 # Save the filtered result to a CSV file
-filtered_df.to_csv('cs_info_bbox.csv', index=False)
+filtered_df.to_csv('cs_location_bbox.csv', index=False)
 
 print("done")
 
