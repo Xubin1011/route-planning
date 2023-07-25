@@ -1,51 +1,71 @@
 # Date: 2023-07-18
 # Author: Xubin Zhang
-# Description: This file contains the implementation of...
+# Description: Find the n nearest locations to the current position.
+# Parameters:
+    # file_path : Path of the CSV file, containing information of Latitude and Longitude
+    # x1: Latitude of the current position
+    # y1: Longitude of the current position
+    # n: Number of nearest locations to find
+#Returns: A list containing information of n nearest locations.
 
 
-import csv
+import pandas as pd
+import heapq
+# the haversine function from distance_haversine.py
 from distance_haversine import haversine
 
-def read_csv(file_name):
-    data = []
-    with open(file_name, 'r') as file:
-        csv_reader = csv.reader(file)
-        next(csv_reader)  # Skip the header row
-        for row in csv_reader:
-            data.append([float(row[0]), float(row[1])])
-    return data
 
-def find_nearest_locations(current_lat, current_lon, locations_table, dmax, n=2):
-    # Create a dictionary to store the mapping of locations and distances
-    distances = {}
-    for row in locations_table:
-        lat, lon = row[0], row[1]
-        distance = haversine(current_lat, current_lon, lat, lon)
-        if distance <= dmax:
-            distances[tuple(row)] = distance
+def nearest_location(file_path, x1, y1, n):
 
-    # Sort based on distances and take the first n locations
-    nearest_locations = sorted(distances.items(), key=lambda x: x[1])[:n]
+    # Read the CSV file and extract latitude and longitude
+    data = pd.read_csv(file_path)
 
+    latitudes = data["Latitude"]
+    longitudes = data["Longitude"]
+
+    # Priority queue to store information of the n nearest locations
+    closest_locations = []
+
+    # Iterate through all the locations
+    for lat, lon in zip(latitudes, longitudes):
+        # Calculate the distance
+        distance = haversine(x1, y1, lat, lon)
+
+        # negate the distance to find the farthest distance,
+        # closest_locations[0] is the farthest location now
+        neg_distance = -distance
+
+        # If the number of locations in the queue is less than n,
+        # insert the current location
+        if len(closest_locations) < n:
+            heapq.heappush(closest_locations, (neg_distance, lat, lon))
+        else:
+            # find the farthest location in the current queue
+            min_neg_distance, _, _ = closest_locations[0]
+
+            # If the current location is closer, replace the farthest location
+            if neg_distance > min_neg_distance:
+                heapq.heappop(closest_locations) #pop the farthest location
+                heapq.heappush(closest_locations, (neg_distance, lat, lon)) #insert the closer location
+
+    # convert the distance back to positive values
+    closest_locations = pd.DataFrame(closest_locations, columns=["Neg_Distance", "Latitude", "Longitude"])
+    closest_locations["Distance"] = -closest_locations["Neg_Distance"]
+    closest_locations.drop(columns=["Neg_Distance"], inplace=True)
+
+    # Sort by distance in ascending order
+    closest_locations.sort_values(by="Distance", inplace=True)
+
+    # Extract information of the n nearest locations
+    nearest_locations = closest_locations.head(n).reset_index(drop=True)
     return nearest_locations
 
-# example:
-current_latitude = 37.7749
-current_longitude = -122.4194
-dmax = 5000  # Assume dmax is 5000 meters
 
-# Read the data from the CSV files
-parking_data = read_csv("parking.csv")
-cs_data = read_csv("cs.csv")
+# # test
+# file_path = "test.csv"
+# x1, y1 = 49.176492, 9.231113
+# n = 7
+# nearest_locations = nearest_location(file_path, x1, y1, n)
+# print(nearest_locations)
 
-# Find the nearest parking locations and charging stations
-nearest_parking = find_nearest_locations(current_latitude, current_longitude, parking_data, dmax, n=2)
-nearest_cs = find_nearest_locations(current_latitude, current_longitude, cs_data, dmax, n=3)
 
-print("Nearest parking locations:")
-for location, distance in nearest_parking:
-    print(f"Location: {location}, Distance: {distance} meters")
-
-print("\nNearest charging station locations:")
-for location, distance in nearest_cs:
-    print(f"Location: {location}, Distance: {distance} meters")

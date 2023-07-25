@@ -4,15 +4,15 @@
 
 
 import numpy as np
-
-def haversine(lat1, lon1, lat2, lon2):
+import math
+def haversine(x1, y1, x2, y2):
     # Convert latitude and longitude from degrees to radians
-    lat1, lon1, lat2, lon2 = np.radians([lat1, lon1, lat2, lon2])
+    lat1_rad, lon1_rad, lat2_rad, lon2_rad = np.radians([x1, y1, x2, y2])
 
     # Haversine formula
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-    a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
+    delta_lat = lat2_rad - lat1_rad
+    delta_lon = lon2_rad - lon1_rad
+    a = np.sin(delta_lat/2)**2 + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(delta_lon/2)**2
     c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
     # Earth's mean radius in kilometers
     radius = 6371.0
@@ -23,11 +23,11 @@ def haversine(lat1, lon1, lat2, lon2):
 
     return distance_meters
 
-# # Example: Calculate the distance between two points
-# lat1 = 40.7128
-# lon1 = -74.0060
-# lat2 = 34.0522
-# lon2 = -118.2437
+# # test
+# x1 = 45.7597
+# y1 = 4.8422
+# x2 = 48.8567
+# y2 = 2.3508
 #
-# result = haversine(lat1, lon1, lat2, lon2)
+# result = haversine(x1, y1, x2, y2)
 # print(f"The distance is {result:.2f} meters")
