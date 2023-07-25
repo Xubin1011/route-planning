@@ -29,6 +29,11 @@ def visualization(file1, file2, file3, source_lat, source_lon, target_lat, targe
 
     # Read data from file1 and add yellow markers for data points
     for _, row in data1.iterrows():
+        # latitude, longitude = row['Latitude'], row['Longitude']
+        # popup_content = 'Charging Station'
+        # tooltip_content = f'Latitude: {latitude}, Longitude: {longitude}'
+        # folium.Marker(location=[latitude, longitude], popup=popup_content, tooltip=tooltip_content, icon=folium.Icon(color='purple')).add_to(map_object)
+
         latitude, longitude = row['Latitude'], row['Longitude']
         folium.CircleMarker(location=[latitude, longitude], radius=1, color='yellow', fill=True, fill_color='yellow').add_to(map_object)
 
