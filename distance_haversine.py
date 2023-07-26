@@ -24,10 +24,12 @@ def haversine(x1, y1, x2, y2):
     return distance_meters
 
 # # test
-# x1 = 45.7597
-# y1 = 4.8422
-# x2 = 48.8567
-# y2 = 2.3508
+# x1 = 49.013
+# y1 = 8.409
+# #x2, y2 = 49.054021, 8.535029
+#
+# x2 = 52.525 #berlin
+# y2 = 13.369
 #
 # result = haversine(x1, y1, x2, y2)
 # print(f"The distance is {result:.2f} meters")
