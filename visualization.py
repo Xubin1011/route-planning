@@ -4,7 +4,7 @@
 
 import pandas as pd
 import folium
-from bounding_box import bbox
+from code_old.bounding_box import bbox
 
 def visualization(file1, file2, file3, source_lat, source_lon, target_lat, target_lon):
     # calculate the bounding box
