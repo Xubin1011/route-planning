@@ -12,6 +12,10 @@ import time
 import os
 
 
+api_key = "5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe"
+rows_num = 5
+source_lat, source_lon, target_lat, target_lon = 49.0130, 8.4093, 52.5253, 13.3694
+
 def bounding_box(source_lat, source_lon, target_lat, target_lon):
     # Calculate the North latitude, West longitude, South latitude, and East longitude
     south_lat = min(source_lat, target_lat)
@@ -171,9 +175,7 @@ def parking_data(source_lat, source_lon, target_lat, target_lon):
 
     return None
 
-api_key = "5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe"
-rows_num = 5
-source_lat, source_lon, target_lat, target_lon = 49.0130, 8.4093, 52.5253, 13.3694
+
 
 # Check if parking_bbox_tem.csv file exists
 if os.path.exists('parking_bbox_tem.csv'):
@@ -184,6 +186,13 @@ if os.path.exists('parking_bbox_tem.csv'):
     if not parking_bbox_tem_df.empty:
         # If there are values in the DataFrame, get altitude
         parking_bbox_tem_altitude()
+        # Read the parking_bbox_tem.csv file into a DataFrame
+        parking_bbox_tem_df_1 = pd.read_csv('parking_bbox_tem.csv')
+        # Check if the DataFrame is empty
+        if parking_bbox_tem_df_1.empty:
+            print("All altitudes have been obtained")
+            os.remove('parking_bbox_tem.csv')
+            print("The parking_bbox_tem.csv file is empty. Deleted the file.")
     else:
         # If the DataFrame is empty, delete the file
         os.remove('parking_bbox_tem.csv')
