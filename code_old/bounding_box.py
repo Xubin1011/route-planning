@@ -19,8 +19,8 @@ def bbox(source_lat, source_lon, target_lat, target_lon):
 # target_lon = 13.369384859383123
 #
 # # create bounding box
-# south_lat, west_lon, north_lat, east_lon = bbox(source_lat, source_lon, target_lat, target_lon)
-# bbox = f"({south_lat},{west_lon},{north_lat},{east_lon})"
+# bbox = bbox(source_lat, source_lon, target_lat, target_lon)
+# #bbox = f"({south_lat},{west_lon},{north_lat},{east_lon})"
 #
 # # test
 # print(bbox)
