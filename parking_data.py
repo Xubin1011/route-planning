@@ -1,9 +1,11 @@
 # Date: 7/27/2023
 # Author: Xubin Zhang
-# Description: This file contains the implementation of...
+# Description: Get the latitude, longitude, altitude of parking lots within the bbox range, and output the csv table
 #input： latitude and longitude of two pois
-#output: parking_data.csv, include the latitude, longitude and elevation of all locations that has benn used.
-# parking_bbox.csv, include the latitude, longitude and elevation of locations within bbox
+#output: parking_data.csv: include the latitude, longitude and elevation of all locations that has benn used.
+# parking_bbox.csv: include the latitude, longitude and elevation of locations within bbox
+# parking_bbox_tem.csv:Do not modify, include the latitude and longitude of the new location.
+# It will be automatically deleted after all altitudes are obtained.
 
 
 import requests
@@ -13,7 +15,7 @@ import os
 
 
 api_key = "5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe"
-rows_num = 5
+rows_num = 5000
 source_lat, source_lon, target_lat, target_lon = 49.0130, 8.4093, 52.5253, 13.3694
 
 def bounding_box(source_lat, source_lon, target_lat, target_lon):
@@ -84,8 +86,10 @@ def parking_bbox_tem_altitude():
         df_data = pd.DataFrame(columns=['Latitude', 'Longitude', 'Altitude'])
 
     # Append the updated rows_num data from df_tem to df_bbox
-    df_bbox = df_bbox.append(df_tem.iloc[:rows_num], ignore_index=True)
-    df_data = df_data.append(df_tem.iloc[:rows_num], ignore_index=True)
+    # df_bbox = df_bbox.append(df_tem.iloc[:rows_num], ignore_index=True)
+    # df_data = df_data.append(df_tem.iloc[:rows_num], ignore_index=True)
+    df_bbox = pd.concat([df_bbox, df_tem.iloc[:rows_num]], ignore_index=True)
+    df_data = pd.concat([df_data, df_tem.iloc[:rows_num]], ignore_index=True)
 
     # Save to 'parking_data.csv' file
     df_bbox.to_csv("parking_bbox.csv", index=False)
@@ -98,6 +102,9 @@ def parking_bbox_tem_altitude():
     return None
 
 
+#Get altitude from parking_data.csv
+#Delete matched location in parking_bbox_tem.csv
+#Store the matched locations in parking_bbox.csv with altitude
 def compare_and_update_parking_data():
     # Check if parking_data.csv file exists
     if os.path.exists('parking_data.csv'):
@@ -114,14 +121,13 @@ def compare_and_update_parking_data():
     # store the matched locations
     matching_rows_list = []
 
-    # search the matched locations from parking_bbox_tem.csv and parking_data.csv
+    # search the matched locations between parking_bbox_tem.csv and parking_data.csv
     for index, row in parking_bbox_tem.iterrows():
         latitude = row['Latitude']
         longitude = row['Longitude']
 
         # store the matched locations from parking_data.csv into matching_rows
-        matching_rows = parking_data.loc[
-            (parking_data['Latitude'] == latitude) & (parking_data['Longitude'] == longitude)]
+        matching_rows = parking_data.loc[(parking_data['Latitude'] == latitude) & (parking_data['Longitude'] == longitude)]
 
         if not matching_rows.empty:
             # store in list
@@ -130,11 +136,18 @@ def compare_and_update_parking_data():
     if matching_rows_list:
         all_matching_rows = pd.concat(matching_rows_list)
         # store the matched locations in parking_bbox.csv
-        all_matching_rows.to_csv('parking_bbox.csv', mode='a', index=False, header=False)
+        #all_matching_rows.to_csv('parking_bbox.csv', mode='a', index=False, header=False)
+        if os.path.exists('parking_bbox.csv'):
+            # Append the updated rows_num data from df_tem to parking_bbox.csv
+            all_matching_rows.to_csv('parking_bbox.csv', mode='a', index=False, header=False)
+        else:
+            # If parking_bbox.csv does not exist, create a new file with header
+            all_matching_rows.to_csv('parking_bbox.csv', mode='a', index=False)
+
         # delete the matched locations in parking_bbox_tem.csv
-        parking_bbox_tem.drop(all_matching_rows.index, inplace=True)
-        # update parking_bbox_tem.csv
-        parking_bbox_tem.to_csv('parking_bbox_tem.csv', index=False)
+        merged_df = parking_bbox_tem.merge(all_matching_rows, on=['Latitude', 'Longitude'], how='left', indicator=True)
+        tem_filtered = merged_df[merged_df['_merge'] == 'left_only'].drop(columns='_merge')
+        tem_filtered.to_csv('parking_bbox_tem.csv', index=False)
 
     return None
 
@@ -169,9 +182,8 @@ def parking_data(source_lat, source_lon, target_lat, target_lon):
     #and delete matched location in parking_bbox_tem.csv
     #store the matched locations in parking_bbox.csv with altitude
     compare_and_update_parking_data()
-    # # Get elevation for new locations, and add to parking_bbox.csv, parking_data.csv,
-    # # delete the first rows_num rows of parking_bbox_tem.csv
-    # parking_bbox_tem_altitude()
+
+
 
     return None
 
@@ -184,6 +196,8 @@ if os.path.exists('parking_bbox_tem.csv'):
 
     # Check if the DataFrame is not empty
     if not parking_bbox_tem_df.empty:
+        # # Try to get altitude from  parking_data.csv
+        # compare_and_update_parking_data()
         # If there are values in the DataFrame, get altitude
         parking_bbox_tem_altitude()
         # Read the parking_bbox_tem.csv file into a DataFrame
@@ -193,10 +207,6 @@ if os.path.exists('parking_bbox_tem.csv'):
             print("All altitudes have been obtained")
             os.remove('parking_bbox_tem.csv')
             print("The parking_bbox_tem.csv file is empty. Deleted the file.")
-    else:
-        # If the DataFrame is empty, delete the file
-        os.remove('parking_bbox_tem.csv')
-        print("The parking_bbox_tem.csv file is empty. Deleted the file.")
 else:
     # If the file does not exist,get new location within bbox
     parking_data(source_lat, source_lon, target_lat, target_lon)

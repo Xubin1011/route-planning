@@ -32,7 +32,7 @@ def get_parking_rest_area_services_data(bbox):
     return data
 
 # example:Set the bounding box coordinates
-bbox = "(49.013,8.409,52.525,13.369)"
+bbox = 49.013, 8.4093, 52.5253, 13.3694
 
 data = get_parking_rest_area_services_data(bbox)
 
