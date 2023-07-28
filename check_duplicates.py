@@ -143,19 +143,62 @@
 #check again
 
 import pandas as pd
+#
+# # Read the CSV file
+# df = pd.read_csv('parking_bbox.csv')
+#
+# # Find duplicate rows based on 'Latitude' and 'Longitude'
+# duplicate_coords = df[df.duplicated(['Latitude', 'Longitude', 'Altitude'], keep=False)]
+#
+# # Output the duplicate rows
+# if duplicate_coords.shape[0] == 0:
+#     print("No duplicate rows found.")
+# else:
+#     print("Duplicate rows found:")
+#     print(duplicate_coords)
+#     # Delete the duplicate rows
+#     df.drop_duplicates(subset=['Latitude', 'Longitude', 'Altitude'], keep='first', inplace=True)
+#     # Save the DataFrame back to the CSV file, overwriting the original file
+#     df.to_csv('parking_bbox.csv', index=False)
+#     print("Duplicate rows have been deleted")
 
-# Read the CSV file
-df = pd.read_csv('cs_filtered_02_noduplicate_final.csv')
 
-# Find duplicate rows based on 'Latitude' and 'Longitude'
-duplicate_coords = df[df.duplicated(['Latitude', 'Longitude'], keep=False)]
+# comper two files
+def check_locations_exist(file1, file2):
+    # Read the CSV files into DataFrames
+    df1 = pd.read_csv(file1)
+    df2 = pd.read_csv(file2)
 
-# Output the duplicate rows
-if duplicate_coords.shape[0] == 0:
-    print("No duplicate rows found.")
-else:
-    print("Duplicate rows found:")
-    print(duplicate_coords)
+    # Create a set of tuples containing (Latitude, Longitude) from df2
+    locations_set = set(tuple(x) for x in df2[['Latitude', 'Longitude']].values)
+
+    # Initialize a counter for non-existing locations
+    non_existing_count = 0
+
+    # Check if each location in df1 exists in df2
+    for index, row in df1.iterrows():
+        latitude = row['Latitude']
+        longitude = row['Longitude']
+
+        if (latitude, longitude) not in locations_set:
+            non_existing_count += 1
+
+    print(f"The number of rows with locations that do not exist in table 2 is: {non_existing_count}")
+
+    # if (latitude, longitude) in locations_set:
+    #         print(f"Location ({latitude}, {longitude}) exists in both tables.")
+    #     else:
+    #         print(f"Location ({latitude}, {longitude}) does not exist in table 2.")
+
+    return None
+
+
+file1 = 'parking_bbox.csv'
+file2 = 'F:\OneDrive\Thesis\Code\parking_bbox.csv'
+check_locations_exist(file1, file2)
+
+
+
 
 
 

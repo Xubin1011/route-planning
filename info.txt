@@ -1,0 +1,21 @@
+ITIV 49.01302968199333, 8.409265137665193
+Berlin Hauptbahnhof 52.52533075184041, 13.369384859383123
+
+Summary: {'duration': 23822, 'length': 682092, 'baseDuration': 22724, 'typicalDuration': 23993}
+
+# Set the bounding box coordinates 
+bbox = f"({south_lat},{west_lon},{north_lat},{east_lon})"
+bbox = "(49.013,8.409,52.525,13.369)"
+(49.01302968199333,8.409265137665193,52.52533075184041,13.369384859383123)
+
+OpenTopography https://portal.opentopography.org/requestService?service=api
+API key:     414d9bd2ce40f683703f7506709e1692
+
+openrouteservice 
+elevation
+5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe
+
+ElevationPoint	2000/2000	100
+
+Here API
+_XecI_2z9_7QVDELBzW_dT8VeRjUW4uJtOkxpm4Qvrs
