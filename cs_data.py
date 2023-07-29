@@ -22,9 +22,9 @@ import sys
 
 api_key = sys.argv[1]
 file_path = sys.argv[2]
-rows_num = sys.argv[3]
+rows_num = int(sys.argv[3])
 # Maximum number of retries for API
-max_retries = sys.argv[4]
+max_retries = int(sys.argv[4])
 
 # print("API Key:", api_key)
 print("File Path:", file_path)

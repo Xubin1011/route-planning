@@ -14,8 +14,11 @@ import pandas as pd
 
 #file_path_check_types = "Ladesaeulenregister-processed.xlsx"  # Calculate unique types of sockets
 file_path_check_types = "combo_kept.csv"  # Calculate unique types of sockets
-types_replaced_0 = "cs_data.csv"   # Unneeded types of sockets will be replaced to 0
+# types_replaced_0 = "cs_data.csv"   # Unneeded types of sockets will be replaced to 0
 file_path_delete = "combo_kept.csv" #Delete rows that combo does not exist
+max_charging_power = 100  #The maximum charging power of an ebus (in kW)
+
+
 
 # Calculate unique types of sockets, output types.txt
 
@@ -119,6 +122,8 @@ def keep_combo(types_replaced_0):
 
 # Delete rows that combo does not exist
 # Delete unneeded power, replace 'P1', 'P2', 'P3', 'P4' values with 0 when Socket values are 0
+# Compare power column with Rated_output column and select max charging power
+
 
 def delete_unneeded_rows(file_path_delete):
     # Read the data from the CSV file
@@ -133,14 +138,18 @@ def delete_unneeded_rows(file_path_delete):
     data['P3'] = data['P3'].mask(data['Socket_3'].isin([0, '0']), 0).astype(int)
     data['P4'] = data['P4'].mask(data['Socket_4'].isin([0, '0']), 0).astype(int)
 
+    #if all values in Socket columns are 0 or '0', drop those rows
+    socket_columns = ['Socket_1', 'Socket_2', 'Socket_3', 'Socket_4']
+    #data = data[(data['Socket_1'] != 0) | (data['Socket_2'] != 0) | (data['Socket_3'] != 0) | (data['Socket_4'] != 0)]
+    data = data[~((data[socket_columns] == '0') | (data[socket_columns] == 0)).all(axis=1)]
+
     # Compare power column with Rated_output column and select max charging power
     data['Max_socket_power'] = data[['P1', 'P2', 'P3', 'P4']].max(axis=1)
+    data['Max_power'] = data[['Max_socket_power', 'Rated_output']].min(axis=1)
+
+#使用平均充电功率，大于100的，按100，＞50小于100的按50， 小于50的按实际功率
 
 
-    # #if all values in Socket columns are 0 or '0', drop those rows
-    # socket_columns = ['Socket_1', 'Socket_2', 'Socket_3', 'Socket_4']
-    # #data = data[(data['Socket_1'] != 0) | (data['Socket_2'] != 0) | (data['Socket_3'] != 0) | (data['Socket_4'] != 0)]
-    # data = data[~((data[socket_columns] == '0') | (data[socket_columns] == 0)).all(axis=1)]
 
 
     # Save the modified DataFrame to 'cs_filtered_01.csv' file

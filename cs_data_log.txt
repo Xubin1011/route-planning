@@ -1,20 +1,20 @@
-API Key: 5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe
-File Path: Ladesaeulenregister-processed.xlsx
-Rows Num: 100
-Max Retries: 2
-API Key: api_key
-File Path: file_path
-Rows Num: 100
-Max Retries: 2
-API Key: 5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe
-File Path: Ladesaeulenregister-processed.xlsx
-Rows Num: 100
-Max Retries: 2
-API Key: 5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe
-File Path: Ladesaeulenregister-processed.xlsx
-Rows Num: 100
-Max Retries: 2
-   Latitude  Longitude  Rated_output  ... Socket_4  P4 Elevation
-0  49.47302    8.98683         150.0  ...      NaN NaN       NaN
 
-[1 rows x 12 columns]
+File Path: Ladesaeulenregister-processed.xlsx
+Rows Num: 100
+Max Retries: 2
+File Path: Ladesaeulenregister-processed.xlsx
+Rows Num: 100
+Max Retries: 2
+Done, partial altitudes have been obtained
+File Path: Ladesaeulenregister-processed.xlsx
+Rows Num: 1000
+Max Retries: 2
+Done, partial altitudes have been obtained
+File Path: Ladesaeulenregister-processed.xlsx
+Rows Num: 900
+Max Retries: 2
+Done, partial altitudes have been obtained
+File Path: Ladesaeulenregister-processed.xlsx
+Rows Num: 1000
+Max Retries: 2
+Done, partial altitudes have been obtained
