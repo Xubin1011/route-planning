@@ -2,7 +2,8 @@
 # Author: Xubin Zhang
 # Description: Get the latitude, longitude, altitude of parking lots within the bbox range, and output the csv table
 #input： latitude and longitude of two pois
-#output: parking_data.csv: include the latitude, longitude and elevation of all locations that has benn used.
+# parking_data.csv: include the latitude, longitude and elevation of all locations that has benn used.
+#output:
 # parking_bbox.csv: include the latitude, longitude and elevation of locations within bbox
 # parking_bbox_tem.csv:Do not modify, include the latitude and longitude of the new location.
 # It will be automatically deleted after all altitudes are obtained.
@@ -17,7 +18,7 @@ import os
 max_retries = 2 # Maximum number of retries for elevation API
 api_key = "5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe"
 rows_num = 5
-# source_lat, source_lon, target_lat, target_lon = 49.0130, 8.4093, 52.5253, 13.3694 #kit to berlin
+source_lat, source_lon, target_lat, target_lon = 49.0130, 8.4093, 52.5253, 13.3694 #kit to berlin
 # source_lat, source_lon, target_lat, target_lon = 48.0130, 7.4093, 51.458, 12.3694
 
 def bounding_box(source_lat, source_lon, target_lat, target_lon):
@@ -67,7 +68,7 @@ def check_duplicates(file_path_duplicate):
 
     df = pd.read_csv(file_path_duplicate)
 
-    # Find duplicate rows based on 'Latitude' and 'Longitude'
+    # Find duplicate rows based on 'Latitude''Longitude''Altitude'
     duplicate_coords = df[df.duplicated(['Latitude', 'Longitude', 'Altitude'], keep=False)]
 
     # Output the duplicate rows
