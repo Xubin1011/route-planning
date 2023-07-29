@@ -12,12 +12,24 @@ import pandas as pd
 import requests
 import time
 import os
+import sys
 
-api_key = "5b3ce3597851110001cf624880a184fac65b416298dee8f52e43a0fe"
-file_path = 'Ladesaeulenregister-processed.xlsx'
-rows_num = 1000
+
+# file_path = 'Ladesaeulenregister-processed.xlsx'
+# rows_num = 1000
+# # Maximum number of retries for API
+# max_retries = 2
+
+api_key = sys.argv[1]
+file_path = sys.argv[2]
+rows_num = sys.argv[3]
 # Maximum number of retries for API
-max_retries = 2
+max_retries = sys.argv[4]
+
+# print("API Key:", api_key)
+print("File Path:", file_path)
+print("Rows Num:", rows_num)
+print("Max Retries:", max_retries)
 
 # Get altitude for each location
 def get_elevation(latitude, longitude):
