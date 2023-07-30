@@ -40,10 +40,9 @@ def calculate_alpha(x1, y1, c1, x2, y2, c2):
     # Calculate sinalpha based on c2-c1
     elevation_difference = c2 - c1
     if elevation_difference > 0: #ascent
-        slope = np.arctan(elevation_difference / distance_meters)
-        slope_degrees = slope * (180 / np.pi)
-        sin_alpha = np.sin(slope_degrees)
-        cos_alpha = np.cos(slope_degrees)
+        slope = np.arctan(elevation_difference / distance_meters) #(slope in radians)
+        sin_alpha = np.sin(slope)
+        cos_alpha = np.cos(slope)
 
         # sin_alpha = (c2 - c1) / distance_meters
         # cos_alpha = np.sqrt(1 - np.square(sin_alpha))
@@ -85,6 +84,10 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
     sin_alpha, cos_alpha = calculate_alpha(x1, y1, c1, x2, y2, c2)
 
     #print(sin_alpha,cos_alpha)
+
+    if average_speed > 27.8:
+        average_speed = 27.8
+        print("Speed limited")
 
     mgsin_alpha = m * g * sin_alpha
     mgCr_cos_alpha = m * g * c_r * cos_alpha
