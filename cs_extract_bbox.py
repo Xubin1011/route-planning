@@ -2,14 +2,14 @@
 # Author: Xubin Zhang
 # Description: Extract latitude and longitude within the specified bounding box range
 # from cs_combo.csv or cs_type2_combo.csv
-#input: cs_combo.csv aor cs_type2_combo.csv
+#input: cs_combo.csv or cs_type2_combo.csv
 #output: cs_combo_bbox.csv or cs_type2_combo_bbox.csv. The charging stations within bbox.
 
 
 import pandas as pd
 
 combo = 1 # Only consider charging stations with combo type
-type2_combo = 0 # Consider charging stations with combo type and type2 type
+type2_combo = 1 # Consider charging stations with combo type and type2 type
 source_lat, source_lon, target_lat, target_lon = 49.0130, 8.4093, 52.5253, 13.3694 #kit to berlin
 
 def bounding_box(source_lat, source_lon, target_lat, target_lon):

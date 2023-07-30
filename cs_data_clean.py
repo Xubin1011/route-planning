@@ -1,7 +1,7 @@
 # Date: 7/27/2023
 # Author: Xubin Zhang
-# Description: Clean data, remove duplicate locations, fix wrong latitude and longitude format, add altitude, extract the needed data
-# (latitude, longitude, max_charging_power) from Ladesaeulenregister-processed.xlsx
+# Description: Clean data, remove duplicate locations, extract the needed data
+# (latitude, longitude, max_charging_power) from cs_data.csv
 # (Die Liste beinhaltet die Ladeeinrichtungen aller Betreiberinnen und Betreiber,
 # die das Anzeigeverfahren der Bundesnetzagentur vollständig abgeschlossen und einer Veröffentlichung im Internet zugestimmt haben.)
 #input: cs_data.csv: latitude, longitude, power, altitude and unneeded info in Germany.

@@ -1,10 +1,11 @@
 # Date: 2023-07-18
 # Author: Xubin Zhang
-# Description: Add altitude in Ladesaeulenregister-processed.xlsx
-# Read the first rows_num rows of the file,
-# obtain the altitude through the openrouteservice api for each location,
-# store the location with altitude in cs_data.csv
-# delete the first rows_num rows of the original file
+# Description: Add altitude in Ladesaeulenregister-processed.xlsx, fix wrong latitude and longitude format, fix wrong locaions 
+# The accuracy of some coordinates is low, and the altitude cannot be obtained, e.g. lat=48,lng=10 is a location with low accuracy
+# 1.Read the first rows_num rows of the file,
+# 2.obtain the altitude through the openrouteservice api for each location,
+# 3.store the location with altitude in cs_data.csv
+# 4.delete the first rows_num rows of the original file
 # input : Ladesaeulenregister-processed.xlsx
 # output : cs_data.csv
 

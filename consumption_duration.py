@@ -38,9 +38,15 @@ def calculate_alpha(x1, y1, c1, x2, y2, c2):
 
     print("Haversine Distance:", distance_meters, "m")
     # Calculate sinalpha based on c2-c1
-    if c2 - c1 > 0: #ascent
-        sin_alpha = (c2 - c1) / distance_meters
-        cos_alpha = np.sqrt(1 - np.square(sin_alpha))
+    elevation_difference = c2 - c1
+    if elevation_difference > 0: #ascent
+        slope = np.arctan(elevation_difference / distance_meters)
+        slope_degrees = slope * (180 / np.pi)
+        sin_alpha = np.sin(slope_degrees)
+        cos_alpha = np.cos(slope_degrees)
+
+        # sin_alpha = (c2 - c1) / distance_meters
+        # cos_alpha = np.sqrt(1 - np.square(sin_alpha))
     else:
         # descent is seen as no slope, treat the downhill road flat
         # driving at a constant speed,
@@ -88,7 +94,7 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
     power = average_speed * (mgsin_alpha + mgCr_cos_alpha + air_resistance + ma)
     consumption = power * typical_duration / 3600 / 1000  #(in kWh)
 
-    return consumption, typical_duration
+    return consumption, typical_duration, length_meters
 
 # test eCitaro 2 Türen
 x1, y1, c1 = 52.66181,13.38251, 47
@@ -100,6 +106,7 @@ A_front = 10.03
 c_r = 0.01
 c_d = 0.7
 a = 0
-consumption, typical_duration = consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a)
+consumption, typical_duration, length_meters = consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a)
 print("Typical Duration:", typical_duration, "s")
 print("Consumption:", consumption, "kWh")
+print("Average comsuption:", consumption/length_meters*100000, "kWh/100km")
