@@ -1,6 +1,6 @@
 # Date: 2023-07-18
 # Author: Xubin Zhang
-# Description: Add altitude in Ladesaeulenregister-processed.xlsx, fix wrong latitude and longitude format, fix wrong locaions 
+# Description: Add altitude in Ladesaeulenregister-processed.xlsx, fix wrong format of latitude and longitude, fix wrong latitude and longitude of locaions 
 # The accuracy of some coordinates is low, and the altitude cannot be obtained, e.g. lat=48,lng=10 is a location with low accuracy
 # 1.Read the first rows_num rows of the file,
 # 2.obtain the altitude through the openrouteservice api for each location,
@@ -56,14 +56,14 @@ def get_elevation(latitude, longitude):
                 print(f"Response content: {response.text}")
                 print("wait", wait, "s")
                 time.sleep(wait)  # Wait 300 second before retrying
-                wait += 180
+                wait += 60
 
             except Exception as e:
                 print(f"Error occurred while processing the API response: {e}")
                 print(f"Response content: {response.text}")
                 print("wait", wait, "s")
                 time.sleep(wait)  # Wait 60 second before retrying
-                wait += 180
+                wait += 60
 
         else:
             print(f"Failed to fetch elevation data. Status code: {response.status_code}")

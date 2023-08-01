@@ -85,9 +85,9 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
 
     #print(sin_alpha,cos_alpha)
 
-    if average_speed > 27.8:
-        average_speed = 27.8
-        print("Speed limited")
+    # if average_speed > 27.8:
+        # average_speed = 27.8
+        # print("Speed limited")
 
     mgsin_alpha = m * g * sin_alpha
     mgCr_cos_alpha = m * g * c_r * cos_alpha

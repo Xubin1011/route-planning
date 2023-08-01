@@ -1,4 +1,34 @@
 File Path: Ladesaeulenregister-processed.xlsx
-Rows Num: 138
+Rows Num: 1001
+Max Retries: 2
+Failed to fetch elevation data. Status code: 502
+Retry attempt: 1
+Done, partial altitudes have been obtained
+File Path: Ladesaeulenregister-processed.xlsx
+Rows Num: 1000
+Max Retries: 2
+Done, partial altitudes have been obtained
+File Path: Ladesaeulenregister-processed.xlsx
+Rows Num: 1000
+Max Retries: 2
+File Path: Ladesaeulenregister-processed.xlsx
+Rows Num: 1000
+Max Retries: 2
+Done, partial altitudes have been obtained
+File Path: Ladesaeulenregister-processed.xlsx
+Rows Num: 1000
+Max Retries: 2
+Unexpected response format. Could not find 'geometry' key in the response.
+Response content: {"code":500,"message":"Server error"}
+
+wait 120 s
+Unexpected response format. Could not find 'geometry' key in the response.
+Response content: {"code":500,"message":"Server error"}
+
+wait 180 s
+failed
+Done, partial altitudes have been obtained
+File Path: Ladesaeulenregister-processed.xlsx
+Rows Num: 635
 Max Retries: 2
 Done, partial altitudes have been obtained
