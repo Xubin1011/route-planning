@@ -1,44 +1,34 @@
-import numpy as np
-from typical_route_here import get_typical_route_here
-from distance_haversine import haversine
+import pandas as pd
 
-#Description: alpha is the slope
+def check_locations_exist(file1, file2):
+    # Read the CSV files into DataFrames
+    df1 = pd.read_csv(file1)
+    df2 = pd.read_excel(file2)
 
-def calculate_alpha(x1, y1, c1, x2, y2, c2):
-    # Calculate the haversine distance
-    distance_meters = haversine(x1, y1, x2, y2)
+    # Create a set of tuples containing (Latitude, Longitude) from df2
+    locations_set = set(tuple(x) for x in df2[['Latitude', 'Longitude']].values)
 
-    print("Haversine Distance:", distance_meters, "m")
-    # Calculate sinalpha based on c2-c1
-    elevation_difference = c2 - c1
-    if elevation_difference > 0: #ascent
-        slope = np.arctan(elevation_difference / distance_meters)
+    # Initialize a counter for non-existing locations
+    non_existing_count = 0
+
+    # Check if each location in df1 exists in df2
+    for index, row in df1.iterrows():
+        latitude = row['Latitude']
+        longitude = row['Longitude']
+
+        if (latitude, longitude) not in locations_set:
+            non_existing_count += 1
+
+    print(f"The number of rows with locations that do not exist in table 2 is: {non_existing_count}")
+
+    # if (latitude, longitude) in locations_set:
+    #         print(f"Location ({latitude}, {longitude}) exists in both tables.")
+    #     else:
+    #         print(f"Location ({latitude}, {longitude}) does not exist in table 2.")
+
+    return None
 
 
-        sin_alpha = np.sin(slope)
-        print(sin_alpha)
-        cos_alpha = np.cos(slope)
-        print(cos_alpha)
-        tan_alpha = np.tan(slope)
-        print(tan_alpha)
-
-        sin_theta = elevation_difference / distance_meters
-        print(sin_theta)
-        cos_theta = np.sqrt(1 - np.square(sin_alpha))
-        print(cos_theta)
-        tan_theta = sin_theta/cos_theta
-        print(tan_theta)
-    else:
-        # descent is seen as no slope, treat the downhill road flat
-        # driving at a constant speed,
-        # regardless of Brake Energy Recuperation
-        sin_alpha = 0
-        cos_alpha = 1
-
-    return sin_alpha, cos_alpha,tan_alpha, sin_theta, cos_theta, tan_theta
-
-# Test
-x1, y1, c1 = 40.7128, -74.0060, 10
-x2, y2, c2 = 34.0522, -118.2437, 800
-result = calculate_alpha(x1, y1, c1, x2, y2, c2)
-print(result)
+file1 = 'cs_data.csv'
+file2 = 'Ladesaeulenregister-processed.xlsx'
+check_locations_exist(file1, file2)

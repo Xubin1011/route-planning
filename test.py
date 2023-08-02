@@ -5,8 +5,8 @@ api_key = '_XecI_2z9_7QVDELBzW_dT8VeRjUW4uJtOkxpm4Qvrs'
 
 url = f'https://router.hereapi.com/v8/routes'
 params = {
-    'origin': '52.66181,13.38251',
-    'destination': '51.772324,12.402652',
+    'origin': '52.096647, 7.228437',
+    'destination': '51.28297056,8.873471783',
     'return': 'summary,typicalDuration',
     # 'spans': 'dynamicSpeedInfo,length,consumption,speedLimit,length',
     'transportMode': 'privateBus',
@@ -22,9 +22,16 @@ params = {
 
 response = requests.get(url, params=params)
 data = response.json()
-print(data)
+# print(data)
+typical_duration = data["routes"][0]["sections"][0]["summary"]["typicalDuration"]
+length_meters = data["routes"][0]["sections"][0]["summary"]["length"]
+# base_duration = data["routes"][0]["sections"][0]["summary"]["baseDuration"]
+consumption = data["routes"][0]["sections"][0]["summary"]["consumption"]
 # print("Departure time:", data["routes"][0]["sections"][0]["departure"]["time"])
-# print("Summary:", data["routes"][0]["sections"][0]["summary"])
+print("Summary:", data["routes"][0]["sections"][0]["summary"])
+print("typical_duration:", typical_duration)
+print("length_meters:", length_meters)
+print("consumption:", (consumption/1000)/(length_meters/100000), "Kwh/100km")
 
 
 

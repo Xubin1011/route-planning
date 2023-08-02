@@ -9,7 +9,7 @@
 import pandas as pd
 
 combo = 1 # Only consider charging stations with combo type
-type2_combo = 1 # Consider charging stations with combo type and type2 type
+type2_combo = 0 # Consider charging stations with combo type and type2 type
 source_lat, source_lon, target_lat, target_lon = 49.0130, 8.4093, 52.5253, 13.3694 #kit to berlin
 
 def bounding_box(source_lat, source_lon, target_lat, target_lon):

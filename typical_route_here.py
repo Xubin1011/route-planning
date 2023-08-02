@@ -24,7 +24,7 @@ def get_typical_route_here(x1, y1, x2, y2):
     data = response.json()
 
     # delay of 1s after each request
-    time.sleep(0.5)
+    time.sleep(1)
 
     try:
         # Extract typicalDuration from response
@@ -40,7 +40,7 @@ def get_typical_route_here(x1, y1, x2, y2):
         print("Average speed:", average_speed, "m/s", "=", average_speed * 3.6, "km/h")
 
         #return typical_duration
-        return typical_duration, length_meters, average_speed
+        return typical_duration, length_meters, average_speed  # s, m, m/s
     except (KeyError, IndexError):
         # Return None if the required data is not available in the response
         return None, None
@@ -49,6 +49,9 @@ def get_typical_route_here(x1, y1, x2, y2):
 # x1, y1 = 49.013, 8.4092
 # #x2, y2 = 49.054021, 8.535029
 # x2, y2 = 52.5253, 13.3693 #berlin
+
+# x1, y1, x2, y2 = 52.096647, 7.228437, 51.28297056,8.873471783
+#
 #
 # typical_duration, length_meters, average_speed = get_typical_route_here(x1, y1, x2, y2)
 # print("Typical Duration:", typical_duration, "s")

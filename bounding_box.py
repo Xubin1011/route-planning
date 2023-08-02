@@ -12,12 +12,12 @@ def bbox(source_lat, source_lon, target_lat, target_lon):
     return south_lat, west_lon, north_lat, east_lon
 
 
-# # Example: latitude and longitude of source and target points
-source_lat, source_lon, target_lat, target_lon = 49.0130, 8.4093, 52.5253, 13.3694
-
-# create bounding box
-bbox = bbox(source_lat, source_lon, target_lat, target_lon)
-#bbox = f"({south_lat},{west_lon},{north_lat},{east_lon})"
-
-# test
-print(bbox)
+# # # Example: latitude and longitude of source and target points
+# source_lat, source_lon, target_lat, target_lon = 49.0130, 8.4093, 52.5253, 13.3694
+#
+# # create bounding box
+# bbox = bbox(source_lat, source_lon, target_lat, target_lon)
+# #bbox = f"({south_lat},{west_lon},{north_lat},{east_lon})"
+#
+# # test
+# print(bbox)

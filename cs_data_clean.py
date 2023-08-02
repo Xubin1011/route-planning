@@ -12,7 +12,7 @@
 import pandas as pd
 import os
 
-types_replaced_0 = "cs_data_Copy.csv"   # Unneeded types of sockets will be replaced to 0
+types_replaced_0 = "cs_data.csv"   # Unneeded types of sockets will be replaced to 0
 average_power = 100  # The maximum charging power of an ebus (in kW)
 combo = 1 # Only consider charging stations with combo type
 type2_combo = 1 # Consider charging stations with combo type and type2 type

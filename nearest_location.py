@@ -31,6 +31,9 @@ def nearest_location(file_path, x1, y1, n):
         # Calculate the distance
         distance = haversine(x1, y1, lat, lon)
 
+        if distance < 1000:
+            continue
+
         # negate the distance to find the farthest distance,
         # closest_locations[0] is the farthest location now
         neg_distance = -distance
@@ -60,12 +63,14 @@ def nearest_location(file_path, x1, y1, n):
     nearest_locations = closest_locations.head(n).reset_index(drop=True)
     return nearest_locations
 
-
+#
 # # test
-# file_path = "test.csv"
-# x1, y1 = 49.176492, 9.231113
-# n = 7
+# file_path = "cs_combo_bbox.csv"
+# x1, y1 = 49.403861,9.390352
+#
+# n = 2
 # nearest_locations = nearest_location(file_path, x1, y1, n)
+# # nearest_locations.drop(0, inplace=True)
 # print(nearest_locations)
-
+# # nearest_locations.to_csv('nearest.csv', index=False, header=True)
 
