@@ -1,6 +1,6 @@
 # Date: 7/25/2023
 # Author: Xubin Zhang
-# Description: Calculate consumption (the power needed for vehicle motion), get duration between two POIs （in kWh）
+# Description: Calculate consumption between two POIs （in kWh）, get duration between two POIs （in s）
 
 import numpy as np
 from typical_route_here import get_typical_route_here

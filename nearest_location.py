@@ -31,7 +31,7 @@ def nearest_location(file_path, x1, y1, n):
         # Calculate the distance
         distance = haversine(x1, y1, lat, lon)
 
-        if distance < 1000:
+        if distance < 25000:
             continue
 
         # negate the distance to find the farthest distance,

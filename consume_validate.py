@@ -1,6 +1,8 @@
 # Date: 8/1/2023
 # Author: Xubin Zhang
-# Description: This file contains the implementation of...
+# Description:Randomly select 50 POIs within a bounding box as the sources, 
+# and 50 points as the targets. Then calculate the average speed and average consumption of these 50 sections, 
+# and compare with the average consumption obtained from the here API
 
 import requests
 import time

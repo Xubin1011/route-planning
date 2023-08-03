@@ -1,6 +1,6 @@
 # Date: 2023-07-18
 # Author: Xubin Zhang
-# Description: Add altitude in Ladesaeulenregister-processed.xlsx, fix wrong format of latitude and longitude, fix wrong latitude and longitude of locaions 
+# Description: Add altitude in Ladesaeulenregister-processed.xlsx, fix wrong format of latitude and longitude, fix wrong latitude and longitude of locations 
 # The accuracy of some coordinates is low, and the altitude cannot be obtained, e.g. lat=48,lng=10 is a location with low accuracy
 # 1.Read the first rows_num rows of the file,
 # 2.obtain the altitude through the openrouteservice api for each location,
