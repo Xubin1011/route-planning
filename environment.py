@@ -2,6 +2,8 @@
 # Author: Xubin Zhang
 # Description: This file contains the implementation of...
 
+from distance_haversine import haversine
+
 import math
 from typing import Optional, Tuple, Union
 
@@ -80,8 +82,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.a = 0
 
         # Fail the episode
-        self.theta_threshold_radians = 12 * 2 * math.pi / 360
-        self.x_threshold = 2.4
+        self.distance_threshold = haversine(self.x1, self.y1, self.x2, self.y2)
+        self.SoC = 0.7
 
         # Angle limit set to 2 * theta_threshold_radians so failing observation
         # is still within bounds.
