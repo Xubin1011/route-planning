@@ -150,22 +150,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         return(p_elevation)
 
-    def reward_charge(self, soc, t_secch, charge):
-        # If next_node is 1, 2, 3, calculate the reward for charging time
-        recharge = charge - soc
-        if recharge >= 0:
-            charging_time = recharge/self.average_charge_power
-            t_secch = t_secch + charging_time
-            if t_secch <= self.min_rest:
-                r_charge = -self.k3 * (self.min_rest - t_secch)
-                terminated = 1
-            else:
-                r_charge = self.k4 * (self.min_rest - t_secch)
-                terminated = 1
-        else:
-            r_charge = 0
-            terminated = 1
-        return (r_charge, terminated)
+
 
     def step(self, action):
         #Run one timestep of the environment’s dynamics using the agent actions.
@@ -193,16 +178,15 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:  # parking lots
             c_current = self.p_elevation(x_current, y_current)
 
-
         # Determine whether it is in a new section
         # updata t_secd_current, t_secr_current, t_secch_current at current location
         t_departure = t_secd_current + t_secr_current + t_secch_current
         t_arrival = t_departure - t_stay
-        if t_arrival >= self.section: # new section begin before arriving current location
+        if t_arrival >= self.section:  # new section begin before arriving current location
             t_secd_current = t_arrival % self.section
             t_secr_current = 0
             t_secch_current = 0
-        else: #still in current section
+        else:  # still in current section
             if t_departure >= self.section:
                 t_secd_current = 0
                 if node_current in [1, 2, 3]:
@@ -298,6 +282,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         d_current = haversine(x_current, y_current, self.x_target, self.y_target)
         r_distance = self.k1 * (d_current - d_next)
 
+
+
+
         #Punishment for the trapped on the road ???????????????????
 
         # if charge-consumption < 0.1:   ????????????????????????
@@ -306,7 +293,24 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
 
 
+        # Calculate reward for suitable charging time in next node
 
+
+        if next_node in [1, 2, 3]:
+            if charge >= soc - :
+
+
+                charging_time = t_stay
+                t_secch = t_secch + charging_time
+                if t_secch <= self.min_rest:
+                    r_charge = -self.k3 * (self.min_rest - t_secch)
+                    terminated = 1
+                else:
+                    r_charge = self.k4 * (self.min_rest - t_secch)
+                    terminated = 1
+            else:
+                r_charge = 0
+                terminated = 1
 
 
 
