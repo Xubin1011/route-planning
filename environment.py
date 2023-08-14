@@ -31,7 +31,7 @@ from gymnasium.vector.utils import batch_space
 # rest:= {0, 0.2, 0.4, 0.6, 0.8, 1}
 
 
-## State/Observation Space is a np.ndarray, with shape `(5,)`, State s := (x1, y1, SoC, t_secd, t_ar, t_de)
+## State/Observation Space is a np.ndarray, with shape `(5,)`, State s := (x1, y1, SoC, t_secd, t_secr, t_secch)
 # | Num | State | Min | Max |
 # | 1 | Distance from target | 0 | Distance from source | ##It is impossible for d to be greater than the maximum distance, no need to consider the range
 # | 1 | x1,y1 current location| inf |
@@ -86,6 +86,21 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.c_d = 0.7
         self.a = 0
 
+        # Aveage charge power
+        self.average_charge_power = 100
+        # Each section has the same fixed travel time
+        self.min_rest = 0.75
+        self.max_driving = 4.5
+        self.section = self.min_rest + self.max_driving
+        # Reward factor
+        self.k1 = 1 # For the distance to the target
+        self.k2 = 1 # For the battery’s operation limits
+        self.k3 = 1 # For the suitable charging time
+        self.k4 = 0.5 # For the suitable charging time, k4 < K3,
+        # Angen tends to spend more time at charging stations than resting in parking lots
+
+
+
 
         # Fail the episode
         self.distance_min = 0
@@ -134,7 +149,20 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.state = None
 
         self.steps_beyond_terminated = None
-        
+
+
+
+    def reward_charge(self, soc, t_secr, t_secch, charge):
+        # If next_node is 1, 2, 3, reward for charging time
+        recharge = charge - soc
+        if recharge > 0:
+            charging_time = recharge/self.average_charge_power
+            t_secch = t_secch + charging_time
+            if t_secch < self.min_rest:
+                r_charge = -k4 * (self.min_rest - t_secch)
+
+
+
     def step(self, action):
         #Run one timestep of the environment’s dynamics using the agent actions.
         #Calculate reward, update state
@@ -146,8 +174,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         assert self.state is not None, "Call reset before using step method."
         
         #Obtain current state
-        x1, y1, SoC, t_secd, t_ar, t_de = self.state
-        print('x1, y1, SoC, t_secd, t_ar, t_de=', x1, y1, SoC, t_secd, t_ar, t_de) #test
+        x1, y1, soc, t_secd, t_secr, t_secch = self.state
+        print('x1, y1, SoC, t_secd, t_ar, t_de=', x1, y1, soc, t_secd, t_secr, t_secch) #test
 
         #Calculate reward, update state
 
