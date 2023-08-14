@@ -3,6 +3,8 @@
 # Description: This file contains the implementation of...
 
 from distance_haversine import haversine
+from nearest_location import nearest_location
+from consumption_duration import consumption_duration
 
 import math
 from typing import Optional, Tuple, Union
@@ -27,18 +29,18 @@ from gymnasium.vector.utils import batch_space
 
 ## Action Space is a 'ndarry', with shape `(3,)`, Action a:=(next_node, charge, rest )
 # next_node:= {1,2,3,4,5}
-# charge:= {0, 0.3, 0.5, 0.8}
-# rest:= {0, 0.2, 0.4, 0.6, 0.8, 1}
+# charge:= {0.3, 0.5, 0.8}
+# rest:= {0, 0.3, 0.6, 0.9, 1}
 
 
-## State/Observation Space is a np.ndarray, with shape `(5,)`, State s := (x1, y1, SoC, t_secd, t_secr, t_secch)
+## State/Observation Space is a np.ndarray, with shape `(6,)`, State s := (x1, y1, SoC, t_secd, t_secr, t_secch)
 # | Num | State | Min | Max |
 # | 1 | Distance from target | 0 | Distance from source | ##It is impossible for d to be greater than the maximum distance, no need to consider the range
 # | 1 | x1,y1 current location| inf |
 # | 2 | SoC | 0.1 | 0.8 |
 # | 3 | t_secd | 0 | 4.5 |
-# | 4 | t_ar | 0 | 5.25 |  ##t_ar will always be in this range, so there is no need to consider the range
-# | 5 | t_de | 0 | 5.25 |  ##t_de will always be in this range, so there is no need to consider the range
+# | 4 | t_secr | 0 | 5.25 |  ##t_ar will always be in this range, so there is no need to consider the range
+# | 5 | t_secch | 0 | 5.25 |  ##t_de will always be in this range, so there is no need to consider the range
 
 
 # Rewards
@@ -72,12 +74,12 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
     def __init__(self, render_mode: Optional[str] = None):
         #initialization
-        self.x1 = 52.66181 #source
-        self.y1 = 13.38251
-        self.c1 = 47
-        self.x2 = 51.772324 #target
-        self.y2 = 12.402652
-        self.c2 = 88
+        self.x_source = 52.66181 #source
+        self.y_source = 13.38251
+        self.c_source = 47
+        self.x_target = 51.772324 #target
+        self.y_target = 12.402652
+        self.c_target = 88
         self.m = 13500 #(Leergewicht)
         self.g = 9.81
         self.rho = 1.225
@@ -86,59 +88,41 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.c_d = 0.7
         self.a = 0
 
+        self.file_path_ch = 'cs_combo_bbox.csv'
+        self.file_path_p = 'parking_bbox.csv'
+        self.n_ch = 3 # Number of nearest charging station
+        self.n_p =2 # Number of nearest parking lots
+
+
         # Aveage charge power
         self.average_charge_power = 100
+        # Limitation of battery
+        self.soc_min = 0.1
+        self.soc_max = 0.8
         # Each section has the same fixed travel time
         self.min_rest = 0.75
         self.max_driving = 4.5
         self.section = self.min_rest + self.max_driving
         # Reward factor
         self.k1 = 1 # For the distance to the target
-        self.k2 = 1 # For the battery’s operation limits
+        self.k2 = 1000 # Punishment for the trapped on the road
         self.k3 = 1 # For the suitable charging time
         self.k4 = 0.5 # For the suitable charging time, k4 < K3,
         # Angen tends to spend more time at charging stations than resting in parking lots
+        self.k5 = 1 # For the suitable driving time
+        self.k6 = 100 # Penalties for violating driving time constraints
+        self.k7 = 1 # Reward for the suitable rest time at parking lots
 
+        #Initialize the actoin space
+        next_node = np.array([1, 2, 3, 4, 5])
+        charge = np.array([0, 0.3, 0.5, 0.8])
+        rest = np.array([0, 0.3, 0.6, 0.9, 1])
+        next_node_space = spaces.Discrete(len(next_node))
+        charge_space = spaces.Discrete(len(charge))
+        rest_space = spaces.Discrete(len(rest))
+        self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
 
-
-
-        # Fail the episode
-        self.distance_min = 0
-        self.distance_max = haversine(self.x1, self.y1, self.x2, self.y2)
-        self.SoC_min = 0.1
-        self.SoC_max = 0.8
-        self.t_secd_min = 0
-        self.t_secd_max = 4.5
-        # self.t_ar = 5.25
-        # self.t_de = 5.25
-        
-        high = np.array(
-            [
-                self.distance_max,
-                np.finfo(np.float32).max,
-                self.SoC_max,
-                np.finfo(np.float32).max,
-                self.t_secd_max,
-                np.finfo(np.float32).max,
-            ],
-            dtype=np.float32,
-        )
-        
-        low = np.array(
-            [
-                self.distance_min,
-                np.finfo(np.float32).min,
-                self.SoC_min,
-                np.finfo(np.float32).min,
-                self.t_secd_min,
-                np.finfo(np.float32).min,
-            ],
-            dtype=np.float32,
-        )
-
-        self.action_space = spaces.Discrete(24) ## 3*4+2*6
-        self.observation_space = spaces.Box(low, high, dtype=np.float32)
-
+        #Initialize the render mode
         self.render_mode = render_mode
 
         self.screen_width = 600
@@ -148,18 +132,24 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.isopen = True
         self.state = None
 
-        self.steps_beyond_terminated = None
 
 
-
-    def reward_charge(self, soc, t_secr, t_secch, charge):
-        # If next_node is 1, 2, 3, reward for charging time
+    def reward_charge(self, soc, t_secch, charge):
+        # If next_node is 1, 2, 3, calculate the reward for charging time
         recharge = charge - soc
-        if recharge > 0:
+        if recharge >= 0:
             charging_time = recharge/self.average_charge_power
             t_secch = t_secch + charging_time
-            if t_secch < self.min_rest:
-                r_charge = -k4 * (self.min_rest - t_secch)
+            if t_secch <= self.min_rest:
+                r_charge = -self.k3 * (self.min_rest - t_secch)
+                terminated = 1
+            else:
+                r_charge = self.k4 * (self.min_rest - t_secch)
+                terminated = 1
+        else:
+            r_charge = 0
+            terminated = 1
+        return (r_charge, terminated)
 
 
 
@@ -174,10 +164,73 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         assert self.state is not None, "Call reset before using step method."
         
         #Obtain current state
-        x1, y1, soc, t_secd, t_secr, t_secch = self.state
-        print('x1, y1, SoC, t_secd, t_ar, t_de=', x1, y1, soc, t_secd, t_secr, t_secch) #test
+        # If current POI is a charging station, soc is that after charging
+        x_current, y_current, soc_current, t_secd_current, t_secr_current, t_secch_current = self.state
+        print('x1, y1, soc, t_secd, t_ar, t_de=', x_current, y_current, soc_current, t_secd_current, t_secr_current, t_secch_current) #test
+        if soc_current < 0.1:
+            terminated = 1
+            return (0, terminated)
 
-        #Calculate reward, update state
+        #Obtain selected action
+        next_node, charge, rest = action
+        print('next_node, charge, rest', next_node, charge, rest)
+
+        #update state
+
+        # Obtain n nearest POIs
+        nearest_ch = nearest_location(self.file_path_ch, x_current, y_current, self.n_ch)
+        print(nearest_ch)
+        nearest_x1 = nearest_ch.loc[0, 'Latitude']
+        nearest_y1 = nearest_ch.loc[0, 'Longitude']
+        nearest_x2 = nearest_ch.loc[1, 'Latitude']
+        nearest_y2 = nearest_ch.loc[1, 'Longitude']
+        nearest_x3 = nearest_ch.loc[2, 'Latitude']
+        nearest_y3 = nearest_ch.loc[3, 'Longitude']
+        print('nearest_1-3:', nearest_x1, nearest_y1, nearest_x2, nearest_y2, nearest_x3, nearest_y3)
+
+        nearest_p = nearest_location(self.file_path_p, x_current, y_current, self.n_p)
+        print(nearest_p)
+        nearest_x4 = nearest_p.loc[0, 'Latitude']
+        nearest_y4 = nearest_p.loc[0, 'Longitude']
+        nearest_x5 = nearest_p.loc[1, 'Latitude']
+        nearest_y5 = nearest_p.loc[1, 'Longitude']
+        print('nearest_4-5:', nearest_x4, nearest_y4, nearest_x5, nearest_y5)
+
+
+
+
+
+
+
+
+
+
+
+        #Reward for the distance to the target
+        d_current = haversine(x_current, y_current, self.x_target, self.y_target)
+        if next_node == 1:
+            d_next = haversine(nearest_x1, nearest_y1, self.x_target, self.y_target)
+        if next_node == 2:
+            d_next = haversine(nearest_x2, nearest_y2, self.x_target, self.y_target)
+        if next_node == 3:
+            d_next = haversine(nearest_x3, nearest_y3, self.x_target, self.y_target)
+        if next_node == 4:
+            d_next = haversine(nearest_x4, nearest_y4, self.x_target, self.y_target)
+        if next_node == 5:
+            d_next = haversine(nearest_x5, nearest_y5, self.x_target, self.y_target)
+
+        #Calculate reward for distance
+        r_distance = self.k1 * (d_current - d_next)
+
+        #Punishment for the trapped on the road
+
+
+
+
+
+
+
+
 
 
 
