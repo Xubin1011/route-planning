@@ -63,7 +63,6 @@ def nearest_location(file_path, x1, y1, n):
     nearest_locations = closest_locations.head(n).reset_index(drop=True)
     return nearest_locations
 
-#
 # # test
 # file_path = "cs_combo_bbox.csv"
 # x1, y1 = 49.403861,9.390352

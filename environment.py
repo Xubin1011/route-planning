@@ -10,7 +10,7 @@ import math
 from typing import Optional, Tuple, Union
 
 import numpy as np
-
+import pandas as pd
 import gymnasium as gym
 from gymnasium import logger, spaces
 from gymnasium.envs.classic_control import utils
@@ -33,14 +33,9 @@ from gymnasium.vector.utils import batch_space
 # rest:= {0, 0.3, 0.6, 0.9, 1}
 
 
-## State/Observation Space is a np.ndarray, with shape `(6,)`, State s := (x1, y1, SoC, t_secd, t_secr, t_secch)
-# | Num | State | Min | Max |
-# | 1 | Distance from target | 0 | Distance from source | ##It is impossible for d to be greater than the maximum distance, no need to consider the range
-# | 1 | x1,y1 current location| inf |
-# | 2 | SoC | 0.1 | 0.8 |
-# | 3 | t_secd | 0 | 4.5 |
-# | 4 | t_secr | 0 | 5.25 |  ##t_ar will always be in this range, so there is no need to consider the range
-# | 5 | t_secch | 0 | 5.25 |  ##t_de will always be in this range, so there is no need to consider the range
+## State/Observation Space is a np.ndarray, with shape `(7,)`,
+# State s := (current_node, x1, y1, soc,t_stay, t_secd, t_secr, t_secch)
+
 
 
 # Rewards
@@ -60,7 +55,7 @@ from gymnasium.vector.utils import batch_space
 # 1. SoC is less than 0.1 or greater than 0.8, which violates the energy constraint 
 # 2. t_secd is greater than 4.5, which violates the time constraint
 # 2. Episode length is greater than 500
-# 3. Distance from target is 0, taht means target has benn reached
+
 
 
 # human:The environment is continuously rendered in the current display or terminal
@@ -87,9 +82,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.c_r = 0.01
         self.c_d = 0.7
         self.a = 0
+        self.eta_m = 0.82
+        self.eta_battery = 0.82
 
         self.file_path_ch = 'cs_combo_bbox.csv'
         self.file_path_p = 'parking_bbox.csv'
+        self.data_ch = pd.read_csv("cs_combo_bbox.csv")
+        self.data_p = pd.read_csv("parking_bbox.csv")
         self.n_ch = 3 # Number of nearest charging station
         self.n_p =2 # Number of nearest parking lots
 
@@ -132,7 +131,24 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.isopen = True
         self.state = None
 
+    def cs_elevation_power(self,x1, y1):
+        matching_row = self.data_ch[(self.data_ch["Latitude"] == x1) & (self.data_ch["Longitude"] == y1)]
+        if not matching_row.empty:
+            cs_elevation = matching_row["Elevation"].values[0]
+            cs_power = matching_row["Power"].values[0]
+        else:
+            print("Current location not found in the dataset of cd")
 
+        return(cs_elevation, cs_power)
+
+    def p_elevation(self,x1, y1):
+        matching_row = self.data_p[(self.data_p["Latitude"] == x1) & (self.data_p["Longitude"] == y1)]
+        if not matching_row.empty:
+            p_elevation = matching_row["Altitude"].values[0]
+        else:
+            print("Current location not found in the dataset of p")
+
+        return(p_elevation)
 
     def reward_charge(self, soc, t_secch, charge):
         # If next_node is 1, 2, 3, calculate the reward for charging time
@@ -151,8 +167,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             terminated = 1
         return (r_charge, terminated)
 
-
-
     def step(self, action):
         #Run one timestep of the environment’s dynamics using the agent actions.
         #Calculate reward, update state
@@ -164,18 +178,52 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         assert self.state is not None, "Call reset before using step method."
         
         #Obtain current state
-        # If current POI is a charging station, soc is that after charging
-        x_current, y_current, soc_current, t_secd_current, t_secr_current, t_secch_current = self.state
-        print('x1, y1, soc, t_secd, t_ar, t_de=', x_current, y_current, soc_current, t_secd_current, t_secr_current, t_secch_current) #test
-        if soc_current < 0.1:
-            terminated = 1
-            return (0, terminated)
+        # If current POI is a charging station, soc is battery capacity that after charging, t_secch_current includes charging time at the current location
+        # If current POI is a parking lot, t_secr_current includes rest  time at the current location
+        node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current = self.state
+        print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current) #test
 
         #Obtain selected action
         next_node, charge, rest = action
         print('next_node, charge, rest', next_node, charge, rest)
 
-        #update state
+        # Obtain the altitude and/or power of current location
+        if node_current in [1, 2, 3]:  # charging station
+            c_current, power_current = self.cs_elevation_power(x_current, y_current)
+        else:  # parking lots
+            c_current = self.p_elevation(x_current, y_current)
+
+
+        # Determine whether it is in a new section
+        # updata t_secd_current, t_secr_current, t_secch_current at current location
+        t_departure = t_secd_current + t_secr_current + t_secch_current
+        t_arrival = t_departure - t_stay
+        if t_arrival >= self.section: # new section begin before arriving current location
+            t_secd_current = t_arrival % self.section
+            t_secr_current = 0
+            t_secch_current = 0
+        else: #still in current section
+            if t_departure >= self.section:
+                t_secd_current = 0
+                if node_current in [1, 2, 3]:
+                    t_secch_current = t_departure - self.section
+                    t_secr_current = 0
+                else:
+                    t_secch_current = 0
+                    t_secr_current = t_departure - self.section
+
+
+
+
+        # Stop criterion  ????????????
+        #?????????????????????????????????
+
+
+
+
+
+
+
 
         # Obtain n nearest POIs
         nearest_ch = nearest_location(self.file_path_ch, x_current, y_current, self.n_ch)
@@ -200,30 +248,61 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
 
 
-
-
-
-
-
-
-        #Reward for the distance to the target
-        d_current = haversine(x_current, y_current, self.x_target, self.y_target)
         if next_node == 1:
             d_next = haversine(nearest_x1, nearest_y1, self.x_target, self.y_target)
+            #consumption and typical_duration from current location to next node
+            nearest_c1 = self.cs_elevation_power(nearest_x1, nearest_y1)
+            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current, nearest_x1, nearest_y1,
+                                                                                nearest_c1, self.m, self.g,
+                                                                                self.c_r, self.rho, self.A_front,
+                                                                                self.c_d, self.a, self.eta_m,
+                                                                                self.eta_battery)
         if next_node == 2:
             d_next = haversine(nearest_x2, nearest_y2, self.x_target, self.y_target)
+            nearest_c2 = self.cs_elevation_power(nearest_x2, nearest_y2)
+            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
+                                                                                nearest_x2, nearest_y2,
+                                                                                nearest_c2, self.m, self.g,
+                                                                                self.c_r, self.rho, self.A_front,
+                                                                                self.c_d, self.a, self.eta_m,
+                                                                                self.eta_battery)
         if next_node == 3:
             d_next = haversine(nearest_x3, nearest_y3, self.x_target, self.y_target)
+            nearest_c3 = self.cs_elevation_power(nearest_x3, nearest_y3)
+            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
+                                                                                nearest_x3, nearest_y3,
+                                                                                nearest_c3, self.m, self.g,
+                                                                                self.c_r, self.rho, self.A_front,
+                                                                                self.c_d, self.a, self.eta_m,
+                                                                                self.eta_battery)
         if next_node == 4:
             d_next = haversine(nearest_x4, nearest_y4, self.x_target, self.y_target)
+            nearest_c4 = self.p_elevation(nearest_x4, nearest_y4)
+            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
+                                                                                nearest_x4, nearest_y4,
+                                                                                nearest_c4, self.m, self.g,
+                                                                                self.c_r, self.rho, self.A_front,
+                                                                                self.c_d, self.a, self.eta_m,
+                                                                                self.eta_battery)
         if next_node == 5:
             d_next = haversine(nearest_x5, nearest_y5, self.x_target, self.y_target)
+            nearest_c5 = self.p_elevation(nearest_x5, nearest_y5)
+            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
+                                                                                nearest_x5, nearest_y5,
+                                                                                nearest_c5, self.m, self.g,
+                                                                                self.c_r, self.rho, self.A_front,
+                                                                                self.c_d, self.a, self.eta_m,
+                                                                                self.eta_battery)
 
         #Calculate reward for distance
+        d_current = haversine(x_current, y_current, self.x_target, self.y_target)
         r_distance = self.k1 * (d_current - d_next)
 
-        #Punishment for the trapped on the road
+        #Punishment for the trapped on the road ???????????????????
 
+        # if charge-consumption < 0.1:   ????????????????????????
+        #     terminated = 1             ???????????????????
+        #     return (0, terminated)
 
 
 

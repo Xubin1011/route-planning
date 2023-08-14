@@ -1,15 +1,24 @@
 import pandas as pd
 
 # 读取CSV文件
-df = pd.read_csv('cs_data.csv')
+data = pd.read_csv("cs_combo_bbox.csv")
 
-# 统计Rated_output列中不同值的个数
-rated_output_counts = df['Rated_output'].value_counts()
+# 给定的坐标
+given_latitude = 0  # 用实际的值替代
+given_longitude = 0  # 用实际的值替代
 
-# 将结果写入txt文件
-output_filename = 'rated_output_counts.txt'
-with open(output_filename, 'w') as f:
-    f.write("Rated_output列中值的种类及个数:\n")
-    f.write(rated_output_counts.to_string())
+# 根据给定的坐标进行匹配
+matching_row = data[
+    (data["Latitude"] == given_latitude) & (data["Longitude"] == given_longitude)
+]
 
-print("已将结果写入", output_filename)
+if not matching_row.empty:
+    elevation = matching_row["Elevation"].values[0]
+    power = matching_row["Power"].values[0]
+    print(f"Latitude: {given_latitude}, Longitude: {given_longitude}")
+    print(f"Elevation: {elevation}, Power: {power}")
+else:
+    print("Coordinates not found in the dataset")
+
+
+
