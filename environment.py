@@ -29,11 +29,11 @@ from gymnasium.vector.utils import batch_space
 
 ## Action Space is a 'ndarry', with shape `(3,)`, Action a:=(next_node, charge, rest )
 # next_node:= {1,2,3,4,5}
-# charge:= {0.3, 0.5, 0.8}
+# charge:= {0, 0.3, 0.5, 0.8}
 # rest:= {0, 0.3, 0.6, 0.9, 1}
 
 
-## State/Observation Space is a np.ndarray, with shape `(7,)`,
+## State/Observation Space is a np.ndarray, with shape `(8,)`,
 # State s := (current_node, x1, y1, soc,t_stay, t_secd, t_secr, t_secch)
 
 
@@ -52,9 +52,10 @@ from gymnasium.vector.utils import batch_space
 
 # Episode End
 # The episode ends if any one of the following occurs:
-# 1. SoC is less than 0.1 or greater than 0.8, which violates the energy constraint 
-# 2. t_secd is greater than 4.5, which violates the time constraint
-# 2. Episode length is greater than 500
+# 1. Trapped on the road
+# 2. Many times SoC is less than 0.1 or greater than 0.8, which violates the energy constraint
+# 3. t_secd is greater than 4.5, which violates the time constraint
+# 4. Episode length is greater than 500
 
 
 
@@ -93,9 +94,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.n_p =2 # Number of nearest parking lots
 
 
-        # Aveage charge power
-        self.average_charge_power = 100
         # Limitation of battery
+        self.battery_capacity = 588 #(in kWh)
         self.soc_min = 0.1
         self.soc_max = 0.8
         # Each section has the same fixed travel time
@@ -103,14 +103,20 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.max_driving = 4.5
         self.section = self.min_rest + self.max_driving
         # Reward factor
-        self.k1 = 1 # For the distance to the target
-        self.k2 = 1000 # Punishment for the trapped on the road
-        self.k3 = 1 # For the suitable charging time
-        self.k4 = 0.5 # For the suitable charging time, k4 < K3,
+        self.w1 = 1 # For the distance to the target
+        self.w2 = 1000 # Punishment for the trapped on the road
+        self.w3 = 1 # Still can run, but violated constraint
+        self.w4 = 10 # No trapped
+        self.w5 = 1 # For the suitable charging time
+        self.w6 = 0.5 # For the suitable charging time, w6 < w5,
         # Angen tends to spend more time at charging stations than resting in parking lots
-        self.k5 = 1 # For the suitable driving time
-        self.k6 = 100 # Penalties for violating driving time constraints
-        self.k7 = 1 # Reward for the suitable rest time at parking lots
+        self.w7 = 1  # Reward for the suitable rest time at parking lots
+        self.w8 = 1 ## Must rest at parking lots
+        self.w9 = 1000 # Exceeded the max. driving time in a section
+        self.w10 = 1 # For the suitable driving time
+
+        self.num_trapped = 0 # The number that trapped on the road
+        self.max_trapped = 10
 
         #Initialize the actoin space
         next_node = np.array([1, 2, 3, 4, 5])
@@ -151,7 +157,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         return(p_elevation)
 
 
-
     def step(self, action):
         #Run one timestep of the environment’s dynamics using the agent actions.
         #Calculate reward, update state
@@ -178,6 +183,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:  # parking lots
             c_current = self.p_elevation(x_current, y_current)
 
+        # # Obtain the altitude and/or power of next location
+        # if next_node in [1, 2, 3]:  # charging station
+        #     c_next, power_next = self.cs_elevation_power(x_next, y_next)
+        # else:  # parking lots
+        #     c_next = self.p_elevation(x_next, y_next)
+
+
         # Determine whether it is in a new section
         # updata t_secd_current, t_secr_current, t_secch_current at current location
         t_departure = t_secd_current + t_secr_current + t_secch_current
@@ -195,18 +207,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 else:
                     t_secch_current = 0
                     t_secr_current = t_departure - self.section
-
-
-
-
-        # Stop criterion  ????????????
-        #?????????????????????????????????
-
-
-
-
-
-
 
 
         # Obtain n nearest POIs
@@ -228,14 +228,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         nearest_y5 = nearest_p.loc[1, 'Longitude']
         print('nearest_4-5:', nearest_x4, nearest_y4, nearest_x5, nearest_y5)
 
-
-
-
-
+        # Obtain the energy and time consumption from current node to next node
         if next_node == 1:
             d_next = haversine(nearest_x1, nearest_y1, self.x_target, self.y_target)
             #consumption and typical_duration from current location to next node
-            nearest_c1 = self.cs_elevation_power(nearest_x1, nearest_y1)
+            nearest_c1, next_power = self.cs_elevation_power(nearest_x1, nearest_y1)
             consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current, nearest_x1, nearest_y1,
                                                                                 nearest_c1, self.m, self.g,
                                                                                 self.c_r, self.rho, self.A_front,
@@ -243,7 +240,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                                                                                 self.eta_battery)
         if next_node == 2:
             d_next = haversine(nearest_x2, nearest_y2, self.x_target, self.y_target)
-            nearest_c2 = self.cs_elevation_power(nearest_x2, nearest_y2)
+            nearest_c2, next_power = self.cs_elevation_power(nearest_x2, nearest_y2)
             consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
                                                                                 nearest_x2, nearest_y2,
                                                                                 nearest_c2, self.m, self.g,
@@ -252,7 +249,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                                                                                 self.eta_battery)
         if next_node == 3:
             d_next = haversine(nearest_x3, nearest_y3, self.x_target, self.y_target)
-            nearest_c3 = self.cs_elevation_power(nearest_x3, nearest_y3)
+            nearest_c3, next_power = self.cs_elevation_power(nearest_x3, nearest_y3)
             consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
                                                                                 nearest_x3, nearest_y3,
                                                                                 nearest_c3, self.m, self.g,
@@ -280,47 +277,65 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         #Calculate reward for distance
         d_current = haversine(x_current, y_current, self.x_target, self.y_target)
-        r_distance = self.k1 * (d_current - d_next)
+        r_distance = self.w1 * (d_current - d_next)
 
 
+        #soc after driving
+        soc_after_driving = charge - consumption / self.battery_capacity
+        # If there is recuperated energy, the soc can be charged up to 0.8
+        if consumption < 0:
+            if soc_after_driving > 0.8:
+                soc_driving = 0.8
 
-
-        #Punishment for the trapped on the road ???????????????????
-
-        # if charge-consumption < 0.1:   ????????????????????????
-        #     terminated = 1             ???????????????????
-        #     return (0, terminated)
-
-
-
-        # Calculate reward for suitable charging time in next node
-
-
-        if next_node in [1, 2, 3]:
-            if charge >= soc - :
-
-
-                charging_time = t_stay
-                t_secch = t_secch + charging_time
-                if t_secch <= self.min_rest:
-                    r_charge = -self.k3 * (self.min_rest - t_secch)
-                    terminated = 1
-                else:
-                    r_charge = self.k4 * (self.min_rest - t_secch)
-                    terminated = 1
+        # Punishment for the trapped on the road
+        if soc_after_driving < 0: # Trapped
+            terminated = 1
+            r_trapped = self.w2
+            print("trapped on the road, should be reseted")
+        else: # No trapped
+            if soc_after_driving < 0.1: # Still can run, but violated constraint
+                r_trapped =  math.log(self.w3 * abs(soc_after_driving - 0.1))
+                self.num_trapped = self.num_trapped +1
+                if self.num_trapped == self.max_trapped:
+                    terminated = 1 # Violate the self.max_trapped times, stop current episode
+                    self.num_trapped = 0
+                    print("Violated self.max_trapped times,should be reseted")
             else:
-                r_charge = 0
-                terminated = 1
+                r_trapped = self.w4 # No trapped
 
 
 
+        if next_node in [1, 2, 3]: # Calculate reward for suitable charging time in next node
+            t_charge_next = (charge - soc_after_driving) / next_power
+            t_secch_current = t_secch_current + t_charge_next
+            if t_secch_current <= self.min_rest:
+                r_charge = -self.w5 * (self.min_rest - t_secch_current)
 
+            else:
+                r_charge = self.w6 * (self.min_rest - t_secch_current)
 
+        else: # Calculate reward for suitable rest time in next node
+            remain_rest = self.min_rest - t_secch_current
+            if remain_rest < 0:# Get enough rest at charging stations
+                if rest != 0:
+                    r_rest = - self.w7 * rest
+            else:
+                t_secr_current = t_secr_current + rest * remain_rest # Must rest at parking lots
+                r_rest = - self.w8 * t_secr_current
 
+        # Calculate reward for suitable driving time before leaving next node
+        t_secd_current = t_secd_current + typical_duration
+        if t_secd_current > self.max_driving:
+            r_driving = -self.w9
+        else:
+            t_tem = self.max_driving - t_secd_current
+            r_driving = - self.w10 * t_tem
 
-
-
-
+        # Calculate immediate reward
+        if next_node in [1, 2, 3]:
+            reward = r_trapped + r_charge + r_driving
+        else:
+            reward = r_trapped + r_rest + r_driving
 
 
         # Determine the type of render
@@ -328,10 +343,28 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             self.render()
         # return new state and indicate whether to stop the episode
         return np.array(self.state, dtype=np.float32), reward, terminated, False, {}
-        
-        
-        
-        
+
+    def reset(
+            self,
+            *,
+            seed: Optional[int] = None,
+            options: Optional[dict] = None,
+    ):
+        super().reset(seed=seed)
+        # maybe_parse_reset_bounds can be called during a reset() to customize the sampling
+        # ranges for setting the initial state distributions.
+        low, high = utils.maybe_parse_reset_bounds(
+            options, -0.05, 0.05  # default low
+        )  # default high
+        self.state = self.np_random.uniform(size=(8,))
+
+        if self.render_mode == "human":
+            self.render()
+        return np.array(self.state, dtype=np.float32), {}
+
+
+
+
         
         
         
