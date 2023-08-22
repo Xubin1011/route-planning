@@ -1,24 +1,31 @@
 import pandas as pd
 
-# 读取CSV文件
-data = pd.read_csv("cs_combo_bbox.csv")
+import random
 
-# 给定的坐标
-given_latitude = 0  # 用实际的值替代
-given_longitude = 0  # 用实际的值替代
+from distance_haversine import haversine
+from nearest_location import nearest_location
+from consumption_duration import consumption_duration
 
-# 根据给定的坐标进行匹配
-matching_row = data[
-    (data["Latitude"] == given_latitude) & (data["Longitude"] == given_longitude)
-]
+import math
+from typing import Optional, Tuple, Union
 
-if not matching_row.empty:
-    elevation = matching_row["Elevation"].values[0]
-    power = matching_row["Power"].values[0]
-    print(f"Latitude: {given_latitude}, Longitude: {given_longitude}")
-    print(f"Elevation: {elevation}, Power: {power}")
-else:
-    print("Coordinates not found in the dataset")
-
+import numpy as np
+import pandas as pd
+import gymnasium as gym
+from gymnasium import logger, spaces
+from gymnasium.envs.classic_control import utils
+from gymnasium.error import DependencyNotInstalled
+from gymnasium.experimental.vector import VectorEnv
+from gymnasium.vector.utils import batch_space
+from environment import rp_env
 
 
+env = rp_env()
+
+
+state, info = env.reset()
+n_observations = len(state)
+
+
+
+print(n_observations)

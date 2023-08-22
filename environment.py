@@ -1,6 +1,7 @@
 # Date: 8/3/2023
 # Author: Xubin Zhang
 # Description: This file contains the implementation of...
+import random
 
 from distance_haversine import haversine
 from nearest_location import nearest_location
@@ -337,6 +338,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:
             reward = r_trapped + r_rest + r_driving
 
+        # update node
+        node_current = next_node
 
         # Determine the type of render
         if self.render_mode == "human":
@@ -356,7 +359,23 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         low, high = utils.maybe_parse_reset_bounds(
             options, -0.05, 0.05  # default low
         )  # default high
-        self.state = self.np_random.uniform(size=(8,))
+
+
+        # ### ？？？？？？？？？？？？ select from a table randomly ?
+        # self.state = self.np_random.uniform(size=(8,))
+
+        # s := (current_node, x1, y1, soc, t_stay, t_secd, t_secr, t_secch)
+        node = random.choice([4, 5])
+        data = pd.read_csv('parking_bbox.csv')
+        location = data.sample(n =1, random_state=42)
+        x = location['Latitude'].values[0]
+        y = location['Longitude'].values[0]
+        soc = random.uniform(0.1, 0.8)
+        t_stay = 0
+        t_secd = 0
+        t_secr = 0
+        t_secch = 0
+        self.state = (node, x, y, soc, t_stay, t_secd, t_secr, t_secch)
 
         if self.render_mode == "human":
             self.render()
