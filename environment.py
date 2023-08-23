@@ -280,9 +280,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         d_current = haversine(x_current, y_current, self.x_target, self.y_target)
         r_distance = self.w1 * (d_current - d_next)
 
-
         #soc after driving
-        soc_after_driving = charge - consumption / self.battery_capacity
+        soc_after_driving = soc - consumption / self.battery_capacity
         # If there is recuperated energy, the soc can be charged up to 0.8
         if consumption < 0:
             if soc_after_driving > 0.8:
@@ -320,8 +319,10 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             if remain_rest < 0:# Get enough rest at charging stations
                 if rest != 0:
                     r_rest = - self.w7 * rest
+                    t_rest_next = 0  # Action must be modified
             else:
-                t_secr_current = t_secr_current + rest * remain_rest # Must rest at parking lots
+                t_rest_next = rest * remain_rest
+                t_secr_current = t_secr_current + t_rest_next # Must rest at parking lots
                 r_rest = - self.w8 * t_secr_current
 
         # Calculate reward for suitable driving time before leaving next node
@@ -338,8 +339,19 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:
             reward = r_trapped + r_rest + r_driving
 
-        # update node
-        node_current = next_node
+        # # update state
+        #node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current = self.state
+        if next_node == 1:
+            self.state = (1, nearest_x1, nearest_y1, charge, t_charge_next, t_secd_current, t_secr_current, t_secch_current)
+        if next_node == 2:
+            self.state = (2, nearest_x2, nearest_y2, charge, t_charge_next, t_secd_current, t_secr_current, t_secch_current)
+        if next_node == 3:
+            self.state = (3, nearest_x3, nearest_y3, charge, t_charge_next, t_secd_current, t_secr_current, t_secch_current)
+        if next_node == 4:
+            self.state = (4, nearest_x4, nearest_y4, soc_after_driving, t_rest_next, t_secd_current, t_secr_current, t_secch_current)
+        if next_node == 5:
+            self.state = (5, nearest_x5, nearest_y5, soc_after_driving, t_rest_next, t_secd_current, t_secr_current, t_secch_current)
+
 
         # Determine the type of render
         if self.render_mode == "human":
