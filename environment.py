@@ -24,11 +24,11 @@ from gymnasium.vector.utils import batch_space
 
 
 # The environment of route planning,
-#  An electric vehicles need to choose the next action according to the current state,
-#  the goal is to obtain the shortest time route
+#  An electric vehicles need to choose the next action according to the current state
+#  An agent needs to choose the next action according to the current state, and observes the next state and reward
 
 
-## Action Space is a 'ndarry', with shape `(3,)`, Action a:=(next_node, charge, rest )
+## Action Space is a tuple, with 3 arrays, Action a:=(next_node, charge, rest )
 # next_node:= {1,2,3,4,5}
 # charge:= {0, 0.3, 0.5, 0.8}
 # rest:= {0, 0.3, 0.6, 0.9, 1}
@@ -106,13 +106,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.section = self.min_rest + self.max_driving
         # Reward factor
         self.w1 = 1 # For the distance to the target
-        self.w2 = 1000 # Punishment for the trapped on the road
-        self.w3 = 1 # Still can run, but violated constraint
-        self.w4 = 10 # No trapped
+        self.w2 = 5 # Punishment for the trapped on the road
+        self.w3 = 0.1 # Still can run, but violated constraint
+        self.w4 = 0.4 # No trapped
         self.w5 = 1 # For the suitable charging time
-        self.w6 = 0.5 # For the suitable charging time, w6 < w5,
+        self.w6 = 0.05 # For the suitable charging time, w6 < w5,
         # Angen tends to spend more time at charging stations than resting in parking lots
-        self.w7 = 1  # Reward for the suitable rest time at parking lots
+        self.w7 = 10  # Reward for the suitable rest time at parking lots
         self.w8 = 1 ## Must rest at parking lots
         self.w9 = 1000 # Exceeded the max. driving time in a section
         self.w10 = 1 # For the suitable driving time
@@ -286,8 +286,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             terminated = 1
         else:
             r_distance = self.w1 * (d_current - d_next)
-
-        #soc after driving
+            
+        # Reward for battery
+        # soc after driving
         soc_after_driving = soc - consumption / self.battery_capacity
         # If there is recuperated energy, the soc can be charged up to 0.8
         if consumption < 0:
@@ -297,11 +298,12 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Punishment for the trapped on the road
         if soc_after_driving < 0: # Trapped
             terminated = 1
-            r_trapped = self.w2
+            r_trapped = - self.w2
             print("trapped on the road, should be reseted")
         else: # No trapped
             if soc_after_driving < 0.1: # Still can run, but violated constraint
-                r_trapped =  math.log(self.w3 * abs(soc_after_driving - 0.1))
+                #r_trapped =  math.log(self.w3 * abs(soc_after_driving - 0.1))
+                r_trapped = math.log(self.w3 * soc_after_driving) + 5
                 self.num_trapped = self.num_trapped +1
                 if self.num_trapped == self.max_trapped:
                     terminated = 1 # Violate the self.max_trapped times, stop current episode
@@ -325,8 +327,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             remain_rest = self.min_rest - t_secch_current
             if remain_rest < 0:# Get enough rest at charging stations
                 if rest != 0:
-                    r_rest = - self.w7 * rest
+                    r_rest = self.w7 * rest
                     t_rest_next = 0  # Action must be modified
+
             else:
                 t_rest_next = rest * remain_rest
                 t_secr_current = t_secr_current + t_rest_next # Must rest at parking lots
@@ -335,7 +338,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Calculate reward for suitable driving time before leaving next node
         t_secd_current = t_secd_current + typical_duration
         if t_secd_current > self.max_driving:
-            r_driving = -self.w9
+            terminated = 1
+            r_driving = -self.w9 * (t_secd_current - self.max_driving)
         else:
             t_tem = self.max_driving - t_secd_current
             r_driving = - self.w10 * t_tem

@@ -19,13 +19,12 @@ from gymnasium.experimental.vector import VectorEnv
 from gymnasium.vector.utils import batch_space
 from environment import rp_env
 
+# env = rp_env()
+#
+# state, info = env.reset()
+# n_observations = len(state)
+#
+#
+# print(n_observations)
 
-env = rp_env()
 
-
-state, info = env.reset()
-n_observations = len(state)
-
-
-
-print(n_observations)
