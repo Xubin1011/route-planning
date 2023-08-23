@@ -121,7 +121,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.w_trapped = 1
         self.w_charge = 1
         self.w_rest = 1
-        self.w_driving
+        self.w_driving = 1
 
         self.num_trapped = 0 # The number that trapped on the road
         self.max_trapped = 10

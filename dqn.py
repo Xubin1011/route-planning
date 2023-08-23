@@ -228,7 +228,7 @@ for i_episode in range(num_episodes):
         reward = torch.tensor([reward], device=device)
         done = terminated or truncated
 
-        if terminated:
+        if terminated == 1:
             next_state = None # Stop Episode
         else:
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
