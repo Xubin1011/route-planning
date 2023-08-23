@@ -374,10 +374,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             options, -0.05, 0.05  # default low
         )  # default high
 
-
-        # ### ？？？？？？？？？？？？ select from a table randomly ?
-        # self.state = self.np_random.uniform(size=(8,))
-
         # s := (current_node, x1, y1, soc, t_stay, t_secd, t_secr, t_secch)
         node = random.choice([4, 5])
         data = pd.read_csv('parking_bbox.csv')
@@ -391,8 +387,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         t_secch = 0
         self.state = (node, x, y, soc, t_stay, t_secd, t_secr, t_secch)
 
-        if self.render_mode == "human":
-            self.render()
+        # if self.render_mode == "human":
+        #     self.render()
         return np.array(self.state, dtype=np.float32), {}
 
 
