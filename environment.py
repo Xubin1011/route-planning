@@ -117,6 +117,12 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.w9 = 1000 # Exceeded the max. driving time in a section
         self.w10 = 1 # For the suitable driving time
 
+        self.w_distance = 1
+        self.w_trapped = 1
+        self.w_charge = 1
+        self.w_rest = 1
+        self.w_driving
+
         self.num_trapped = 0 # The number that trapped on the road
         self.max_trapped = 10
 
