@@ -212,6 +212,18 @@ for i_episode in range(num_episodes):
     # Initialize the environment and get it's state
     state, info = env.reset()
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
+
+    # Store the transition in csv file
+    # Each episode has a file
+    file_prefix = "transition_"
+    filename = f"{file_prefix}{i_episode}.csv"
+    columns = ["state", "action", "next_state", "reward"]
+
+    try:
+        df = pd.read_csv(filename)
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=columns)
+
     for t in count():
         action = select_action(state)
         observation, reward, terminated, truncated, _ = env.step(action.item())
@@ -226,19 +238,9 @@ for i_episode in range(num_episodes):
         # Store the transition in memory
         memory.push(state, action, next_state, reward)
 
-        # Store the transition in csv file
-        file_prefix = "transition_"
-        filename = f"{file_prefix}{i_episode}.csv"
-        columns = ["state", "action", "next_state", "reward"]
-
-        try:
-            df = pd.read_csv(filename)
-        except FileNotFoundError:
-            df = pd.DataFrame(columns=columns)
-
+        # Store the transition in csv
         new_row = pd.Series([state, action, next_state, reward])
         df = df.append(new_row, ignore_index=True)
-        df.to_csv(filename, index=False)
 
         # Move to the next state
         state = next_state
@@ -257,6 +259,8 @@ for i_episode in range(num_episodes):
         if done:
             episode_durations.append(t + 1)
             plot_durations()
+            # Store all used transitions in an episode
+            df.to_csv(filename, index=False)
             break
 
 print('Complete')
