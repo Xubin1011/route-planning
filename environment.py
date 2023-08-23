@@ -57,6 +57,7 @@ from gymnasium.vector.utils import batch_space
 # 2. Many times SoC is less than 0.1 or greater than 0.8, which violates the energy constraint
 # 3. t_secd is greater than 4.5, which violates the time constraint
 # 4. Episode length is greater than 500
+# 5. Reach the target
 
 
 
@@ -280,7 +281,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         #Calculate reward for distance
         d_current = haversine(x_current, y_current, self.x_target, self.y_target)
-        r_distance = self.w1 * (d_current - d_next)
+        if d_current == 0:
+            r_distance = 100
+            terminated = 1
+        else:
+            r_distance = self.w1 * (d_current - d_next)
 
         #soc after driving
         soc_after_driving = soc - consumption / self.battery_capacity
@@ -337,9 +342,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # Calculate immediate reward
         if next_node in [1, 2, 3]:
-            reward = r_trapped + r_charge + r_driving
+            reward = r_distance + r_trapped + r_charge + r_driving
         else:
-            reward = r_trapped + r_rest + r_driving
+            reward = r_distance + r_trapped + r_rest + r_driving
 
         # # update state
         #node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current = self.state

@@ -92,8 +92,6 @@ memory = ReplayMemory(10000)
 steps_done = 0
 
 
-
-
 # Select action by Epsilon-Greedy Policy according to state
 def select_action(state):
     global steps_done
