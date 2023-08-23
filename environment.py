@@ -128,15 +128,17 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         rest_space = spaces.Discrete(len(rest))
         self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
 
-        #Initialize the render mode
-        self.render_mode = render_mode
-
-        self.screen_width = 600
-        self.screen_height = 400
-        self.screen = None
-        self.clock = None
-        self.isopen = True
         self.state = None
+
+        # #Initialize the render mode
+        # self.render_mode = render_mode
+        #
+        # self.screen_width = 600
+        # self.screen_height = 400
+        # self.screen = None
+        # self.clock = None
+        # self.isopen = True
+
 
     def cs_elevation_power(self,x1, y1):
         matching_row = self.data_ch[(self.data_ch["Latitude"] == x1) & (self.data_ch["Longitude"] == y1)]
@@ -353,9 +355,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             self.state = (5, nearest_x5, nearest_y5, soc_after_driving, t_rest_next, t_secd_current, t_secr_current, t_secch_current)
 
 
-        # Determine the type of render
-        if self.render_mode == "human":
-            self.render()
+        # # Determine the type of render
+        # if self.render_mode == "human":
+        #     self.render()
         # return new state and indicate whether to stop the episode
         return np.array(self.state, dtype=np.float32), reward, terminated, False, {}
 
