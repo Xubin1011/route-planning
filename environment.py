@@ -346,9 +346,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # Calculate immediate reward
         if next_node in [1, 2, 3]:
-            reward = r_distance + r_trapped + r_charge + r_driving
+            reward = self.w_distance * r_distance + self.w_trapped * r_trapped + self.w_charge * r_charge + self.w_driving * r_driving
         else:
-            reward = r_distance + r_trapped + r_rest + r_driving
+            reward = self.w_distance * r_distance + self.w_trapped * r_trapped + self.w_rest *  r_rest + self.w_driving * r_driving
 
         # # update state
         #node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current = self.state
