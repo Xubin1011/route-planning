@@ -28,3 +28,17 @@ from environment import rp_env
 # print(n_observations)
 
 
+# env = rp_env()
+#
+# state, info = env.reset()
+# n_observations = len(state)
+#
+#
+# print(n_observations)
+# env = rp_env()
+#
+# state, info = env.reset()
+# n_observations = len(state)
+#
+#
+# print(n_observations)
