@@ -28,12 +28,3 @@ from environment import rp_env
 # print(n_observations)
 
 
-ef check_types(file_path_check_types):
-
-    # Read the data from the Excel/csv file
-    data = pd.read_csv(file_path_check_types)
-    #data = pd.read_excel(file_path_check_types)
-
-    # Calculate unique values and their occurrences in 'Socket1', 'Socket2', 'Socket3', 'Socket4'
-    #socket_columns = ['Socket_1', 'Socket_2', 'Socket_3', 'Socket_4']
-    socket_columns = ['Rated_output', 'Max_socket_power', 'Max_power'
