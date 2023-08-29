@@ -126,27 +126,15 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.num_trapped = 0 # The number that trapped on the road
         self.max_trapped = 10
 
-        #Initialize the actoin space
-        # next_node = np.array([1, 2, 3, 4, 5])
-        # charge = np.array([0, 0.3, 0.5, 0.8])
-        # rest = np.array([0, 0.3, 0.6, 0.9, 1])
-        # next_node_space = spaces.Discrete(len(next_node))
-        # charge_space = spaces.Discrete(len(charge))
-        # rest_space = spaces.Discrete(len(rest))
-        # self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
-        next_node_values = [1, 2, 3, 4, 5]
-        charge_space = [0, 0.3, 0.5, 0.8]
-        rest_space = [0, 0.3, 0.6, 0.9, 1]
-        all_action_combinations = []
-        for next_node in next_node_values:
-            if next_node in [1, 2, 3]:
-                valid_rest = [0]
-            else:
-                valid_rest = [0.3, 0.6, 0.9, 1]
+        # Initialize the actoin space
+        next_node = np.array([1, 2, 3, 4, 5])
+        charge = np.array([0, 0.3, 0.5, 0.8])
+        rest = np.array([0, 0.3, 0.6, 0.9, 1])
+        next_node_space = spaces.Discrete(len(next_node))
+        charge_space = spaces.Discrete(len(charge))
+        rest_space = spaces.Discrete(len(rest))
+        self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
 
-            for charge in charge_space:
-                for rest in valid_rest:
-                    all_action_combinations.append((next_node, charge, rest))
 
         self.state = None
 

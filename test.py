@@ -21,37 +21,38 @@ from environment import rp_env
 
 # env = rp_env()
 #
+# sampled_action = env.action_space.sample()
+# print("Sampled Action:", sampled_action)
+
+
+
+#
 # state, info = env.reset()
 # n_observations = len(state)
 #
 #
 # print(n_observations)
 
-import itertools
-import random
 
-# 定义每个部分的可能取值
-next_node_values = [1, 2, 3, 4, 5]
-charge_space_values = [0, 0.3, 0.5, 0.8]
-rest_space_values = [0, 0.3, 0.6, 0.9, 1]
-
-# 生成所有可能的动作组合，根据条件进行过滤
-all_action_combinations = []
-for next_node in next_node_values:
-    if next_node in [1, 2, 3]:
-        valid_rest_values = [0]
-    else:
-        valid_rest_values = [0.3, 0.6, 0.9, 1]
-
-    for charge in charge_space_
+import numpy as np
 
 
+# Initialize the action space
+next_node = np.array([1, 2, 3, 4, 5])
+charge = np.array([0, 0.3, 0.5, 0.8])
+rest = np.array([0, 0.3, 0.6, 0.9, 1])
+next_node_space = spaces.Discrete(len(next_node))
+charge_space = spaces.Discrete(len(charge))
+rest_space = spaces.Discrete(len(rest))
+action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
 
-        values:
-        for rest in valid_rest_values:
-            all_action_combinations.append((next_node, charge, rest))
+# Create a sample environment
+env = gym.Env()
+env.action_space = action_space
+n_actions = env.action_space.n
+print(n_actions)
 
-# 随机选择一个动作作为采样
-sampled_action = random.choice(all_action_combinations)
-
+# Sample a random action
+sampled_action = env.action_space.sample()
 print("Sampled Action:", sampled_action)
+
