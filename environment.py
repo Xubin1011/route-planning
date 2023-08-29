@@ -154,7 +154,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:
             random_rest = np.random.choice(self.rest)
             action = (random_next_node, 0, random_rest)
-
+        return(action)
 
 
     def cs_elevation_power(self,x1, y1):
@@ -237,7 +237,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         nearest_x2 = nearest_ch.loc[1, 'Latitude']
         nearest_y2 = nearest_ch.loc[1, 'Longitude']
         nearest_x3 = nearest_ch.loc[2, 'Latitude']
-        nearest_y3 = nearest_ch.loc[3, 'Longitude']
+        nearest_y3 = nearest_ch.loc[2, 'Longitude']
         print('nearest_1-3:', nearest_x1, nearest_y1, nearest_x2, nearest_y2, nearest_x3, nearest_y3)
 
         nearest_p = nearest_location(self.file_path_p, x_current, y_current, self.n_p)

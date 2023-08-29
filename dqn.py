@@ -114,10 +114,9 @@ def select_action(state):
             # return policy_net(state).max(1)[1].item()
     else:
         # Exploration, sample from the action space randomly
-
-
-        print(torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long))
-        return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
+        # print(torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long))
+        # return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
+        return(env.action_space_sample())
 
 # episode_durations = [] # A list that keeps track of the duration of each episode for analysis after training is complete.
 #
@@ -249,7 +248,7 @@ for i_episode in range(num_episodes):
         # observation = result_tuple[0]
         # reward = result_tuple[1]
         # terminated = result_tuple[2]
-        observation, reward, terminated = env.step(action.item())
+        observation, reward, terminated = env.step(action)
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)
         done = terminated
