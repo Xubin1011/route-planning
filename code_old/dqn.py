@@ -114,39 +114,11 @@ def select_action(state):
         # Exploration, sample from the action space randomly
         return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
 
-# episode_durations = [] # A list that keeps track of the duration of each episode for analysis after training is complete.
-#
-# # Plot the duration of episodes, along with an average over the last 100 episodes.
-# # The plot will be underneath the cell containing the main training loop, and will update after every episode.
-# def plot_durations(show_result=False):
-#     plt.figure(1)
-#     durations_t = torch.tensor(episode_durations, dtype=torch.float)
-#     if show_result:
-#         plt.title('Result')
-#     else:
-#         plt.clf()
-#         plt.title('Training...')
-#     plt.xlabel('Episode')
-#     plt.ylabel('Duration')
-#     plt.plot(durations_t.numpy())
-#     # Take 100 episode averages and plot them too
-#     if len(durations_t) >= 100:
-#         means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
-#         means = torch.cat((torch.zeros(99), means))
-#         plt.plot(means.numpy())
-#
-#     plt.pause(0.001)  # pause a bit so that plots are updated
-#     if is_ipython:
-#         if not show_result:
-#             display.display(plt.gcf())
-#             display.clear_output(wait=True)
-#         else:
-#             display.display(plt.gcf())
+episode_durations = [] # A list that keeps track of the duration of each episode for analysis after training is complete.
 
-average_rewards = [] # A list that keeps track of the average reward of each episode for analysis after training is complete.
-
-# Plot the average reward of an episodes
-def plot_average_reward(show_result=False):
+# Plot the duration of episodes, along with an average over the last 100 episodes.
+# The plot will be underneath the cell containing the main training loop, and will update after every episode.
+def plot_durations(show_result=False):
     plt.figure(1)
     durations_t = torch.tensor(episode_durations, dtype=torch.float)
     if show_result:
@@ -235,8 +207,6 @@ else:
     num_episodes = 50
 
 for i_episode in range(num_episodes):
-    # Initialize the sum_reward in an episode
-    sum_reward = 0
     # Initialize the environment and get it's state
     state, info = env.reset()
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
@@ -255,7 +225,6 @@ for i_episode in range(num_episodes):
     for t in count():
         action = select_action(state)
         observation, reward, terminated, truncated, _ = env.step(action.item())
-        sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)
         done = terminated or truncated
 
@@ -286,17 +255,14 @@ for i_episode in range(num_episodes):
         target_net.load_state_dict(target_net_state_dict)
 
         if done:
-            # episode_durations.append(t + 1)
-            # plot_durations()
-            average_reward = sum_reward / (t+1)
-            average_rewards.append(average_reward)
-
+            episode_durations.append(t + 1)
+            plot_durations()
             # Store all used transitions in an episode
             df.to_csv(filename, index=False)
             break
 
 print('Complete')
-# plot_durations(show_result=True)
-# plt.ioff()
-# plt.show()
+plot_durations(show_result=True)
+plt.ioff()
+plt.show()
 
