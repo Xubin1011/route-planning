@@ -146,30 +146,16 @@ def select_action(state):
 average_rewards = [] # A list that keeps track of the average reward of each episode for analysis after training is complete.
 
 # Plot the average reward of an episodes
-def plot_average_reward(show_result=False):
-    plt.figure(1)
-    durations_t = torch.tensor(episode_durations, dtype=torch.float)
-    if show_result:
-        plt.title('Result')
-    else:
-        plt.clf()
-        plt.title('Training...')
-    plt.xlabel('Episode')
-    plt.ylabel('Duration')
-    plt.plot(durations_t.numpy())
-    # Take 100 episode averages and plot them too
-    if len(durations_t) >= 100:
-        means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
-        means = torch.cat((torch.zeros(99), means))
-        plt.plot(means.numpy())
+def plot_average_reward():
 
-    plt.pause(0.001)  # pause a bit so that plots are updated
-    if is_ipython:
-        if not show_result:
-            display.display(plt.gcf())
-            display.clear_output(wait=True)
-        else:
-            display.display(plt.gcf())
+    average_rewards_t = torch.tensor(average_rewards, dtype=torch.float)
+    plt.figure(figsize=(10, 6))
+    plt.xlabel('Episode')
+    plt.ylabel('Reward')
+    plt.plot(average_rewards_t.numpy())
+    plt.title('Average Reward per Episode')
+    plt.grid()
+    plt.show()
 
 
 # A single step of the optimization
@@ -296,6 +282,7 @@ for i_episode in range(num_episodes):
             break
 
 print('Complete')
+plot_average_reward()
 # plot_durations(show_result=True)
 # plt.ioff()
 # plt.show()
