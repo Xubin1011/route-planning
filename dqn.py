@@ -235,7 +235,8 @@ for i_episode in range(num_episodes):
     # Each episode has a file
     file_prefix = "transition_"
     filename = f"{file_prefix}{i_episode}.csv"
-    columns = ["state", "action", "next_state", "reward"]
+    # state[0], state[1], state[2], state[3], state[4], observation[0], observation[1], observation[2], reward
+    columns = ["state", "action", "next_state", "reward", "1", "2", "3", "4", "5",]
 
     try:
         df = pd.read_csv(filename)
@@ -251,10 +252,11 @@ for i_episode in range(num_episodes):
         # terminated = result_tuple[2]
         observation, reward, terminated = env.step(action)
         print("observation, reward, terminated = ", observation, reward, terminated)
+        # print(state[0], state[1], state[2], state[3], state[4], observation[0],  observation[1],  observation[2], reward)
 
         # Store the transition in csv
-        new_row = pd.Series(state, action, observation, reward)
-        df = df.append(new_row, ignore_index=True)
+        # new_row = pd.Series(state[0], state[1], state[2], state[3], state[4], observation[0],  observation[1],  observation[2], reward)
+        # df = df.append(new_row, ignore_index=True)
 
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)
@@ -293,7 +295,7 @@ for i_episode in range(num_episodes):
             average_rewards.append(average_reward)
 
             # Store all used transitions in an episode
-            df.to_csv(filename, index=False)
+            # df.to_csv(filename, index=False)
             break
 
 print('Complete')
