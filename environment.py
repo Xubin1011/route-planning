@@ -127,13 +127,26 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.max_trapped = 10
 
         #Initialize the actoin space
-        next_node = np.array([1, 2, 3, 4, 5])
-        charge = np.array([0, 0.3, 0.5, 0.8])
-        rest = np.array([0, 0.3, 0.6, 0.9, 1])
-        next_node_space = spaces.Discrete(len(next_node))
-        charge_space = spaces.Discrete(len(charge))
-        rest_space = spaces.Discrete(len(rest))
-        self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
+        # next_node = np.array([1, 2, 3, 4, 5])
+        # charge = np.array([0, 0.3, 0.5, 0.8])
+        # rest = np.array([0, 0.3, 0.6, 0.9, 1])
+        # next_node_space = spaces.Discrete(len(next_node))
+        # charge_space = spaces.Discrete(len(charge))
+        # rest_space = spaces.Discrete(len(rest))
+        # self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
+        next_node_values = [1, 2, 3, 4, 5]
+        charge_space = [0, 0.3, 0.5, 0.8]
+        rest_space = [0, 0.3, 0.6, 0.9, 1]
+        all_action_combinations = []
+        for next_node in next_node_values:
+            if next_node in [1, 2, 3]:
+                valid_rest = [0]
+            else:
+                valid_rest = [0.3, 0.6, 0.9, 1]
+
+            for charge in charge_space:
+                for rest in valid_rest:
+                    all_action_combinations.append((next_node, charge, rest))
 
         self.state = None
 
@@ -174,7 +187,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         
         
         #Check if the action is valid
-        assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
+        # assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
         assert self.state is not None, "Call reset before using step method."
         
         #Obtain current state
@@ -321,13 +334,15 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
 
         if next_node in [1, 2, 3]: # Calculate reward for suitable charging time in next node
-            t_charge_next = (charge - soc_after_driving) / next_power
-            t_secch_current = t_secch_current + t_charge_next
-            if t_secch_current <= self.min_rest:
-                r_charge = -self.w5 * (self.min_rest - t_secch_current)
-
+            if charge >= soc_after_driving:
+                t_charge_next = (charge - soc_after_driving) / next_power
+                t_secch_current = t_secch_current + t_charge_next
+                if t_secch_current <= self.min_rest:
+                    r_charge = -self.w5 * (self.min_rest - t_secch_current)
+                else:
+                    r_charge = self.w6 * (self.min_rest - t_secch_current)
             else:
-                r_charge = self.w6 * (self.min_rest - t_secch_current)
+                r_charge = -10
 
         else: # Calculate reward for suitable rest time in next node
             remain_rest = self.min_rest - t_secch_current
@@ -374,7 +389,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # if self.render_mode == "human":
         #     self.render()
         # return new state and indicate whether to stop the episode
-        return np.array(self.state, dtype=np.float32), reward, terminated, False, {}
+        return np.array(self.state, dtype=np.float32), reward, terminated
 
     def reset(
             self,

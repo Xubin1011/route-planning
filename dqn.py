@@ -19,12 +19,12 @@ import torch.nn.functional as F
 
 env = rp_env()
 
-# set up matplotlib
-is_ipython = 'inline' in matplotlib.get_backend()
-if is_ipython:
-    from IPython import display
-
-plt.ion()
+# # set up matplotlib
+# is_ipython = 'inline' in matplotlib.get_backend()
+# if is_ipython:
+#     from IPython import display
+#
+# plt.ion()
 
 # if GPU is to be used
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -77,7 +77,7 @@ TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
 
 # Get number of actions from gym action space
-n_actions = 22
+n_actions = 100
 # Get the number of state observations
 state, info = env.reset()
 n_observations = len(state)
@@ -109,9 +109,12 @@ def select_action(state):
             # t.max(1) will return the largest column value of each row.
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward.
+            print(policy_net(state).max(1)[1].view(1, 1))
             return policy_net(state).max(1)[1].view(1, 1)
+            # return policy_net(state).max(1)[1].item()
     else:
         # Exploration, sample from the action space randomly
+        print(torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long))
         return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
 
 # episode_durations = [] # A list that keeps track of the duration of each episode for analysis after training is complete.
@@ -240,10 +243,14 @@ for i_episode in range(num_episodes):
 
     for t in count():
         action = select_action(state)
-        observation, reward, terminated, truncated, _ = env.step(action.item())
+        # result_tuple = env.step(action.item())
+        # observation = result_tuple[0]
+        # reward = result_tuple[1]
+        # terminated = result_tuple[2]
+        observation, reward, terminated = env.step(action.item())
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)
-        done = terminated or truncated
+        done = terminated
 
         if terminated == 1:
             next_state = None # Stop Episode
