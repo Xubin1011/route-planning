@@ -135,7 +135,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         rest_space = spaces.Discrete(len(rest))
         self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
 
-
         self.state = None
 
         # #Initialize the render mode

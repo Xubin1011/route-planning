@@ -37,18 +37,18 @@ from environment import rp_env
 import numpy as np
 
 
-# Initialize the action space
-next_node = np.array([1, 2, 3, 4, 5])
-charge = np.array([0, 0.3, 0.5, 0.8])
-rest = np.array([0, 0.3, 0.6, 0.9, 1])
-next_node_space = spaces.Discrete(len(next_node))
-charge_space = spaces.Discrete(len(charge))
-rest_space = spaces.Discrete(len(rest))
-action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
+# # Initialize the action space
+# next_node = np.array([1, 2, 3, 4, 5])
+# charge = np.array([0, 0.3, 0.5, 0.8])
+# rest = np.array([0, 0.3, 0.6, 0.9, 1])
+# next_node_space = spaces.Discrete(len(next_node))
+# charge_space = spaces.Discrete(len(charge))
+# rest_space = spaces.Discrete(len(rest))
+# action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
 
 # Create a sample environment
-env = gym.Env()
-env.action_space = action_space
+env = rp_env()
+
 n_actions = env.action_space.n
 print(n_actions)
 
