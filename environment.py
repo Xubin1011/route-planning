@@ -127,13 +127,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.max_trapped = 10
 
         # Initialize the actoin space
-        next_node = np.array([1, 2, 3, 4, 5])
-        charge = np.array([0, 0.3, 0.5, 0.8])
-        rest = np.array([0, 0.3, 0.6, 0.9, 1])
-        next_node_space = spaces.Discrete(len(next_node))
-        charge_space = spaces.Discrete(len(charge))
-        rest_space = spaces.Discrete(len(rest))
-        self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
+        self.next_node = np.array([1, 2, 3, 4, 5])
+        self.charge = np.array([0, 0.3, 0.5, 0.8])
+        self.rest = np.array([0, 0.3, 0.6, 0.9, 1])
+        # next_node_space = spaces.Discrete(len(self.next_node))
+        # charge_space = spaces.Discrete(len(self.charge))
+        # rest_space = spaces.Discrete(len(self.rest))
+        # self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
 
         self.state = None
 
@@ -145,6 +145,16 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # self.screen = None
         # self.clock = None
         # self.isopen = True
+
+    def action_space_sample(self):
+        random_next_node = np.random.choice(self.next_node)
+        if random_next_node in [1, 2, 3]:
+            random_charge = np.random.choice(self.charge)
+            action = (random_next_node, random_charge, 0)
+        else:
+            random_rest = np.random.choice(self.rest)
+            action = (random_next_node, 0, random_rest)
+
 
 
     def cs_elevation_power(self,x1, y1):

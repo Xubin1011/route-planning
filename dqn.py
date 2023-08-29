@@ -77,7 +77,7 @@ TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
 
 # Get number of actions from gym action space
-n_actions = 100
+n_actions = 22
 # Get the number of state observations
 state, info = env.reset()
 n_observations = len(state)
@@ -114,6 +114,8 @@ def select_action(state):
             # return policy_net(state).max(1)[1].item()
     else:
         # Exploration, sample from the action space randomly
+
+
         print(torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long))
         return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
 
