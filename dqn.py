@@ -252,11 +252,11 @@ for i_episode in range(num_episodes):
         # terminated = result_tuple[2]
         observation, reward, terminated = env.step(action)
         print("observation, reward, terminated = ", observation, reward, terminated)
-        # print(state[0], state[1], state[2], state[3], state[4], observation[0],  observation[1],  observation[2], reward)
 
         # Store the transition in csv
-        # new_row = pd.Series(state[0], state[1], state[2], state[3], state[4], observation[0],  observation[1],  observation[2], reward)
-        # df = df.append(new_row, ignore_index=True)
+
+        new_row = pd.Series([state, action, next_state, reward])
+        df = df.append(new_row, ignore_index=True)
 
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)

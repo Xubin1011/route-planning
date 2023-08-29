@@ -340,6 +340,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     r_charge = self.w6 * (self.min_rest - t_secch_current)
             else:
                 r_charge = -10
+                t_charge_next = 0
+
 
         else: # Calculate reward for suitable rest time in next node
             remain_rest = self.min_rest - t_secch_current
