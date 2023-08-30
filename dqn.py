@@ -235,7 +235,7 @@ def optimize_model():
 ## Main Training Loop
 
 if torch.cuda.is_available():
-    num_episodes = 60
+    num_episodes = 600
 else:
     num_episodes = 50
 
@@ -289,7 +289,7 @@ for i_episode in range(num_episodes):
         memory.push(state, action, next_state, reward)
 
         len_episode = len_episode + 1
-        if len_episode == 50:
+        if len_episode == 500:
             done = True
 
         # # Store the transition in csv
