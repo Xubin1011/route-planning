@@ -77,7 +77,7 @@ TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
 
 # Get number of actions from gym action space
-n_actions = 100
+n_actions = 22
 # Get the number of state observations
 state, info = env.reset()
 n_observations = len(state)
@@ -95,9 +95,9 @@ steps_done = 0
 # Select action by Epsilon-Greedy Policy according to state
 def select_action(state):
     global steps_done
-    # sample = random.random()
-    ####################################test################################
-    sample = 1
+    sample = random.random()
+    # ####################################test################################
+    # sample = 1
 
     #Epsilon-Greedy Policy
     # Start with threshold=0.9,exploits most of the time with a small chance of exploring.
@@ -112,13 +112,20 @@ def select_action(state):
             # t.max(1) will return the largest column value of each row.
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward.
-            print("state", state)
+
             print("action from policy_net :", policy_net(state))
             print("action from policy_net :", policy_net(state).max(1))
             print("action from policy_net :", policy_net(state).max(1)[1])
-            print("action from policy_net :", policy_net(state).max(1)[1].view(1, 1))
-            return policy_net(state).max(1)[1].view(1, 1)
+
+            index = policy_net(state).max(1)[1].item()
+            data = pd.read_csv('actions.csv')
+            action = data.iloc[index]
+            # print("index=", index)
+            # print("state=", state)
+            # print("action=", action)
+            # return policy_net(state).max(1)[1].view(1, 1)
             # return policy_net(state).max(1)[1].item()
+            return(action)
     else:
         # Exploration, sample from the action space randomly
         # print(torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long))
@@ -227,7 +234,7 @@ def optimize_model():
 ## Main Training Loop
 
 if torch.cuda.is_available():
-    num_episodes = 600
+    num_episodes = 60
 else:
     num_episodes = 50
 
@@ -240,19 +247,19 @@ for i_episode in range(num_episodes):
 
     # Store the transition in csv file
     # Each episode has a file
-    file_prefix = "transition_"
-    filename = f"{file_prefix}{i_episode}.csv"
-    # state[0], state[1], state[2], state[3], state[4], observation[0], observation[1], observation[2], reward
-    columns = ["state", "action", "next_state", "reward", "1", "2", "3", "4", "5",]
+    # file_prefix = "transition_"
+    # filename = f"{file_prefix}{i_episode}.csv"
+    # # state[0], state[1], state[2], state[3], state[4], observation[0], observation[1], observation[2], reward
+    # columns = ["state", "action", "next_state", "reward", "1", "2", "3", "4", "5",]
 
-    try:
-        df = pd.read_csv(filename)
-    except FileNotFoundError:
-        df = pd.DataFrame(columns=columns)
+    # try:
+    #     df = pd.read_csv(filename)
+    # except FileNotFoundError:
+    #     df = pd.DataFrame(columns=columns)
 
     for t in count():
         action = select_action(state)
-        print(action)
+        print("action", action)
         # result_tuple = env.step(action.item())
         # observation = result_tuple[0]
         # reward = result_tuple[1]
@@ -300,6 +307,7 @@ for i_episode in range(num_episodes):
             # plot_durations()
             average_reward = sum_reward / (t+1)
             average_rewards.append(average_reward)
+            print ("Episode", i_episode, "done")
 
             # Store all used transitions in an episode
             # df.to_csv(filename, index=False)
