@@ -126,14 +126,14 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.num_trapped = 0 # The number that trapped on the road
         self.max_trapped = 10
 
-        # Initialize the actoin space
-        self.next_node = np.array([1, 2, 3, 4, 5])
-        self.charge = np.array([0, 0.3, 0.5, 0.8])
-        self.rest = np.array([0, 0.3, 0.6, 0.9, 1])
-        next_node_space = spaces.Discrete(len(self.next_node))
-        charge_space = spaces.Discrete(len(self.charge))
-        rest_space = spaces.Discrete(len(self.rest))
-        self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
+        # # Initialize the actoin space
+        # self.next_node = np.array([1, 2, 3, 4, 5])
+        # self.charge = np.array([0, 0.3, 0.5, 0.8])
+        # self.rest = np.array([0, 0.3, 0.6, 0.9, 1])
+        # next_node_space = spaces.Discrete(len(self.next_node))
+        # charge_space = spaces.Discrete(len(self.charge))
+        # rest_space = spaces.Discrete(len(self.rest))
+        # self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
 
         self.state = None
 
@@ -146,17 +146,23 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # self.clock = None
         # self.isopen = True
 
+    # def action_space_sample(self):
+    #     random_next_node = np.random.choice(self.next_node)
+    #     if random_next_node in [1, 2, 3]:
+    #         random_charge = np.random.choice(self.charge)
+    #         action = (random_next_node, random_charge, 0)
+    #         print("action:", action)
+    #     else:
+    #         random_rest = np.random.choice(self.rest)
+    #         action = (random_next_node, 0, random_rest)
+    #         print("action:", action)
+    #     return(action)
+
     def action_space_sample(self):
-        random_next_node = np.random.choice(self.next_node)
-        if random_next_node in [1, 2, 3]:
-            random_charge = np.random.choice(self.charge)
-            action = (random_next_node, random_charge, 0)
-            print("action:", action)
-        else:
-            random_rest = np.random.choice(self.rest)
-            action = (random_next_node, 0, random_rest)
-            print("action:", action)
-        return(action)
+        df = pd.read_csv("actions.csv")
+        random_index = random.randint(0, len(df) - 1)
+        random_action = df.iloc[random_index]
+        return(random_action)
 
 
     def cs_elevation_power(self,x1, y1):
