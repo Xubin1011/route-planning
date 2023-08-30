@@ -244,6 +244,9 @@ for i_episode in range(num_episodes):
     # Initialize the environment and get it's state
     state, info = env.reset()
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
+    len_episode = 0
+
+
 
     # Store the transition in csv file
     # Each episode has a file
@@ -283,6 +286,10 @@ for i_episode in range(num_episodes):
 
         # Store the transition in memory
         memory.push(state, action, next_state, reward)
+
+        len_episode = len_episode + 1
+        if len_episode == 50:
+            done = True
 
         # # Store the transition in csv
         # new_row = pd.Series([state, action, next_state, reward])
