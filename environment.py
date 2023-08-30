@@ -78,7 +78,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.x_target = 51.772324 #target
         self.y_target = 12.402652
         self.c_target = 88
-        self.m = 13500 #(Leergewicht)
+        self.m = 13500 #(Leergewicht) in kg
         self.g = 9.81
         self.rho = 1.225
         self.A_front = 10.03
@@ -101,8 +101,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.soc_min = 0.1
         self.soc_max = 0.8
         # Each section has the same fixed travel time
-        self.min_rest = 0.75
-        self.max_driving = 4.5
+        self.min_rest = 2700 # in s
+        self.max_driving = 16200 # in s
         self.section = self.min_rest + self.max_driving
         # Reward factor
         self.w1 = 1 # For the distance to the target
@@ -130,10 +130,10 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.next_node = np.array([1, 2, 3, 4, 5])
         self.charge = np.array([0, 0.3, 0.5, 0.8])
         self.rest = np.array([0, 0.3, 0.6, 0.9, 1])
-        # next_node_space = spaces.Discrete(len(self.next_node))
-        # charge_space = spaces.Discrete(len(self.charge))
-        # rest_space = spaces.Discrete(len(self.rest))
-        # self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
+        next_node_space = spaces.Discrete(len(self.next_node))
+        charge_space = spaces.Discrete(len(self.charge))
+        rest_space = spaces.Discrete(len(self.rest))
+        self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
 
         self.state = None
 
@@ -151,9 +151,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         if random_next_node in [1, 2, 3]:
             random_charge = np.random.choice(self.charge)
             action = (random_next_node, random_charge, 0)
+            print("action:", action)
         else:
             random_rest = np.random.choice(self.rest)
             action = (random_next_node, 0, random_rest)
+            print("action:", action)
         return(action)
 
 
@@ -182,7 +184,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         #Calculate reward, update state
         #At the end of an episode, call reset() to reset this environment’s state for the next episode.
         
-        
+        terminated = False
         #Check if the action is valid
         # assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
         assert self.state is not None, "Call reset before using step method."
@@ -297,9 +299,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         #Calculate reward for distance
         d_current = haversine(x_current, y_current, self.x_target, self.y_target)
-        if d_current == 0:
+        if d_next == 0:
             r_distance = 100
-            terminated = 1
+            terminated = True
         else:
             r_distance = self.w1 * (d_current - d_next)
             
@@ -309,11 +311,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # If there is recuperated energy, the soc can be charged up to 0.8
         if consumption < 0:
             if soc_after_driving > 0.8:
-                soc_driving = 0.8
+                soc_after_driving = 0.8
 
         # Punishment for the trapped on the road
         if soc_after_driving < 0: # Trapped
-            terminated = 1
+            terminated = True
             r_trapped = - self.w2
             print("trapped on the road, should be reseted")
         else: # No trapped
@@ -322,8 +324,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 r_trapped = math.log(self.w3 * soc_after_driving) + 5
                 self.num_trapped = self.num_trapped +1
                 if self.num_trapped == self.max_trapped:
-                    terminated = 1 # Violate the self.max_trapped times, stop current episode
-                    self.num_trapped = 0
+                    terminated = True # Violate the self.max_trapped times, stop current episode
+
                     print("Violated self.max_trapped times,should be reseted")
             else:
                 r_trapped = self.w4 # No trapped
@@ -358,7 +360,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Calculate reward for suitable driving time before leaving next node
         t_secd_current = t_secd_current + typical_duration
         if t_secd_current > self.max_driving:
-            terminated = 1
+            terminated = True
             r_driving = -self.w9 * (t_secd_current - self.max_driving)
         else:
             t_tem = self.max_driving - t_secd_current

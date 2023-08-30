@@ -77,7 +77,7 @@ TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
 
 # Get number of actions from gym action space
-n_actions = 22
+n_actions = 100
 # Get the number of state observations
 state, info = env.reset()
 n_observations = len(state)
@@ -95,7 +95,10 @@ steps_done = 0
 # Select action by Epsilon-Greedy Policy according to state
 def select_action(state):
     global steps_done
-    sample = random.random()
+    # sample = random.random()
+    ####################################test################################
+    sample = 1
+
     #Epsilon-Greedy Policy
     # Start with threshold=0.9,exploits most of the time with a small chance of exploring.
     eps_threshold = EPS_END + (EPS_START - EPS_END) * \
@@ -109,7 +112,11 @@ def select_action(state):
             # t.max(1) will return the largest column value of each row.
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward.
-            print(policy_net(state).max(1)[1].view(1, 1))
+            print("state", state)
+            print("action from policy_net :", policy_net(state))
+            print("action from policy_net :", policy_net(state).max(1))
+            print("action from policy_net :", policy_net(state).max(1)[1])
+            print("action from policy_net :", policy_net(state).max(1)[1].view(1, 1))
             return policy_net(state).max(1)[1].view(1, 1)
             # return policy_net(state).max(1)[1].item()
     else:
@@ -255,14 +262,14 @@ for i_episode in range(num_episodes):
 
         # Store the transition in csv
 
-        new_row = pd.Series([state, action, next_state, reward])
-        df = df.append(new_row, ignore_index=True)
+        # new_row = pd.Series([state, action, next_state, reward])
+        # df = df.append(new_row, ignore_index=True)
 
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)
         done = terminated
 
-        if terminated == 1:
+        if terminated :
             next_state = None # Stop Episode
         else:
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)

@@ -42,26 +42,35 @@ env = rp_env()
 # print("Sampled Action:", sampled_action)
 
 from gymnasium.spaces import MultiDiscrete
-import numpy as np
-next_node = np.array([1, 2, 3, 4, 5])
-charge = np.array([0, 0.3, 0.5, 0.8])
-rest = np.array([0, 0.3, 0.6, 0.9, 1])
-next_node_space = spaces.Discrete(len(next_node))
-charge_space = spaces.Discrete(len(charge))
-rest_space = spaces.Discrete(len(rest))
-action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
+# import numpy as np
+# next_node = np.array([1, 2, 3, 4, 5])
+# charge = np.array([0, 0.3, 0.5, 0.8])
+# rest = np.array([0, 0.3, 0.6, 0.9, 1])
+# next_node_space = spaces.Discrete(len(next_node))
+# charge_space = spaces.Discrete(len(charge))
+# rest_space = spaces.Discrete(len(rest))
+# action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
 # n_actions = env.action_space.n
 # print(n_actions)
-
+action_space = env.action_space
+space_sizes = [component.n for component in action_space]
 print(action_space)
-random_next_node = np.random.choice(next_node)
-if random_next_node in [1,2,3]:
-    random_charge = np.random.choice(charge)
-    action = (random_next_node, random_charge, 0)
-else:
-    random_rest = np.random.choice(rest)
-    action = (random_next_node, 0, random_rest)
+print(space_sizes)
 
-print(action)
+
+for random_index in range(np.prod(space_sizes)):
+    # 初始化一个列表来存储每个组件的动作
+    selected_actions = []
+
+    # 将索引映射到各个组件的动作
+    for size in reversed(space_sizes):
+        selected_actions.append(random_index % size)
+        random_index //= size
+
+    selected_actions.reverse()  # 因为从后往前添加的，所以需要反转顺序
+
+    # 输出索引及其对应的动作
+    print("Index:", random_index, "Selected Actions:", selected_actions)
+
 
 # print(observation_space.sample())
