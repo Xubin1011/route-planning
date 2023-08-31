@@ -6,7 +6,7 @@
 
 import requests
 import time
-from consumption_duration import consumption_duration
+from code_old.consumption_duration import consumption_duration
 # import random
 import pandas as pd
 from nearest_location import nearest_location

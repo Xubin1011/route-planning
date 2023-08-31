@@ -3,25 +3,18 @@
 # Description: This file contains the implementation of...
 import random
 
-from distance_haversine import haversine
+
 from nearest_location import nearest_location
 from consumption_duration import consumption_duration
+from consumption_duration import haversine
 
 import math
-from typing import Optional, Tuple, Union
+from typing import Optional
 
 import numpy as np
 import pandas as pd
 import gymnasium as gym
-from gymnasium import logger, spaces
 from gymnasium.envs.classic_control import utils
-from gymnasium.error import DependencyNotInstalled
-from gymnasium.experimental.vector import VectorEnv
-from gymnasium.vector.utils import batch_space
-
-
-
-
 
 # The environment of route planning,
 #  An electric vehicles need to choose the next action according to the current state

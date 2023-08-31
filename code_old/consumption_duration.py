@@ -3,26 +3,31 @@
 # Description: Calculate consumption between two POIs （in kWh）, get duration between two POIs （in s）
 
 import numpy as np
-import random
+from typical_route_here import get_typical_route_here
+from distance_haversine import haversine
 
 
-def haversine(x1, y1, x2, y2):
-    # Convert latitude and longitude from degrees to radians
-    lat1_rad, lon1_rad, lat2_rad, lon2_rad = np.radians([x1, y1, x2, y2])
+# def calculate_velocity(x1, y1, x2, y2):
+#     # Get the typical duration between the two points
+#     duration_seconds = get_typical_duration_here(x1, y1, x2, y2)
+#
+#     # Get the distance between the two points
+#     distance_meters = haversine(x1, y1, x2, y2)
+#
+#     # Calculate the velocity
+#     velocity = distance_meters / duration_seconds
+#
+#     return velocity, duration_seconds
 
-    # Haversine formula
-    delta_lat = lat2_rad - lat1_rad
-    delta_lon = lon2_rad - lon1_rad
-    a = np.sin(delta_lat/2)**2 + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(delta_lon/2)**2
-    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
-    # Earth's mean radius in kilometers
-    radius = 6371.0
-    distance = radius * c
-
-    # Convert the distance to meters
-    distance_meters = distance * 1000
-
-    return distance_meters
+# # Test
+# x1, y1 = 49.013, 8.4092
+# x2, y2 = 52.5253, 13.3693
+#
+# velocity = calculate_velocity(x1, y1, x2, y2)
+#
+# print("Duration of travel: ", get_typical_duration_here(x1, y1, x2, y2), " seconds")
+# print("Distance of travel: ", get_length_here(x1, y1, x2, y2), " meters")
+# print("Velocity: ", velocity, " meters per second")
 
 
 #Description: alpha is the slope
@@ -38,7 +43,21 @@ def calculate_alpha(x1, y1, c1, x2, y2, c2):
     sin_alpha = np.sin(slope)
     cos_alpha = np.cos(slope)
 
-    return sin_alpha, cos_alpha, distance_meters
+    # if elevation_difference > 0: #ascent
+    #     slope = np.arctan(elevation_difference / distance_meters) #(slope in radians)
+    #     sin_alpha = np.sin(slope)
+    #     cos_alpha = np.cos(slope)
+    #
+    #     # sin_alpha = (c2 - c1) / distance_meters
+    #     # cos_alpha = np.sqrt(1 - np.square(sin_alpha))
+    # else:
+    #     # descent is seen as no slope, treat the downhill road flat
+    #     # driving at a constant speed,
+    #     # regardless of Brake Energy Recuperation
+    #     sin_alpha = 0
+    #     cos_alpha = 1
+
+    return sin_alpha, cos_alpha
 
 # # Test
 # x1, y1, c1 = 40.7128, -74.0060, 10
@@ -62,15 +81,22 @@ def calculate_alpha(x1, y1, c1, x2, y2, c2):
 
 def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery):
 
-    # typical_duration, length_meters, average_speed = get_typical_route_here(x1, y1, x2, y2)  # s, m, m/s
+    # velocity, duration_seconds = calculate_velocity(x1, y1, x2, y2)
 
-    sin_alpha, cos_alpha, distance_meters = calculate_alpha(x1, y1, c1, x2, y2, c2)
-    random_speed = random.randint(80, 100) # in km/h
-    average_speed = random_speed * 1000 /3600 #in m/s
-    typical_duration = distance_meters / average_speed # in s
+
+    typical_duration, length_meters, average_speed = get_typical_route_here(x1, y1, x2, y2)  # s, m, m/s
 
     # print(average_speed)
     # print(typical_duration)
+
+    sin_alpha, cos_alpha = calculate_alpha(x1, y1, c1, x2, y2, c2)
+
+    #print(sin_alpha,cos_alpha)
+
+    # if average_speed > 27.8:
+        # average_speed = 27.8
+        # print("Speed limited")
+
 
     mgsin_alpha = m * g * sin_alpha
     mgCr_cos_alpha = m * g * c_r * cos_alpha
@@ -85,16 +111,16 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
             power = 0
         else:
             power = power * eta_battery
-            if power < -150000:  # 150kW
-                power = -150000
+            if power < -100000:  # 100kW
+                power = -100000
 
 
 
     consumption = power * typical_duration / 3600 / 1000  #(in kWh)
 
-    return consumption, typical_duration, distance_meters
+    return consumption, typical_duration, length_meters
 
-# # test eCitaro 2 Türen
+# test eCitaro 2 Türen
 # x1, y1, c1 = 52.66181,13.38251, 47
 # x2, y2, c2 = 51.772324,12.402652,88
 # m = 13500 #(Leergewicht)
@@ -104,8 +130,7 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
 # c_r = 0.01
 # c_d = 0.7
 # a = 0
-# eta_m, eta_battery = 0.8, 0.8
-# consumption, typical_duration, length_meters = consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery)
+# consumption, typical_duration, length_meters = consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a)
 # print("Typical Duration:", typical_duration, "s")
 # print("Consumption:", consumption, "kWh")
 # print("Average comsuption:", consumption/length_meters*100000, "kWh/100km")
