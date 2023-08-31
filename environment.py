@@ -3,7 +3,6 @@
 # Description: This file contains the implementation of...
 import random
 
-
 from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
@@ -168,7 +167,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         return(cs_elevation, cs_power)
 
-    def p_elevation(self,x1, y1):
+    def p_elevation(self, x1, y1):
         matching_row = self.data_p[(self.data_p["Latitude"] == x1) & (self.data_p["Longitude"] == y1)]
         if not matching_row.empty:
             p_elevation = matching_row["Altitude"].values[0]
@@ -196,7 +195,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         #Obtain selected action
         next_node, charge, rest = action
-        print('next_node, charge, rest', next_node, charge, rest)
+        print('next_node, charge, rest = ', next_node, charge, rest)
 
         # Obtain the altitude and/or power of current location
         if node_current in [1, 2, 3]:  # charging station
@@ -321,7 +320,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             if soc_after_driving < 0.1: # Still can run, but violated constraint
                 #r_trapped =  math.log(self.w3 * abs(soc_after_driving - 0.1))
                 r_trapped = math.log(self.w3 * soc_after_driving) + 5
-                self.num_trapped = self.num_trapped +1
+                self.num_trapped = self.num_trapped + 1
                 if self.num_trapped == self.max_trapped:
                     terminated = True # Violate the self.max_trapped times, stop current episode
 
