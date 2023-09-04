@@ -31,7 +31,7 @@ def calculate_alpha(x1, y1, c1, x2, y2, c2):
     # Calculate the haversine distance
     distance_meters = haversine(x1, y1, x2, y2)
 
-    print("Haversine Distance:", distance_meters, "m")
+    # print("Haversine Distance:", distance_meters, "m")
     # Calculate sinalpha based on c2-c1
     elevation_difference = c2 - c1
     slope = np.arctan(elevation_difference / distance_meters)  # (slope in radians) slope belongs to -pi/2 to pi/2

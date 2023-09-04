@@ -238,7 +238,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         nearest_y2 = nearest_ch.loc[1, 'Longitude']
         nearest_x3 = nearest_ch.loc[2, 'Latitude']
         nearest_y3 = nearest_ch.loc[2, 'Longitude']
-        print('nearest_1-3:', nearest_x1, nearest_y1, nearest_x2, nearest_y2, nearest_x3, nearest_y3)
+        # print('nearest_1-3:', nearest_x1, nearest_y1, nearest_x2, nearest_y2, nearest_x3, nearest_y3)
 
         nearest_p = nearest_location(self.file_path_p, x_current, y_current, self.n_p)
         print(nearest_p)
@@ -246,7 +246,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         nearest_y4 = nearest_p.loc[0, 'Longitude']
         nearest_x5 = nearest_p.loc[1, 'Latitude']
         nearest_y5 = nearest_p.loc[1, 'Longitude']
-        print('nearest_4-5:', nearest_x4, nearest_y4, nearest_x5, nearest_y5)
+        # print('nearest_4-5:', nearest_x4, nearest_y4, nearest_x5, nearest_y5)
 
         # Obtain the energy and time consumption from current node to next node
         if next_node == 1:
@@ -294,7 +294,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                                                                                 self.c_r, self.rho, self.A_front,
                                                                                 self.c_d, self.a, self.eta_m,
                                                                                 self.eta_battery)
-
+        print("Length, speed, consumption", length_meters/1000, "m", length_meters/typical_duration * 3.6, "km/h", consumption/length_meters*100000, "kWh/100km\n")
         #Calculate reward for distance
         d_current = haversine(x_current, y_current, self.x_target, self.y_target)
         if d_next == 0:
@@ -367,8 +367,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Calculate immediate reward
         if next_node in [1, 2, 3]:
             reward = self.w_distance * r_distance + self.w_trapped * r_trapped + self.w_charge * r_charge + self.w_driving * r_driving
+            print("r_distance, r_trapped, r_charge, r_driving = ", r_distance, r_trapped, r_charge, r_driving)
+            print("reward = ", reward, "\n")
         else:
             reward = self.w_distance * r_distance + self.w_trapped * r_trapped + self.w_rest *  r_rest + self.w_driving * r_driving
+            print("r_distance, r_trapped, r_rest, r_driving = ", r_distance, r_trapped, r_rest, r_driving)
+            print("reward = ", reward, "\n")
+
 
         # # update state
         #node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current = self.state

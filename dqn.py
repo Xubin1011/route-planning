@@ -92,7 +92,7 @@ memory = ReplayMemory(REPLAYBUFFER)
 
 steps_done = 0
 
-print("Batchsize, Gamma, EPS_start, EPS_end, EPS_decay, TAU, LR, Replaybuffer, actions, oberservations = ", BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, REPLAYBUFFER, n_actions, n_observations)
+print("Batchsize, Gamma, EPS_start, EPS_end, EPS_decay, TAU, LR, Replaybuffer, actions, oberservations = ", BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, REPLAYBUFFER, n_actions, n_observations, "\n")
 
 
 # Select action by Epsilon-Greedy Policy according to state
@@ -118,7 +118,7 @@ def select_action(state):
 
             # print("action from policy_net :", policy_net(state))
             # print("action from policy_net :", policy_net(state).max(1))
-            print("action from policy_net :", policy_net(state).max(1)[1])
+            print("action from policy_net :", policy_net(state).max(1)[1], "\n")
 
             index = policy_net(state).max(1)[1].item()
             data = pd.read_csv('actions.csv')
@@ -242,12 +242,15 @@ if torch.cuda.is_available():
 else:
     num_episodes = 50
 
+print("Number of episodes = ", num_episodes, "\n")
+
 for i_episode in range(num_episodes):
     # Initialize the sum_reward in an episode
     sum_reward = 0
     # Initialize the environment and get it's state
     state, info = env.reset()
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
+    print("state_reset = ", state, "\n")
     len_episode = 0
 
 
@@ -266,13 +269,13 @@ for i_episode in range(num_episodes):
 
     for t in count():
         action = select_action(state)
-        print("action", action)
+        # print("action", action, "\n")
         # result_tuple = env.step(action.item())
         # observation = result_tuple[0]
         # reward = result_tuple[1]
         # terminated = result_tuple[2]
-        observation, reward, terminated = env.step(action)
-        print("observation, reward, terminated = ", observation, reward, terminated)
+        observation, reward, terminated = env.step(action) # observation is next state
+        # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
 
         # Store the transition in csv
 
@@ -290,6 +293,8 @@ for i_episode in range(num_episodes):
 
         # Store the transition in memory
         memory.push(state, action, next_state, reward)
+
+        print("state, action, next_state, reward = ", state, action, next_state, reward, "\n")
 
         len_episode = len_episode + 1
         if len_episode == 500:
@@ -318,7 +323,8 @@ for i_episode in range(num_episodes):
             # plot_durations()
             average_reward = sum_reward / (t+1)
             average_rewards.append(average_reward)
-            print ("Episode", i_episode, "done")
+            print ("*******************Episode", i_episode, "done****************\n")
+
 
             # Store all used transitions in an episode
             # df.to_csv(filename, index=False)
