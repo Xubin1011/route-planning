@@ -351,9 +351,10 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             r_driving = - self.w10 * t_tem
 
 
-
-        if next_node in [1, 2, 3]: # Calculate reward for suitable charging time in next node
-            if charge >= soc_after_driving:
+        #next node is an charging station
+        if next_node in [1, 2, 3]:
+            r_rest = - self.w8 * t_secr_current
+            if charge >= soc_after_driving:# Calculate reward for suitable charging time in next node
                 t_charge_next = (charge - soc_after_driving) * self.battery_capacity / next_power * 3600 #in s
                 t_secch_current = t_secch_current + t_charge_next
                 if t_secch_current <= self.min_rest:
@@ -364,8 +365,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 r_charge = -10
                 t_charge_next = 0
 
-
-        else: # Calculate reward for suitable rest time in next node
+        #next node is a parking lot
+        else:
+            if t_secch_current <= self.min_rest:
+                r_charge = -self.w5 * (self.min_rest - t_secch_current)
+            else:
+                r_charge = self.w6 * (self.min_rest - t_secch_current)
+            # Calculate reward for suitable rest time in next node
             remain_rest = self.min_rest - t_secch_current
             if remain_rest < 0:# Get enough rest at charging stations
                 if rest != 0:
@@ -392,21 +398,21 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         #     r_driving = - self.w10 * t_tem
 
         # Calculate immediate reward
-        r_distance = r_distance * 1
-        r_trapped = r_trapped * 1
-        r_driving = r_driving * 1
-        r_charge = r_charge * 1
-        r_rest = r_rest * 1
+        r_distance_w = r_distance * 1
+        r_trapped_w = r_trapped * 1
+        r_driving_w = r_driving * 1
+        r_charge_w = r_charge * 1
+        r_rest_w = r_rest * 1
 
         if next_node in [1, 2, 3]:
             # reward = self.w_distance * r_distance + self.w_trapped * r_trapped + self.w_charge * r_charge + self.w_driving * r_driving
-            reward = r_distance + r_trapped + r_charge + r_driving
-            print("r_distance, r_trapped, r_charge, r_driving = ", r_distance, r_trapped, r_charge, r_driving)
+            reward = r_distance_w + r_trapped_w + r_charge_w + r_driving_w
+            print("r_distance, r_trapped, r_charge, r_driving = ", r_distance_w, r_trapped_w, r_charge_w, r_driving_w)
             print("reward = ", reward, "\n")
         else:
             # reward = self.w_distance * r_distance + self.w_trapped * r_trapped + self.w_rest * r_rest + self.w_driving * r_driving
-            reward = r_distance + r_trapped + r_rest + r_driving
-            print("r_distance, r_trapped, r_rest, r_driving = ", r_distance, r_trapped, r_rest, r_driving)
+            reward = r_distance_w + r_trapped_w + r_rest_w + r_driving_w
+            print("r_distance, r_trapped, r_rest, r_driving = ", r_distance_w, r_trapped_w, r_rest_w, r_driving_w)
             print("reward = ", reward, "\n")
 
 
