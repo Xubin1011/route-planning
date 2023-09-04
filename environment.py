@@ -307,6 +307,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         if d_next == 0:
             r_distance = 100
             terminated = True
+            print("Arrival target")
         else:
             r_distance = self.w1 * (d_current - d_next)
             
@@ -330,8 +331,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 self.num_trapped = self.num_trapped + 1
                 if self.num_trapped == self.max_trapped:
                     terminated = True # Violate the self.max_trapped times, stop current episode
-
-                    print("Violated self.max_trapped times,should be reseted")
+                    print("Violated soc 10 times,should be reseted")
             else:
                 r_trapped = self.w4 # No trapped
 
@@ -370,6 +370,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         t_secd_current = t_secd_current + typical_duration
         if t_secd_current > self.max_driving:
             terminated = True
+            print("Violated self.max_driving times,should be reseted")
             r_driving = -self.w9 * (t_secd_current - self.max_driving)
         else:
             t_tem = self.max_driving - t_secd_current
@@ -378,13 +379,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Calculate immediate reward
         if next_node in [1, 2, 3]:
             # reward = self.w_distance * r_distance + self.w_trapped * r_trapped + self.w_charge * r_charge + self.w_driving * r_driving
-            reward = r_distance / 25000 + self.w_trapped * r_trapped + r_charge / 3600 + r_driving / 3600
-            print("r_distance, r_trapped, r_charge, r_driving = ", r_distance / 25000, r_trapped, r_charge / 3600, r_driving / 3600)
+            reward = r_distance / 2500 + 100 * r_trapped + r_charge / 3600 + r_driving / 360
+            print("r_distance, r_trapped, r_charge, r_driving = ", r_distance / 2500, 100* r_trapped, r_charge / 3600, r_driving / 360)
             print("reward = ", reward, "\n")
         else:
             # reward = self.w_distance * r_distance + self.w_trapped * r_trapped + self.w_rest * r_rest + self.w_driving * r_driving
-            reward = r_distance / 25000 + self.w_trapped * r_trapped + r_rest / 3600 + r_driving / 3600
-            print("r_distance, r_trapped, r_rest, r_driving = ", r_distance / 25000, r_trapped, r_rest / 3600, r_driving / 3600)
+            reward = r_distance / 2500 + 100 * r_trapped + r_rest / 3600 + r_driving / 360
+            print("r_distance, r_trapped, r_rest, r_driving = ", r_distance / 2500, 100 * r_trapped, r_rest / 3600, r_driving / 360)
             print("reward = ", reward, "\n")
 
 

@@ -17,6 +17,11 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
+import sys
+original_stdout = sys.stdout
+with open('output04.txt', 'w') as file:
+    sys.stdout = file
+
 env = rp_env()
 
 # # set up matplotlib
@@ -88,6 +93,8 @@ target_net = DQN(n_observations, n_actions).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
+# optimizer = optim.Adam(policy_net.parameters(), lr=LR)
+# optimizer = optim.SGD(policy_net.parameters(), lr=LR)
 memory = ReplayMemory(REPLAYBUFFER)
 
 steps_done = 0
@@ -244,6 +251,8 @@ def optimize_model():
     # but like the mean absolute error when the error is large
     # This makes it more robust to outliers when the estimates of Q are very noisy.
     criterion = nn.SmoothL1Loss()
+    # criterion = nn.MSELoss() ## Mean Squared Error, MSE
+    # criterion = nn.L1Loss() ##Mean Absolute Error, MAE
     loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
     # Optimize the model
@@ -349,6 +358,8 @@ for i_episode in range(num_episodes):
         if done:
             # episode_durations.append(t + 1)
             # plot_durations()
+            print(t+1)
+            print(sum_reward)
             average_reward = sum_reward / (t+1)
             average_rewards.append(average_reward)
             print ("*******************Episode", i_episode, "done****************\n")
