@@ -191,11 +191,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # If current POI is a charging station, soc is battery capacity that after charging, t_secch_current includes charging time at the current location
         # If current POI is a parking lot, t_secr_current includes rest  time at the current location
         node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current = self.state
-        print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current) #test
+        # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current) #test
 
         #Obtain selected action
         next_node, charge, rest = action
-        print('next_node, charge, rest = ', next_node, charge, rest)
+        # print('next_node, charge, rest = ', next_node, charge, rest)
 
         # Obtain the altitude and/or power of current location
         if node_current in [1, 2, 3]:  # charging station

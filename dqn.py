@@ -75,6 +75,7 @@ EPS_END = 0.05  # EPS_END is the final value of epsilon
 EPS_DECAY = 1000  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
 TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
+REPLAYBUFFER = 10000
 
 # Get number of actions from gym action space
 n_actions = 22
@@ -87,9 +88,11 @@ target_net = DQN(n_observations, n_actions).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-memory = ReplayMemory(100)
+memory = ReplayMemory(REPLAYBUFFER)
 
 steps_done = 0
+
+print("Batchsize, Gamma, EPS_start, EPS_end, EPS_decay, TAU, LR, Replaybuffer, actions, oberservations = ", BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, REPLAYBUFFER, n_actions, n_observations)
 
 
 # Select action by Epsilon-Greedy Policy according to state
@@ -113,8 +116,8 @@ def select_action(state):
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward.
 
-            print("action from policy_net :", policy_net(state))
-            print("action from policy_net :", policy_net(state).max(1))
+            # print("action from policy_net :", policy_net(state))
+            # print("action from policy_net :", policy_net(state).max(1))
             print("action from policy_net :", policy_net(state).max(1)[1])
 
             index = policy_net(state).max(1)[1].item()
