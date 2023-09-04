@@ -14,6 +14,8 @@ import numpy as np
 import pandas as pd
 import gymnasium as gym
 from gymnasium.envs.classic_control import utils
+from gymnasium import logger, spaces
+
 
 # The environment of route planning,
 #  An electric vehicles need to choose the next action according to the current state
@@ -126,6 +128,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # charge_space = spaces.Discrete(len(self.charge))
         # rest_space = spaces.Discrete(len(self.rest))
         # self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
+        self.action_space = spaces.Discrete(22)
+        self.df_actions = pd.read_csv("actions.csv")
+
 
         self.state = None
 
@@ -150,11 +155,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
     #         print("action:", action)
     #     return(action)
 
-    def action_space_sample(self):
-        df = pd.read_csv("actions.csv")
-        random_index = random.randint(0, len(df) - 1)
-        random_action = df.iloc[random_index]
-        return(random_action)
+    # def action_space_sample(self):
+    #     df = pd.read_csv("actions.csv")
+    #     random_index = random.randint(0, len(df) - 1)
+    #     random_action = df.iloc[random_index]
+    #     return(random_action)
 
 
     def cs_elevation_power(self,x1, y1):
@@ -194,7 +199,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current) #test
 
         #Obtain selected action
-        next_node, charge, rest = action
+        index_cpu = action.cpu()
+        next_node, charge, rest = self.df_actions.iloc[index_cpu.item()]
         # print('next_node, charge, rest = ', next_node, charge, rest)
 
         # Obtain the altitude and/or power of current location

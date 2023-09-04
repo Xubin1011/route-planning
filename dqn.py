@@ -118,22 +118,25 @@ def select_action(state):
 
             # print("action from policy_net :", policy_net(state))
             # print("action from policy_net :", policy_net(state).max(1))
-            print("action from policy_net :", policy_net(state).max(1)[1], "\n")
+            # print("action from policy_net :", policy_net(state).max(1)[1], "\n")
 
-            index = policy_net(state).max(1)[1].item()
-            data = pd.read_csv('actions.csv')
-            action = data.iloc[index]
+            # action_index = policy_net(state).max(1)[1].item()
+            # data = pd.read_csv('actions.csv')
+            # action = data.iloc[index]
             # print("index=", index)
             # print("state=", state)
             # print("action=", action)
-            # return policy_net(state).max(1)[1].view(1, 1)
-            # return policy_net(state).max(1)[1].item()
-            return(action)
+            # print("action from policy_net :", policy_net(state).max(1)[1].view(1, 1), "\n")
+            return policy_net(state).max(1)[1].view(1, 1)
+            # return policy_net(state).max(1)[1]
+            # return(action)
+            # return(action_index)
     else:
         # Exploration, sample from the action space randomly
         # print(torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long))
-        # return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
-        return(env.action_space_sample())
+        return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
+        # return(env.action_space_sample())
+
 
 # episode_durations = [] # A list that keeps track of the duration of each episode for analysis after training is complete.
 #
@@ -190,6 +193,7 @@ def optimize_model():
     # Each data contains a state, an action, a reward and a next state
     # Unpack this tuple into four single lists, state, action, reward, and next state
     batch = Transition(*zip(*transitions))
+    # print(batch)
 
     # Check states that in batch, create a boolean mask that identifies which states are non-final
     # Final state: False
@@ -202,6 +206,23 @@ def optimize_model():
     state_batch = torch.cat(batch.state)  # All states in batch
     action_batch = torch.cat(batch.action)  # All actions
     reward_batch = torch.cat(batch.reward)  # All rewards
+
+    # print(state_batch)
+    # print("*******************************************")
+    # print(action_batch)
+    # print("*******************************************")
+    print(reward_batch)
+    print("*******************************************")
+    # print(non_final_next_states)
+    # print("*******************************************")
+    # print(action_batch.device)
+    # print("*******************************************")
+    # print(state_batch.device)
+    # print("*******************************************")
+    # print(reward_batch.device)
+    # print("*******************************************")
+    # print(non_final_next_states.device)
+    # print("*******************************************")
 
     # Compute Q(s_t, a) by policy_net, then select the columns of actions taken.
     # These are the actions which would've been taken for each batch state according to policy_net
@@ -276,6 +297,12 @@ for i_episode in range(num_episodes):
         # terminated = result_tuple[2]
         observation, reward, terminated = env.step(action) # observation is next state
         # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
+
+        # # Convert action to pytorch tensor
+        # action_numpy = action.values
+        # action = torch.from_numpy(action_numpy).to(device)
+        # print("action", action, "\n")
+        # print(action.device)
 
         # Store the transition in csv
 
