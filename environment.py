@@ -338,7 +338,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         if next_node in [1, 2, 3]: # Calculate reward for suitable charging time in next node
             if charge >= soc_after_driving:
-                t_charge_next = (charge - soc_after_driving) / next_power
+                t_charge_next = (charge - soc_after_driving) * self.battery_capacity / next_power * 3600 #in s
                 t_secch_current = t_secch_current + t_charge_next
                 if t_secch_current <= self.min_rest:
                     r_charge = -self.w5 * (self.min_rest - t_secch_current)
