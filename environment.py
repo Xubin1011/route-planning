@@ -353,7 +353,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             remain_rest = self.min_rest - t_secch_current
             if remain_rest < 0:# Get enough rest at charging stations
                 if rest != 0:
-                    r_rest = self.w7 * rest
+                    r_rest = - self.w7 * rest
                     t_rest_next = 0  # Action must be modified
 
             else:
