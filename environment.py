@@ -186,7 +186,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         #Run one timestep of the environment’s dynamics using the agent actions.
         #Calculate reward, update state
         #At the end of an episode, call reset() to reset this environment’s state for the next episode.
-        
+
+
         terminated = False
         #Check if the action is valid
         # assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
@@ -353,8 +354,12 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             remain_rest = self.min_rest - t_secch_current
             if remain_rest < 0:# Get enough rest at charging stations
                 if rest != 0:
-                    r_rest = - self.w7 * rest
+                    # r_rest = - self.w7 * rest
+                    r_rest = - 10
                     t_rest_next = 0  # Action must be modified
+                else:
+                    r_rest = 10
+                    t_rest_next = 0
 
             else:
                 t_rest_next = rest * remain_rest
