@@ -305,11 +305,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         #Calculate reward for distance
         d_current = haversine(x_current, y_current, self.x_target, self.y_target)
         if d_next == 0:
-            r_distance = 100
+            r_distance = 10
             terminated = True
             print("Terminated: Arrival target")
         else:
-            r_distance = self.w1 * (d_current - d_next)
+            r_distance = self.w1 * (d_current - d_next) / 25000
             
         # Reward for battery
         # soc after driving
