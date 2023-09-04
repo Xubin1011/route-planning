@@ -201,7 +201,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         #Obtain selected action
         index_cpu = action.cpu()
         next_node, charge, rest = self.df_actions.iloc[index_cpu.item()]
-        # print('next_node, charge, rest = ', next_node, charge, rest)
+        print('next_node, charge, rest = ', next_node, charge, rest)
 
         # Obtain the altitude and/or power of current location
         if node_current in [1, 2, 3]:  # charging station
