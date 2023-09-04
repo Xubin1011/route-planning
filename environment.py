@@ -237,7 +237,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # Obtain n nearest POIs
         nearest_ch = nearest_location(self.file_path_ch, x_current, y_current, self.n_ch)
-        print(nearest_ch)
+        # print(nearest_ch)
         nearest_x1 = nearest_ch.loc[0, 'Latitude']
         nearest_y1 = nearest_ch.loc[0, 'Longitude']
         nearest_x2 = nearest_ch.loc[1, 'Latitude']
@@ -247,7 +247,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # print('nearest_1-3:', nearest_x1, nearest_y1, nearest_x2, nearest_y2, nearest_x3, nearest_y3)
 
         nearest_p = nearest_location(self.file_path_p, x_current, y_current, self.n_p)
-        print(nearest_p)
+        # print(nearest_p)
         nearest_x4 = nearest_p.loc[0, 'Latitude']
         nearest_y4 = nearest_p.loc[0, 'Longitude']
         nearest_x5 = nearest_p.loc[1, 'Latitude']
