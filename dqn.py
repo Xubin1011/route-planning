@@ -326,6 +326,7 @@ for i_episode in range(num_episodes):
         len_episode = len_episode + 1
         if len_episode == 500:
             done = True
+            print("End point is not reached after 500 steps, stop the episode")
 
         # # Store the transition in csv
         # new_row = pd.Series([state, action, next_state, reward])
