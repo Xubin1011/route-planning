@@ -436,23 +436,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # return new state and indicate whether to stop the episode
         return np.array(self.state, dtype=np.float32), reward, terminated
 
-    def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            options: Optional[dict] = None,
-    ):
-        super().reset(seed=seed)
-        # maybe_parse_reset_bounds can be called during a reset() to customize the sampling
-        # ranges for setting the initial state distributions.
-        low, high = utils.maybe_parse_reset_bounds(
-            options, -0.05, 0.05  # default low
-        )  # default high
+    def reset(self):
 
         # s := (current_node, x1, y1, soc, t_stay, t_secd, t_secr, t_secch)
         node = random.choice([4, 5])
         data = pd.read_csv('parking_bbox.csv')
-        location = data.sample(n =1, random_state=42)
+        # location = data.sample(n =1, random_state=42)
+        location = data.sample(n=1)
         x = location['Latitude'].values[0]
         y = location['Longitude'].values[0]
         soc = random.uniform(0.1, 0.8)
@@ -464,7 +454,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # if self.render_mode == "human":
         #     self.render()
-        return np.array(self.state, dtype=np.float32), {}
+        return np.array(self.state, dtype=np.float32)
 
 
 
