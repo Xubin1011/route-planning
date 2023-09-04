@@ -108,7 +108,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Angen tends to spend more time at charging stations than resting in parking lots
         self.w7 = 10  # Reward for the suitable rest time at parking lots
         self.w8 = 1 ## Must rest at parking lots
-        self.w9 = 1000 # Exceeded the max. driving time in a section
+        self.w9 = 1 # Exceeded the max. driving time in a section
         self.w10 = 1 # For the suitable driving time
 
         self.w_distance = 1
@@ -307,7 +307,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         if d_next == 0:
             r_distance = 100
             terminated = True
-            print("Arrival target")
+            print("Terminated: Arrival target")
         else:
             r_distance = self.w1 * (d_current - d_next)
             
@@ -323,7 +323,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         if soc_after_driving < 0: # Trapped
             terminated = True
             r_trapped = - self.w2
-            print("trapped on the road, should be reseted")
+            print("Terminated: Trapped on the road, should be reseted")
         else: # No trapped
             if soc_after_driving < 0.1: # Still can run, but violated constraint
                 #r_trapped =  math.log(self.w3 * abs(soc_after_driving - 0.1))
@@ -331,9 +331,24 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 self.num_trapped = self.num_trapped + 1
                 if self.num_trapped == self.max_trapped:
                     terminated = True # Violate the self.max_trapped times, stop current episode
-                    print("Violated soc 10 times,should be reseted")
+                    print("Terminated: Violated soc 10 times,should be reseted")
             else:
                 r_trapped = self.w4 # No trapped
+
+        # Calculate reward for suitable driving time before leaving next node
+        t_secd_current = t_secd_current + typical_duration
+        if t_secd_current > self.max_driving:
+            t_secd_current = t_secd_current - self.max_driving
+            rest_time = t_secr_current + t_secch_current
+            if rest_time < self.min_rest:
+                terminated = True
+                print("Terminated: Violated self.max_driving times,should be reseted")
+                r_driving = -10
+            else:
+                r_driving = -self.w9 * (t_secd_current - self.max_driving)
+        else:
+            t_tem = self.max_driving - t_secd_current
+            r_driving = - self.w10 * t_tem
 
 
 
@@ -366,26 +381,32 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 t_secr_current = t_secr_current + t_rest_next # Must rest at parking lots
                 r_rest = - self.w8 * t_secr_current
 
-        # Calculate reward for suitable driving time before leaving next node
-        t_secd_current = t_secd_current + typical_duration
-        if t_secd_current > self.max_driving:
-            terminated = True
-            print("Violated self.max_driving times,should be reseted")
-            r_driving = -self.w9 * (t_secd_current - self.max_driving)
-        else:
-            t_tem = self.max_driving - t_secd_current
-            r_driving = - self.w10 * t_tem
+        # # Calculate reward for suitable driving time before leaving next node
+        # t_secd_current = t_secd_current + typical_duration
+        # if t_secd_current > self.max_driving:
+        #     terminated = True
+        #     print("Terminated: Violated self.max_driving times,should be reseted")
+        #     r_driving = -self.w9 * (t_secd_current - self.max_driving)
+        # else:
+        #     t_tem = self.max_driving - t_secd_current
+        #     r_driving = - self.w10 * t_tem
 
         # Calculate immediate reward
+        r_distance = r_distance * 1
+        r_trapped = r_trapped * 1
+        r_driving = r_driving * 1
+        r_charge = r_charge * 1
+        r_rest = r_rest * 1
+
         if next_node in [1, 2, 3]:
             # reward = self.w_distance * r_distance + self.w_trapped * r_trapped + self.w_charge * r_charge + self.w_driving * r_driving
-            reward = r_distance / 2500 + 100 * r_trapped + r_charge / 3600 + r_driving / 360
-            print("r_distance, r_trapped, r_charge, r_driving = ", r_distance / 2500, 100* r_trapped, r_charge / 3600, r_driving / 360)
+            reward = r_distance + r_trapped + r_charge + r_driving
+            print("r_distance, r_trapped, r_charge, r_driving = ", r_distance, r_trapped, r_charge, r_driving)
             print("reward = ", reward, "\n")
         else:
             # reward = self.w_distance * r_distance + self.w_trapped * r_trapped + self.w_rest * r_rest + self.w_driving * r_driving
-            reward = r_distance / 2500 + 100 * r_trapped + r_rest / 3600 + r_driving / 360
-            print("r_distance, r_trapped, r_rest, r_driving = ", r_distance / 2500, 100 * r_trapped, r_rest / 3600, r_driving / 360)
+            reward = r_distance + r_trapped + r_rest + r_driving
+            print("r_distance, r_trapped, r_rest, r_driving = ", r_distance, r_trapped, r_rest, r_driving)
             print("reward = ", reward, "\n")
 
 
