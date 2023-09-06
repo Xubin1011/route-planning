@@ -3,8 +3,8 @@
 # Description: Calculate consumption between two POIs （in kWh）, get duration between two POIs （in s）
 
 import numpy as np
-from typical_route_here import get_typical_route_here
-from distance_haversine import haversine
+from code_old.typical_route_here import get_typical_route_here
+from code_old.distance_haversine import haversine
 
 
 # def calculate_velocity(x1, y1, x2, y2):
@@ -111,8 +111,8 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
             power = 0
         else:
             power = power * eta_battery
-            if power < -100000:  # 100kW
-                power = -100000
+            if power < -150000:  # 100kW
+                power = -150000
 
 
 

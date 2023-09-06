@@ -151,8 +151,8 @@ def random_poi(file_path):
     df_a = pd.read_csv(file_path)
 
     # Randomly select 50 rows for source and 50 rows for target
-    source_rows = df_a.sample(n=50, random_state=42)
-    target_rows = df_a.drop(source_rows.index).sample(n=50, random_state=42)
+    source_rows = df_a.sample(n=100, random_state=42)
+    target_rows = df_a.drop(source_rows.index).sample(n=100, random_state=42)
 
     # Combine source and target data
     df_b = pd.concat([source_rows[['Latitude', 'Longitude', 'Elevation']],
@@ -268,7 +268,7 @@ def nearest():
     df['consumption'] = consumptions
     df['average_consumption'] = average_consumptions
 
-    df.to_csv('nearest_result_1km.csv', index=False, header=True)
+    df.to_csv('nearest_result_25km.csv', index=False, header=True)
     return None
 
 

@@ -22,18 +22,18 @@ plt.scatter(length/1000, average_speed, color='b')
 plt.xlabel('Length(km)')
 plt.ylabel('Average Speed(km/h)')
 plt.title('Distance traveled and average speed')
-plt.savefig('nearest_result_1km_01.png', dpi=300, bbox_inches='tight')
+plt.savefig('nearest_result_25km_01.png', dpi=300, bbox_inches='tight')
 
 # 保存图2为PDF格式
 plt.figure(2)
-plt.scatter(length/1000, average_consumption, color='yellow', label='Average Consumption')
+plt.scatter(length/1000, average_consumption, color='blue', label='Average Consumption')
 # plt.scatter(length/1000, average_consumption_ebus, color='blue', label='Average Consumption Ebus')
 # plt.scatter(length/1000, average_consumption_ecar, color='red', label='Average Consumption Ecar')
 plt.xlabel('Length(km)')
 plt.ylabel('Average Consumption(kWh/100km)')
 plt.title('Distance traveled and Average Consumption')
 plt.legend()
-plt.savefig('nearest_result_1km_02.png', bbox_inches='tight')
+plt.savefig('nearest_result_25km_02.png', bbox_inches='tight')
 
 # 保存图3为PNG格式
 plt.figure(3)
@@ -44,7 +44,7 @@ plt.xlabel('Average Speed(km/h)')
 plt.ylabel('Average Consumption(kWh/100km)')
 plt.title('Average Speed and Average Consumption')
 plt.legend()
-plt.savefig('nearest_result_1km_03.png', dpi=300, bbox_inches='tight')
+plt.savefig('nearest_result_25km_03.png', dpi=300, bbox_inches='tight')
 
 # 显示绘图
 plt.show()
