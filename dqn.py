@@ -19,21 +19,41 @@ import torch.nn.functional as F
 
 import sys
 original_stdout = sys.stdout
-with open('output00.txt', 'w') as file:
+with open('output007.txt', 'w') as file:
     sys.stdout = file
+
+    BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
+    GAMMA = 0.99  # GAMMA is the discount factor as mentioned in the previous section
+    EPS_START = 0.9  # EPS_START is the starting value of epsilon
+    EPS_END = 0.05  # EPS_END is the final value of epsilon
+    EPS_DECAY = 1000  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
+    TAU = 0.005  # TAU is the update rate of the target network
+    LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
+    REPLAYBUFFER = 10000
+
+    SGD = True
+    Adam = False
+    AdamW = False
+
+    SmoothL1Loss = True
+    MSE = False
+    MAE = False
+
+    result_path = "007.png"
+
+    # Get number of actions from gym action space
+    n_actions = 22
+
+    if torch.cuda.is_available():
+        num_episodes = 1200
+    else:
+        num_episodes = 50
+
 
     env = rp_env()
 
-    # # set up matplotlib
-    # is_ipython = 'inline' in matplotlib.get_backend()
-    # if is_ipython:
-    #     from IPython import display
-    #
-    # plt.ion()
-
     # if GPU is to be used
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
     # Transition: A named tuple representing a single transition in an environment
     Transition = namedtuple('Transition',
@@ -72,18 +92,6 @@ with open('output00.txt', 'w') as file:
 
 
     ##Training Phase
-
-    BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
-    GAMMA = 0.99  # GAMMA is the discount factor as mentioned in the previous section
-    EPS_START = 0.9  # EPS_START is the starting value of epsilon
-    EPS_END = 0.05  # EPS_END is the final value of epsilon
-    EPS_DECAY = 1000  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
-    TAU = 0.005  # TAU is the update rate of the target network
-    LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
-    REPLAYBUFFER = 10000
-
-    # Get number of actions from gym action space
-    n_actions = 22
     # Get the number of state observations
     state, info = env.reset()
     n_observations = len(state)
@@ -92,9 +100,12 @@ with open('output00.txt', 'w') as file:
     target_net = DQN(n_observations, n_actions).to(device)
     target_net.load_state_dict(policy_net.state_dict())
 
-    optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-    # optimizer = optim.Adam(policy_net.parameters(), lr=LR)
-    # optimizer = optim.SGD(policy_net.parameters(), lr=LR)
+    if AdamW:
+        optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
+    if Adam:
+        optimizer = optim.Adam(policy_net.parameters(), lr=LR)
+    if SGD:
+        optimizer = optim.SGD(policy_net.parameters(), lr=LR)
     memory = ReplayMemory(REPLAYBUFFER)
 
     steps_done = 0
@@ -187,6 +198,7 @@ with open('output00.txt', 'w') as file:
         plt.scatter(range(len(average_rewards_t)), average_rewards_t.numpy(), marker='o')
         plt.title('Average Reward per Episode')
         plt.grid()
+        plt.savefig(result_path)
         plt.show()
 
 
@@ -250,9 +262,12 @@ with open('output00.txt', 'w') as file:
         # The Huber loss acts like the mean squared error when the error is small,
         # but like the mean absolute error when the error is large
         # This makes it more robust to outliers when the estimates of Q are very noisy.
-        criterion = nn.SmoothL1Loss()
-        # criterion = nn.MSELoss() ## Mean Squared Error, MSE
-        # criterion = nn.L1Loss() ##Mean Absolute Error, MAE
+        if SmoothL1Loss:
+            criterion = nn.SmoothL1Loss()
+        if MSE:
+            criterion = nn.MSELoss() ## Mean Squared Error, MSE
+        if MAE:
+            criterion = nn.L1Loss() ##Mean Absolute Error, MAE
         loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
         # Optimize the model
@@ -267,10 +282,10 @@ with open('output00.txt', 'w') as file:
 
     ## Main Training Loop
 
-    if torch.cuda.is_available():
-        num_episodes = 600
-    else:
-        num_episodes = 50
+    # if torch.cuda.is_available():
+    #     num_episodes = 600
+    # else:
+    #     num_episodes = 50
 
     print("Number of episodes = ", num_episodes, "\n")
 
