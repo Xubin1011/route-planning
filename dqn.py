@@ -19,7 +19,7 @@ import torch.nn.functional as F
 
 import sys
 original_stdout = sys.stdout
-with open('output007.txt', 'w') as file:
+with open('output009.txt', 'w') as file:
     sys.stdout = file
 
     BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
@@ -39,13 +39,13 @@ with open('output007.txt', 'w') as file:
     MSE = False
     MAE = False
 
-    result_path = "007.png"
+    result_path = "009.png"
 
     # Get number of actions from gym action space
     n_actions = 22
 
     if torch.cuda.is_available():
-        num_episodes = 1200
+        num_episodes = 2000
     else:
         num_episodes = 50
 
@@ -193,10 +193,10 @@ with open('output007.txt', 'w') as file:
         average_rewards_t = torch.tensor(average_rewards, dtype=torch.float)
         plt.figure(figsize=(10, 6))
         plt.xlabel('Episode')
-        plt.ylabel('Reward')
+        plt.ylabel('Average Reward per Episode')
         # plt.plot(average_rewards_t.numpy())
         plt.scatter(range(len(average_rewards_t)), average_rewards_t.numpy(), marker='o')
-        plt.title('Average Reward per Episode')
+        # plt.title('Average Reward per Episode')
         plt.grid()
         plt.savefig(result_path)
         plt.show()
@@ -264,11 +264,15 @@ with open('output007.txt', 'w') as file:
         # This makes it more robust to outliers when the estimates of Q are very noisy.
         if SmoothL1Loss:
             criterion = nn.SmoothL1Loss()
+            loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
         if MSE:
             criterion = nn.MSELoss() ## Mean Squared Error, MSE
+            loss = criterion(state_action_values.float(), expected_state_action_values.unsqueeze(1).float())
         if MAE:
             criterion = nn.L1Loss() ##Mean Absolute Error, MAE
-        loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
+            loss = criterion(state_action_values.float(), expected_state_action_values.unsqueeze(1).float())
+
+
 
         # Optimize the model
         optimizer.zero_grad() #The gradient needs to be cleared before updating the parameters each time,

@@ -2,28 +2,51 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-# 生成横坐标上的点
-x = np.linspace(0, 9, 1000)
-w2, w3, w3_1, w4 = 5, 0.1, 5, 0.4
 
-# 计算函数值
-y = np.zeros_like(x)
-for i in range(len(x)):
-    if x[i] >= 4.5:
-        y[i] = -10 * ( x[i]-4.5 )
-    # elif x[i] < 0.1:
-    #     y[i] = np.exp(50 * x[i])/ 100 -1
-    #     print(y[i])
-    else:
-        y[i] = -1 * (4.5-x[i])
+# x = np.linspace(0, 8, 1000)
+# y = np.where(x <= 4.5, np.exp(x) - np.exp(4.5), -100)
+# plt.plot(x, y)
+# plt.xlabel('Driving time(in h)')
+# plt.ylabel('Reward')
+# plt.title('Reward for driving time')
+# plt.grid(True)
+# plt.show()
 
-# 绘制图像
-plt.plot(x, y, linewidth=2)
-plt.xlabel('driving_time (in h)')
-plt.ylabel('reward')
-# plt.title('Function ')
+
+
+x = np.linspace(-1, 2, 1000)
+y = np.where(x<0, 0 ,np.where(x <= 0.75, np.exp(5 * x) - np.exp(3.75), - 10 * (np.exp(1.5 * x) - np.exp(1.125))))
+plt.plot(x, y)
+plt.xlabel('Charging time(in h)')
+plt.ylabel('Reward')
+plt.title('Reward for charging time')
 plt.grid(True)
-plt.text(0.9, 0.1, f'w7 = 10\nw8 = 1',
-         bbox=dict(facecolor='white', edgecolor='black'),
-         verticalalignment='bottom', horizontalalignment='right', transform=plt.gca().transAxes)
 plt.show()
+
+
+# x = np.linspace(-1, 0.75, 1000)
+# y = np.where(x > 0, -2 * (np.exp(5 * x) - 1), -100)
+# plt.plot(x, y)
+# plt.xlabel('Rest action in parking lots(%) * Remaining rest time (in h)')
+# plt.ylabel('Reward')
+# plt.title('Reward for rest time in parking lots')
+# plt.grid(True)
+# plt.show()
+
+# x = np.linspace(-0.2, 0.2, 1000)
+# y = np.where(x < 0, -6, np.where(x <= 0.1, np.log(0.1 * x) + 5, 0.4))
+# plt.plot(x, y)
+# plt.xlabel('Remaining SoC')
+# plt.ylabel('Reward')
+# plt.title('Reward for energy ')
+# plt.grid(True)
+# plt.show()
+
+# x = np.linspace(-0.2, 0.8, 1000)
+# y = np.exp(5 * x ) - 1
+# plt.plot(x, y)
+# plt.xlabel('Distance(in km)')
+# plt.ylabel('Reward')
+# plt.title('Reward for distances ')
+# plt.grid(True)
+# plt.show()

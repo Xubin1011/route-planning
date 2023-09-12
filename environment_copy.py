@@ -54,6 +54,15 @@ from gymnasium import logger, spaces
 # 4. Episode length is greater than 500
 # 5. Reach the target
 
+
+
+# human:The environment is continuously rendered in the current display or terminal
+# rgb_array: Return a single frame representing the current state of the environment.
+metadata = {
+    "render_modes": ["human", "rgb_array"],
+    "render_fps": 50,
+}
+
 class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
     def __init__(self, render_mode: Optional[str] = None):
@@ -100,11 +109,47 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.num_trapped = 0 # The number that trapped on the road
         self.max_trapped = 10
 
-        # # Initialize the actoin space, state space
+        # # Initialize the actoin space
+        # self.next_node = np.array([1, 2, 3, 4, 5])
+        # self.charge = np.array([0, 0.3, 0.5, 0.8])
+        # self.rest = np.array([0, 0.3, 0.6, 0.9, 1])
+        # next_node_space = spaces.Discrete(len(self.next_node))
+        # charge_space = spaces.Discrete(len(self.charge))
+        # rest_space = spaces.Discrete(len(self.rest))
+        # self.action_space = spaces.Tuple((next_node_space, charge_space, rest_space))
         self.action_space = spaces.Discrete(22)
         self.df_actions = pd.read_csv("actions.csv")
-        
+
+
         self.state = None
+
+        # #Initialize the render mode
+        # self.render_mode = render_mode
+        #
+        # self.screen_width = 600
+        # self.screen_height = 400
+        # self.screen = None
+        # self.clock = None
+        # self.isopen = True
+
+    # def action_space_sample(self):
+    #     random_next_node = np.random.choice(self.next_node)
+    #     if random_next_node in [1, 2, 3]:
+    #         random_charge = np.random.choice(self.charge)
+    #         action = (random_next_node, random_charge, 0)
+    #         print("action:", action)
+    #     else:
+    #         random_rest = np.random.choice(self.rest)
+    #         action = (random_next_node, 0, random_rest)
+    #         print("action:", action)
+    #     return(action)
+
+    # def action_space_sample(self):
+    #     df = pd.read_csv("actions.csv")
+    #     random_index = random.randint(0, len(df) - 1)
+    #     random_action = df.iloc[random_index]
+    #     return(random_action)
+
 
     def cs_elevation_power(self,x1, y1):
         matching_row = self.data_ch[(self.data_ch["Latitude"] == x1) & (self.data_ch["Longitude"] == y1)]
@@ -139,9 +184,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         
         #Obtain current state
         # If current POI is a charging station, soc is battery capacity that after charging, t_secch_current includes charging time at the current location
-        # If current POI is a parking lot, t_secp_current includes rest  time at the current location
-        node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
-        # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current) #test
+        # If current POI is a parking lot, t_secr_current includes rest  time at the current location
+        node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current = self.state
+        # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current) #test
 
         #Obtain selected action
         index_cpu = action.cpu()
@@ -153,6 +198,34 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             c_current, power_current = self.cs_elevation_power(x_current, y_current)
         else:  # parking lots
             c_current = self.p_elevation(x_current, y_current)
+
+        # # Obtain the altitude and/or power of next location
+        # if next_node in [1, 2, 3]:  # charging station
+        #     c_next, power_next = self.cs_elevation_power(x_next, y_next)
+        # else:  # parking lots
+        #     c_next = self.p_elevation(x_next, y_next)
+
+
+        # # Determine whether it is in a new section before leaving current poi
+        # # update t_secd_current, t_secr_current, t_secch_current at current location
+        # t_departure = t_secd_current + t_secr_current + t_secch_current
+        # t_arrival = t_departure - t_stay
+        # if t_arrival >= self.section:  # new section begin before arriving current location
+        #     t_secd_current = t_arrival % self.section
+        #     t_secr_current = 0
+        #     t_secch_current = 0
+        # else:  # still in current section
+        #     if t_departure >= self.section:
+        #         t_secd_current = 0
+        #         if node_current in [1, 2, 3]:
+        #             t_secch_current = t_departure - self.section
+        #             t_secr_current = 0
+        #             t_departure = t_secd_current + t_secr_current + t_secch_current
+        #         else:
+        #             t_secch_current = 0
+        #             t_secr_current = t_departure - self.section
+        #             t_departure = t_secd_current + t_secr_current + t_secch_current
+
 
         # Obtain n nearest POIs
         nearest_ch = nearest_location(self.file_path_ch, x_current, y_current, self.n_ch)
@@ -220,17 +293,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                                                                                 self.c_d, self.a, self.eta_m,
                                                                                 self.eta_battery)
         print("Length, speed, consumption", length_meters/1000, "m", length_meters/typical_duration * 3.6, "km/h", consumption/length_meters*100000, "kWh/100km\n")
-        
-        # the distance from current location to target
+        #Calculate reward for distance
         d_current = haversine(x_current, y_current, self.x_target, self.y_target)
-        # soc after driving
-        soc_after_driving = soc - consumption / self.battery_capacity
-        # the time that arriving next location
-        t_arrival = t_secd_current + t_secch_current + t_secp_current + typical_duration
-        # the driving time when arrive next location
-        t_secd_current = t_secd_current + typical_duration
-             
-        # Calculate reward for distance
         if d_next == 0:
             r_distance = 10
             terminated = True
@@ -238,7 +302,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:
             r_distance = math.exp * ((d_current - d_next) / 25000) - 1
             
-        # Reward for battery      
+        # Reward for battery
+        # soc after driving
+        soc_after_driving = soc - consumption / self.battery_capacity
         # If there is recuperated energy, the soc can be charged up to 0.8
         if consumption < 0:
             if soc_after_driving > 0.8:
@@ -260,11 +326,12 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             else:
                 r_energy = 0.4 # No trapped
 
-        # Calculate reward for suitable driving time when arriving next node  
-        # update t_secd_current
+        # Calculate reward for suitable driving time when arriving next node
+        t_arrival = t_secd_current + t_secch_current + t_secr_current + typical_duration
+        t_secd_current = t_secd_current + typical_duration
         if t_arrival >= self.section: # A new section begin before arrival next state
             t_secd_current = t_arrival % self.section
-            rest_time = t_secp_current + t_secch_current        
+            rest_time = t_secr_current + t_secch_current        
             if rest_time < self.min_rest:
                 terminated = True
                 print("Terminated: Violated self.max_driving times,should be reseted")
@@ -276,6 +343,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     r_driving = -100
             else:
                 r_driving = math.exp((self.section - rest_time)/3600) - math.exp(4.5)
+            t_secr_current = 0
+            t_secch_current = 0
+
         else: # still in current section when arriving next poi
             if t_secd_current <= self.max_driving:
                 r_driving = math.exp(t_secd_current / 3600) - math.exp(4.5)
@@ -286,78 +356,65 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 r_driving = -100
 
         #next node is an charging station
-        # update t_stay, t_secch_current,t_secp_current
         if next_node in [1, 2, 3]:
             if charge >= soc_after_driving:# Calculate reward for suitable charging time in next node
                 t_stay = (charge - soc_after_driving) * self.battery_capacity / next_power * 3600 #in s
                 t_departure = t_arrival + t_stay
+
                 if t_arrival >= self.section:  # A new section begin before arrival next state
-                    t_secp_current = 0
+                    t_secr_current = 0
                     t_secch_current = t_stay
+
                     if t_secch_current < self.min_rest:
-                        r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
+                        r_charge = math.exp(5 * t_secch_current) - math.exp(3.75)
                     else:
-                        r_charge = -10 * (math.exp(1.5 * t_secch_current / 3600) - math.exp(1.125))
+                        r_charge = -10 * (math.exp(1.5 * t_secch_current) - math.exp(1.125))
                 else:
                     if t_departure >= self.section:  # A new section begin before leaving next state
                         t_secch_current = t_departure % self.section
-                        t_secp_current = 0
+                        t_secr_current = 0
+                        t_secd_current = 0
                         if t_secch_current < self.min_rest:
-                            r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
+                            r_charge = -self.w5 * (self.min_rest - t_secch_current)
                         else:
-                            r_charge = -10 * (math.exp(1.5 * t_secch_current / 3600) - math.exp(1.125))
+                            r_charge = self.w6 * (self.min_rest - t_secch_current)
                     else: # still in current section
                         t_secch_current = t_stay + t_secch_current
                         if t_secch_current < self.min_rest:
-                            r_charge = r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
+                            r_charge = -self.w5 * (self.min_rest - t_secch_current)
                         else:
-                            r_charge = -10 * (math.exp(1.5 * t_secch_current / 3600) - math.exp(1.125))
+                            r_charge = self.w6 * (self.min_rest - t_secch_current)
             else:
-                r_charge = 0
+                r_charge = -10 * (soc_after_driving - charge) - 500
                 t_stay = 0
-                t_departure = t_arrival + t_stay
-                if t_arrival >= self.section:  # A new section begin before arrival next state
-                    t_secp_current = 0
-                    t_secch_current = t_stay
-                else:
-                    if t_departure >= self.section:  # A new section begin before leaving next state
-                        t_secch_current = 0
-                        t_secp_current = 0
-                    else: # still in current section
-                        t_secch_current = t_stay + t_secch_current
-                        if t_secch_current < self.min_rest:
-                            r_charge = r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
-                        else:
-                            r_charge = -10 * (math.exp(1.5 * t_secch_current / 3600) - math.exp(1.125))
+            r_rest = - self.w8 * t_secr_current
 
-
-            r_parking = 0
 
         #next node is a parking lot
         else:
             # Calculate reward for suitable rest time in next node
-            remain_rest = self.min_rest - t_secch_current - t_secp_current
+            remain_rest = self.min_rest - t_secch_current - t_secr_current
             if remain_rest < 0:# Get enough rest before arriving next parking loy
                 t_stay = 0
-                r_parking = -10 * (rest * self.min_rest)
+                r_rest = -10 * (rest * self.min_rest)
             else:
                 t_stay = rest * remain_rest
                 t_departure = t_arrival + t_stay
                 if t_arrival >= self.section:  # A new section begin before arrival next state
-                    t_secp_current = 0
+                    t_secr_current = 0
                     t_secch_current = 0
                     t_secd_current = t_arrival % self.section
-                    remain_rest = self.min_rest - t_secch_current - t_secp_current
+                    remain_rest = self.min_rest - t_secch_current - t_secr_current
                     t_stay = rest * remain_rest
-                    r_parking = - self.w8 * t_secp_current
+                    r_rest = - self.w8 * t_secr_current
                 else:
                     if t_departure >= self.section:  # A new section begin before leaving next state
-                        t_secp_current = t_departure % self.section
+                        t_secr_current = t_departure % self.section
                         t_secd_current = 0
                         t_secch_current = 0
-                        r_parking = - self.w8 * t_secp_current
+                        r_rest = - self.w8 * t_secr_current
                     else:# still in current section
-                        r_parking = - self.w8 * t_secp_current
+                        r_rest = - self.w8 * t_secr_current
 
             # Reward for charging time
             if t_secch_current <= self.min_rest:
@@ -372,10 +429,10 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         r_energy_w = r_energy * 100
         r_driving_w = r_driving / 100
         r_charge_w = r_charge / 100
-        r_parking_w = r_parking / 100
+        r_rest_w = r_rest / 100
 
-        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w
-        print("r_distance, r_energy, r_charge, r_driving, r_parking_p = ", r_distance_w, r_energy_w, r_charge_w, r_driving_w, r_parking_w)
+        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_rest_w
+        print("r_distance, r_energy, r_charge, r_driving, r_rest_p = ", r_distance_w, r_energy_w, r_charge_w, r_driving_w, r_rest_w)
         print("reward = ", reward, "\n")
 
         # if next_node in [1, 2, 3]:
@@ -384,24 +441,24 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         #     print("r_distance, r_energy, r_charge, r_driving = ", r_distance_w, r_energy_w, r_charge_w, r_driving_w)
         #     print("reward = ", reward, "\n")
         # else:
-        #     # reward = self.w_distance * r_distance + self.w_trapped * r_energy + self.w_rest * r_parking + self.w_driving * r_driving
-        #     reward = r_distance_w + r_energy_w + r_parking_w + r_driving_w
-        #     print("r_distance, r_energy, r_parking, r_driving = ", r_distance_w, r_energy_w, r_parking_w, r_driving_w)
+        #     # reward = self.w_distance * r_distance + self.w_trapped * r_energy + self.w_rest * r_rest + self.w_driving * r_driving
+        #     reward = r_distance_w + r_energy_w + r_rest_w + r_driving_w
+        #     print("r_distance, r_energy, r_rest, r_driving = ", r_distance_w, r_energy_w, r_rest_w, r_driving_w)
         #     print("reward = ", reward, "\n")
 
 
         # # update state
-        #node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
+        #node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secr_current, t_secch_current = self.state
         if next_node == 1:
-            self.state = (1, nearest_x1, nearest_y1, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
+            self.state = (1, nearest_x1, nearest_y1, charge, t_stay, t_secd_current, t_secr_current, t_secch_current)
         if next_node == 2:
-            self.state = (2, nearest_x2, nearest_y2, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
+            self.state = (2, nearest_x2, nearest_y2, charge, t_stay, t_secd_current, t_secr_current, t_secch_current)
         if next_node == 3:
-            self.state = (3, nearest_x3, nearest_y3, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
+            self.state = (3, nearest_x3, nearest_y3, charge, t_stay, t_secd_current, t_secr_current, t_secch_current)
         if next_node == 4:
-            self.state = (4, nearest_x4, nearest_y4, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
+            self.state = (4, nearest_x4, nearest_y4, soc_after_driving, t_stay, t_secd_current, t_secr_current, t_secch_current)
         if next_node == 5:
-            self.state = (5, nearest_x5, nearest_y5, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
+            self.state = (5, nearest_x5, nearest_y5, soc_after_driving, t_stay, t_secd_current, t_secr_current, t_secch_current)
 
 
         # # Determine the type of render
