@@ -19,7 +19,7 @@ import torch.nn.functional as F
 
 import sys
 original_stdout = sys.stdout
-with open('output010.txt', 'w') as file:
+with open('output011.txt', 'w') as file:
     sys.stdout = file
 
     BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
@@ -39,14 +39,14 @@ with open('output010.txt', 'w') as file:
     MSE = False
     MAE = False
 
-    result_path = "010.png"
-    weights_path = "weights_010.pth"
+    result_path = "011.png"
+    weights_path = "weights_011.pth"
 
     # Get number of actions from gym action space
     n_actions = 22
 
     if torch.cuda.is_available():
-        num_episodes = 3000
+        num_episodes = 300
     else:
         num_episodes = 50
 
@@ -196,15 +196,20 @@ with open('output010.txt', 'w') as file:
         plt.xlabel('Episode')
         plt.ylabel('Average Reward per Episode')
         # plt.plot(average_rewards_t.numpy())
+        # plt.scatter(range(len(average_rewards_t)), average_rewards_t.numpy(), marker='o')
 
+        filtered_rewards = [reward for reward in average_rewards_t.numpy() if reward >= -10000]
+        plt.scatter(range(len(filtered_rewards)), filtered_rewards, marker='o', label='Rewards')
 
-        plt.scatter(range(len(average_rewards_t)), average_rewards_t.numpy(), marker='o')
         # plt.title('Average Reward per Episode')
         plt.xlim(0, len(average_rewards_t))
         plt.ylim(min(average_rewards_t), max(average_rewards_t))
         plt.grid()
         plt.savefig(result_path)
         plt.show()
+
+        deleted_count = len(average_rewards) - len(filtered_rewards)
+        print(f"Number of deleted rewards: {deleted_count}")
 
 
     # A single step of the optimization
