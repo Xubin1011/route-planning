@@ -33,7 +33,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     EPS_DECAY = 1000  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
     TAU = 0.005  # TAU is the update rate of the target network
     LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
-    REPLAYBUFFER = 5000
+    REPLAYBUFFER = 10000
 
     SGD = True
     Adam = False
