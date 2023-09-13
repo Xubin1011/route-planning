@@ -236,7 +236,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             terminated = True
             print("Terminated: Arrival target")
         else:
-            # r_distance = math.exp * ((d_current - d_next) / 25000) - 1
+            # r_distance = np.exp * ((d_current - d_next) / 25000) - 1
             r_distance = (d_current - d_next) / 25000
             
         # Reward for battery      
@@ -252,8 +252,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             print("Terminated: Trapped on the road, should be reseted")
         else: # No trapped
             if soc_after_driving < 0.1: # Still can run, but violated constraint
-                #r_energy =  math.log(self.w3 * abs(soc_after_driving - 0.1))
-                r_energy = math.log(0.1 * soc_after_driving) + 5
+                #r_energy =  np.log(self.w3 * abs(soc_after_driving - 0.1))
+                r_energy = np.log(0.1 * soc_after_driving) + 5
                 self.num_trapped += 1
                 if self.num_trapped == 10:
                     terminated = True # Violate the self.max_trapped times, stop current episode
@@ -276,10 +276,10 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     # r_driving = -10 * (self.section - rest_time - self.max_driving)
                     r_driving = -100
             else:
-                r_driving = math.exp((self.section - rest_time)/3600) - math.exp(4.5)
+                r_driving = np.exp((self.section - rest_time)/3600) - np.exp(4.5)
         else: # still in current section when arriving next poi
             if t_secd_current <= self.max_driving:
-                r_driving = math.exp(t_secd_current / 3600) - math.exp(4.5)
+                r_driving = np.exp(t_secd_current / 3600) - np.exp(4.5)
             else:
                 print("Terminated: Violated self.max_driving times,should be reseted")
                 terminated = True
@@ -296,24 +296,24 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     t_secp_current = 0
                     t_secch_current = t_stay
                     if t_secch_current < self.min_rest:
-                        r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
+                        r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                     else:
-                        r_charge = -10 * (math.exp(1.5 * t_secch_current / 3600) - math.exp(1.125))
+                        r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
                 else:
                     if t_departure >= self.section:  # A new section begin before leaving next state
                         t_secch_current = t_departure % self.section
                         t_secp_current = 0
                         t_secd_current = 0
                         if t_secch_current < self.min_rest:
-                            r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
+                            r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                         else:
-                            r_charge = -10 * (math.exp(1.5 * t_secch_current / 3600) - math.exp(1.125))
+                            r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
                     else: # still in current section
                         t_secch_current = t_stay + t_secch_current
                         if t_secch_current < self.min_rest:
-                            r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
+                            r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                         else:
-                            r_charge = -10 * (math.exp(1.5 * t_secch_current / 3600) - math.exp(1.125))
+                            r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
             else:
                 r_charge = 0
                 t_stay = 0
@@ -355,17 +355,17 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 if t_arrival >= self.section:  # A new section begin before arrival next state
                     t_secp_current = t_stay
                     t_secch_current = 0
-                    r_parking = -2 * (math.exp(5 * t_stay) - 1)
+                    r_parking = -2 * (np.exp(5 * t_stay / 3600) - 1)
                 else:
                     if t_departure >= self.section:  # A new section begin before leaving next state
                         t_secp_current = t_departure % self.section
                         t_secch_current = 0
                         t_secd_current = 0
-                        r_parking = -2 * (math.exp(5 * t_secp_current) - 1)
+                        r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)
                     else:# still in current section
-                        r_parking = -2 * (math.exp(5 * t_stay) - 1)
+                        r_parking = -2 * (np.exp(5 * t_stay / 3600) - 1)
              # Reward for charging time for a step
-            r_charge = 1 - math.exp(3.75)
+            r_charge = 1 - np.exp(3.75)
 
 
 
