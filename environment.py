@@ -370,11 +370,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
 
         # Calculate immediate reward
-        r_distance_w = r_distance * 10
-        r_energy_w = r_energy * 100
-        r_driving_w = r_driving / 100
-        r_charge_w = r_charge / 100
-        r_parking_w = r_parking / 100
+        r_distance_w = r_distance * 1
+        r_energy_w = r_energy * 50
+        r_driving_w = r_driving * 1
+        r_charge_w = r_charge * 0.1
+        r_parking_w = r_parking * 0.1
 
         reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w
         print("r_distance, r_energy, r_charge, r_driving, r_parking_p = ", r_distance_w, r_energy_w, r_charge_w, r_driving_w, r_parking_w)
