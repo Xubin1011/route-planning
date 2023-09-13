@@ -29,7 +29,7 @@ with open('output009.txt', 'w') as file:
     EPS_DECAY = 1000  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
     TAU = 0.005  # TAU is the update rate of the target network
     LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
-    REPLAYBUFFER = 10000
+    REPLAYBUFFER = 5000
 
     SGD = True
     Adam = False
