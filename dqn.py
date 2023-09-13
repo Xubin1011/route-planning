@@ -196,6 +196,8 @@ with open('output010.txt', 'w') as file:
         plt.xlabel('Episode')
         plt.ylabel('Average Reward per Episode')
         # plt.plot(average_rewards_t.numpy())
+
+
         plt.scatter(range(len(average_rewards_t)), average_rewards_t.numpy(), marker='o')
         # plt.title('Average Reward per Episode')
         plt.xlim(0, len(average_rewards_t))
