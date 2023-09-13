@@ -191,12 +191,14 @@ with open('output010.txt', 'w') as file:
     def plot_average_reward():
 
         average_rewards_t = torch.tensor(average_rewards, dtype=torch.float)
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(12, 8))
         plt.xlabel('Episode')
         plt.ylabel('Average Reward per Episode')
         # plt.plot(average_rewards_t.numpy())
         plt.scatter(range(len(average_rewards_t)), average_rewards_t.numpy(), marker='o')
         # plt.title('Average Reward per Episode')
+        plt.xlim(0, len(average_rewards_t))
+        plt.ylim(min(average_rewards_t), max(average_rewards_t))
         plt.grid()
         plt.savefig(result_path)
         plt.show()
