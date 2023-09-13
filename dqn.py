@@ -18,7 +18,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import sys
-try_numbers = 13
+try_numbers = 17
 original_stdout = sys.stdout
 with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
@@ -35,19 +35,19 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
     REPLAYBUFFER = 10000
 
-    SGD = True
-    Adam = False
+    SGD = False
+    Adam = True
     AdamW = False
 
-    SmoothL1Loss = False
-    MSE = True
+    SmoothL1Loss = True
+    MSE = False
     MAE = False
 
     # Get number of actions from gym action space
     n_actions = 22
 
     if torch.cuda.is_available():
-        num_episodes = 2000
+        num_episodes = 3000
     else:
         num_episodes = 50
 
@@ -200,8 +200,8 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
         # plt.scatter(range(len(average_rewards_t)), average_rewards_t.numpy(), marker='o')
 
         filtered_rewards = [reward for reward in average_rewards_t.numpy() if reward >= -10000]
-        plt.scatter(range(len(filtered_rewards)), filtered_rewards, marker='o', label='Rewards')
-
+        # plt.scatter(range(len(filtered_rewards)), filtered_rewards, marker='o')
+        plt.plot(range(len(filtered_rewards)), filtered_rewards, linestyle='-')
         # plt.title('Average Reward per Episode')
         # plt.xlim(0, len(average_rewards_t))
         # plt.ylim(min(average_rewards_t), max(average_rewards_t))

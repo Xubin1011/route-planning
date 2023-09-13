@@ -1,13 +1,10 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from dqn import DQN
-import numpy as np
-from environment import rp_env
-pth_file_path = "weights_010.pth"
-n_observations = 8
-n_actions = 22
-Q_network = DQN(n_observations, n_actions)
+pth_file_path = "weights_011.pth"
+
 checkpoint = torch.load(pth_file_path)
-Q_network.load_state_dict(checkpoint['model_state_dict'])
-print(Q_network)
+
+model_state_dict = checkpoint['model_state_dict']
+
+for param_name, param_value in model_state_dict.items():
+    print(f"Parameter name: {param_name}")
+    print(f"Parameter value:\n{param_value}")
