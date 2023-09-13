@@ -18,9 +18,13 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import sys
+try_numbers = 12
 original_stdout = sys.stdout
-with open('output011.txt', 'w') as file:
+with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
+
+    result_path = f"{try_numbers:03d}.png"
+    weights_path = f"weights_{try_numbers:03d}.pth"
 
     BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
     GAMMA = 0.99  # GAMMA is the discount factor as mentioned in the previous section
@@ -29,24 +33,21 @@ with open('output011.txt', 'w') as file:
     EPS_DECAY = 1000  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
     TAU = 0.005  # TAU is the update rate of the target network
     LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
-    REPLAYBUFFER = 10000
+    REPLAYBUFFER = 5000
 
     SGD = True
     Adam = False
     AdamW = False
 
-    SmoothL1Loss = True
-    MSE = False
+    SmoothL1Loss = False
+    MSE = True
     MAE = False
-
-    result_path = "011.png"
-    weights_path = "weights_011.pth"
 
     # Get number of actions from gym action space
     n_actions = 22
 
     if torch.cuda.is_available():
-        num_episodes = 300
+        num_episodes = 3000
     else:
         num_episodes = 50
 
@@ -202,8 +203,8 @@ with open('output011.txt', 'w') as file:
         plt.scatter(range(len(filtered_rewards)), filtered_rewards, marker='o', label='Rewards')
 
         # plt.title('Average Reward per Episode')
-        plt.xlim(0, len(average_rewards_t))
-        plt.ylim(min(average_rewards_t), max(average_rewards_t))
+        # plt.xlim(0, len(average_rewards_t))
+        # plt.ylim(min(average_rewards_t), max(average_rewards_t))
         plt.grid()
         plt.savefig(result_path)
         plt.show()
@@ -291,7 +292,6 @@ with open('output011.txt', 'w') as file:
         torch.nn.utils.clip_grad_value_(policy_net.parameters(), 100) #Clips gradient to ensure that the absolute value
         # of the gradient does not exceed 100, used to prevent the gradient explosion problem
         optimizer.step() # update weights
-
 
 
     ## Main Training Loop
@@ -392,19 +392,18 @@ with open('output011.txt', 'w') as file:
                 average_reward = sum_reward / (t+1)
                 average_rewards.append(average_reward)
                 print ("**************************************Episode", i_episode, "done**************************************\n")
-
+                # # save weights
+                # if i_episode == num_episodes - 1:
+                #     weights = {'model_state_dict': policy_net.state_dict()}
+                #     torch.save(weights, weights_path)
 
                 # Store all used transitions in an episode
                 # df.to_csv(filename, index=False)
                 break
 
     print('Complete')
-
     plot_average_reward()
-    #save weights
     weights = {'model_state_dict': policy_net.state_dict()}
     torch.save(weights, weights_path)
-    # plot_durations(show_result=True)
-    # plt.ioff()
-    # plt.show()
+
 sys.stdout = original_stdout
