@@ -18,7 +18,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import sys
-try_numbers = 12
+try_numbers = 13
 original_stdout = sys.stdout
 with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
@@ -47,7 +47,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     n_actions = 22
 
     if torch.cuda.is_available():
-        num_episodes = 3000
+        num_episodes = 2000
     else:
         num_episodes = 50
 
