@@ -19,7 +19,7 @@ import torch.nn.functional as F
 
 import sys
 original_stdout = sys.stdout
-with open('output009.txt', 'w') as file:
+with open('output010.txt', 'w') as file:
     sys.stdout = file
 
     BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
@@ -39,7 +39,7 @@ with open('output009.txt', 'w') as file:
     MSE = False
     MAE = False
 
-    result_path = "009.png"
+    result_path = "010.png"
 
     # Get number of actions from gym action space
     n_actions = 22
