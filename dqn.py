@@ -40,6 +40,7 @@ with open('output010.txt', 'w') as file:
     MAE = False
 
     result_path = "010.png"
+    weights_path = "weights_010.pth"
 
     # Get number of actions from gym action space
     n_actions = 22
@@ -274,8 +275,6 @@ with open('output010.txt', 'w') as file:
             criterion = nn.L1Loss() ##Mean Absolute Error, MAE
             loss = criterion(state_action_values.float(), expected_state_action_values.unsqueeze(1).float())
 
-
-
         # Optimize the model
         optimizer.zero_grad() #The gradient needs to be cleared before updating the parameters each time,
         # so as not to affect the next update due to the superposition of gradient information
@@ -285,6 +284,8 @@ with open('output010.txt', 'w') as file:
         torch.nn.utils.clip_grad_value_(policy_net.parameters(), 100) #Clips gradient to ensure that the absolute value
         # of the gradient does not exceed 100, used to prevent the gradient explosion problem
         optimizer.step() # update weights
+
+
 
     ## Main Training Loop
 
@@ -391,7 +392,11 @@ with open('output010.txt', 'w') as file:
                 break
 
     print('Complete')
+
     plot_average_reward()
+    #save weights
+    weights = {'model_state_dict': policy_net.state_dict()}
+    torch.save(weights, weights_path)
     # plot_durations(show_result=True)
     # plt.ioff()
     # plt.show()
