@@ -379,17 +379,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         print("r_distance, r_energy, r_charge, r_driving, r_parking_p = ", r_distance_w, r_energy_w, r_charge_w, r_driving_w, r_parking_w)
         print("reward = ", reward, "\n")
 
-        # if next_node in [1, 2, 3]:
-        #     # reward = self.w_distance * r_distance + self.w_trapped * r_energy + self.w_charge * r_charge + self.w_driving * r_driving
-        #     reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w
-        #     print("r_distance, r_energy, r_charge, r_driving = ", r_distance_w, r_energy_w, r_charge_w, r_driving_w)
-        #     print("reward = ", reward, "\n")
-        # else:
-        #     # reward = self.w_distance * r_distance + self.w_trapped * r_energy + self.w_rest * r_parking + self.w_driving * r_driving
-        #     reward = r_distance_w + r_energy_w + r_parking_w + r_driving_w
-        #     print("r_distance, r_energy, r_parking, r_driving = ", r_distance_w, r_energy_w, r_parking_w, r_driving_w)
-        #     print("reward = ", reward, "\n")
-
 
         # # update state
         #node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
@@ -404,11 +393,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         if next_node == 5:
             self.state = (5, nearest_x5, nearest_y5, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
 
-
-        # # Determine the type of render
-        # if self.render_mode == "human":
-        #     self.render()
-        # return new state and indicate whether to stop the episode
         return np.array(self.state, dtype=np.float32), reward, terminated
 
     def reset(self):
