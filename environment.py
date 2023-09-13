@@ -302,6 +302,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     if t_departure >= self.section:  # A new section begin before leaving next state
                         t_secch_current = t_departure % self.section
                         t_secp_current = 0
+                        t_secd_current = 0
                         if t_secch_current < self.min_rest:
                             r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
                         else:
@@ -309,7 +310,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     else: # still in current section
                         t_secch_current = t_stay + t_secch_current
                         if t_secch_current < self.min_rest:
-                            r_charge = r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
+                            r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
                         else:
                             r_charge = -10 * (math.exp(1.5 * t_secch_current / 3600) - math.exp(1.125))
             else:
@@ -318,19 +319,15 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 t_departure = t_arrival + t_stay
                 if t_arrival >= self.section:  # A new section begin before arrival next state
                     t_secp_current = 0
-                    t_secch_current = t_stay
+                    t_secch_current = 0
                 else:
                     if t_departure >= self.section:  # A new section begin before leaving next state
                         t_secch_current = 0
                         t_secp_current = 0
+                        t_secd_current = 0
                     else: # still in current section
                         t_secch_current = t_stay + t_secch_current
-                        if t_secch_current < self.min_rest:
-                            r_charge = r_charge = math.exp(5 * t_secch_current / 3600) - math.exp(3.75)
-                        else:
-                            r_charge = -10 * (math.exp(1.5 * t_secch_current / 3600) - math.exp(1.125))
-
-
+            # only the reward for a step, do not need to take totoal rest time into account
             r_parking = 0
 
         #next node is a parking lot
@@ -339,31 +336,35 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             remain_rest = self.min_rest - t_secch_current - t_secp_current
             if remain_rest < 0:# Get enough rest before arriving next parking loy
                 t_stay = 0
-                r_parking = -10 * (rest * self.min_rest)
-            else:
-                t_stay = rest * remain_rest
+                r_parking = -100
                 t_departure = t_arrival + t_stay
                 if t_arrival >= self.section:  # A new section begin before arrival next state
                     t_secp_current = 0
                     t_secch_current = 0
-                    t_secd_current = t_arrival % self.section
-                    remain_rest = self.min_rest - t_secch_current - t_secp_current
-                    t_stay = rest * remain_rest
-                    r_parking = - self.w8 * t_secp_current
+                else:
+                    if t_departure >= self.section:  # A new section begin before leaving next state
+                        t_secch_current = 0
+                        t_secp_current = 0
+                        t_secd_current = 0
+                    else: # still in current section
+                        t_secch_current = t_secch_current
+            else:
+                t_stay = rest * remain_rest
+                t_departure = t_arrival + t_stay
+                if t_arrival >= self.section:  # A new section begin before arrival next state
+                    t_secp_current = t_stay
+                    t_secch_current = 0
+                    r_parking = -2 * (math.exp(5 * t_stay) - 1)
                 else:
                     if t_departure >= self.section:  # A new section begin before leaving next state
                         t_secp_current = t_departure % self.section
-                        t_secd_current = 0
                         t_secch_current = 0
-                        r_parking = - self.w8 * t_secp_current
+                        t_secd_current = 0
+                        r_parking = -2 * (math.exp(5 * t_secp_current) - 1)
                     else:# still in current section
-                        r_parking = - self.w8 * t_secp_current
-
-            # Reward for charging time
-            if t_secch_current <= self.min_rest:
-                r_charge = -self.w5 * (self.min_rest - t_secch_current)
-            else:
-                r_charge = self.w6 * (self.min_rest - t_secch_current)
+                        r_parking = -2 * (math.exp(5 * t_stay) - 1)
+             # Reward for charging time for a step
+            r_charge = 1 - math.exp(3.75)
 
 
 
