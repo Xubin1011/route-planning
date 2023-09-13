@@ -236,7 +236,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             terminated = True
             print("Terminated: Arrival target")
         else:
-            r_distance = math.exp * ((d_current - d_next) / 25000) - 1
+            # r_distance = math.exp * ((d_current - d_next) / 25000) - 1
+            r_distance = (d_current - d_next) / 25000
             
         # Reward for battery      
         # If there is recuperated energy, the soc can be charged up to 0.8

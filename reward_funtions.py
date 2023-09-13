@@ -14,14 +14,14 @@ import math
 
 
 
-x = np.linspace(-1, 2, 1000)
-y = np.where(x<0, 0 ,np.where(x <= 0.75, np.exp(5 * x) - np.exp(3.75), - 10 * (np.exp(1.5 * x) - np.exp(1.125))))
-plt.plot(x, y)
-plt.xlabel('Charging time(in h)')
-plt.ylabel('Reward')
-plt.title('Reward for charging time')
-plt.grid(True)
-plt.show()
+# x = np.linspace(-1, 2, 1000)
+# y = np.where(x<0, 0 ,np.where(x <= 0.75, np.exp(5 * x) - np.exp(3.75), - 10 * (np.exp(1.5 * x) - np.exp(1.125))))
+# plt.plot(x, y)
+# plt.xlabel('Charging time(in h)')
+# plt.ylabel('Reward')
+# plt.title('Reward for charging time')
+# plt.grid(True)
+# plt.show()
 
 
 # x = np.linspace(-1, 0.75, 1000)
@@ -42,11 +42,13 @@ plt.show()
 # plt.grid(True)
 # plt.show()
 
-# x = np.linspace(-0.2, 0.8, 1000)
-# y = np.exp(5 * x ) - 1
-# plt.plot(x, y)
-# plt.xlabel('Distance(in km)')
-# plt.ylabel('Reward')
-# plt.title('Reward for distances ')
-# plt.grid(True)
-# plt.show()
+x = np.linspace(-25, 25, 1000)
+# y = np.where(x < 0, (-1 * np.exp(-0.15 * x  ) + 1)/1000, (np.exp(0.1 * x ) - 1) / 1000)
+# y = np.where(x < 0, (-1 * np.exp(-1 * x) + 1)/1000, (np.exp(1 * x ) - 1) / 1000)
+y = x
+plt.plot(x , y)
+plt.xlabel('Distance traveled forward(in km)')
+plt.ylabel('Reward')
+plt.title('Reward for distance ')
+plt.grid(True)
+plt.show()
