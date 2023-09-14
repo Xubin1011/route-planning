@@ -18,7 +18,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import sys
-try_numbers = 17
+try_numbers = 19
 original_stdout = sys.stdout
 with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
@@ -147,6 +147,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
                 # print("state=", state)
                 # print("action=", action)
                 # print("action from policy_net :", policy_net(state).max(1)[1].view(1, 1), "\n")
+                print("Exploitation, chooses the greedy action to get the most reward")
                 return policy_net(state).max(1)[1].view(1, 1)
                 # return policy_net(state).max(1)[1]
                 # return(action)
@@ -154,6 +155,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
         else:
             # Exploration, sample from the action space randomly
             # print(torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long))
+            print("Exploration, sample from the action space randomly")
             return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
             # return(env.action_space_sample())
 
@@ -197,11 +199,11 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
         plt.xlabel('Episode')
         plt.ylabel('Average Reward per Episode')
         # plt.plot(average_rewards_t.numpy())
-        # plt.scatter(range(len(average_rewards_t)), average_rewards_t.numpy(), marker='o')
+        plt.plot(range(len(average_rewards_t)), average_rewards_t.numpy(), linestyle='-')
 
-        filtered_rewards = [reward for reward in average_rewards_t.numpy() if reward >= -10000]
+        # filtered_rewards = [reward for reward in average_rewards_t.numpy() if reward >= -10000]
         # plt.scatter(range(len(filtered_rewards)), filtered_rewards, marker='o')
-        plt.plot(range(len(filtered_rewards)), filtered_rewards, linestyle='-')
+        # plt.plot(range(len(filtered_rewards)), filtered_rewards, linestyle='-')
         # plt.title('Average Reward per Episode')
         # plt.xlim(0, len(average_rewards_t))
         # plt.ylim(min(average_rewards_t), max(average_rewards_t))
@@ -209,8 +211,8 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
         plt.savefig(result_path)
         plt.show()
 
-        deleted_count = len(average_rewards) - len(filtered_rewards)
-        print(f"Number of deleted rewards: {deleted_count}")
+        # deleted_count = len(average_rewards) - len(filtered_rewards)
+        # print(f"Number of deleted rewards: {deleted_count}")
 
 
     # A single step of the optimization
@@ -390,6 +392,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
                 print("Number of steps in an episode:", t+1)
                 print("Sum reward:", sum_reward)
                 average_reward = sum_reward / (t+1)
+                print("Average reward:", average_reward)
                 average_rewards.append(average_reward)
                 print ("**************************************Episode", i_episode, "done**************************************\n")
                 # # save weights

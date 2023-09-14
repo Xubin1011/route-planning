@@ -314,6 +314,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                             r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                         else:
                             r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
+                if r_charge <= -175:
+                    r_charge = -200
             else:
                 r_charge = 0
                 t_stay = 0
@@ -367,14 +369,12 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
              # Reward for charging time for a step
             r_charge = 1 - np.exp(3.75)
 
-
-
         # Calculate immediate reward
         r_distance_w = r_distance * 1
-        r_energy_w = r_energy * 100
+        r_energy_w = r_energy * 500
         r_driving_w = r_driving * 1
-        r_charge_w = r_charge * 10
-        r_parking_w = r_parking * 1
+        r_charge_w = r_charge * 0.1
+        r_parking_w = r_parking * 0.1
 
         reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w
         print("r_distance, r_energy, r_charge, r_driving, r_parking_p = ", r_distance_w, r_energy_w, r_charge_w, r_driving_w, r_parking_w)
