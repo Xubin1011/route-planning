@@ -24,7 +24,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
 
     if torch.cuda.is_available():
-        num_episodes = 50
+        num_episodes = 1000
     else:
         num_episodes = 50
 
