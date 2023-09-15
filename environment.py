@@ -347,7 +347,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             else:
             # Calculate reward for suitable rest time in next node
                 remain_rest = self.min_rest - t_secch_current - t_secp_current
-                if remain_rest < 0:# Get enough rest before arriving next parking loy
+                if remain_rest <= 0:# Get enough rest before arriving next parking loy
                     t_stay = 0
                     r_parking = -100
                     if t_arrival >= self.section:  # A new section begin before arrival next state
@@ -368,7 +368,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                             r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)
                         else:# still in current section
                             r_parking = -2 * (np.exp(5 * t_stay / 3600) - 1)
-
              # Reward for charging time for a step,
             if t_secch_current < self.min_rest:
                 r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
