@@ -232,7 +232,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
              
         # Calculate reward for distance
         if d_next == 0:
-            r_distance = 10
+            r_distance = 1000
             terminated = True
             print("Terminated: Arrival target")
         else:
