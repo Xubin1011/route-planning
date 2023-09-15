@@ -18,10 +18,15 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import sys
-try_numbers = 19
+try_numbers = 21
 original_stdout = sys.stdout
 with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
+
+    if torch.cuda.is_available():
+        num_episodes = 50
+    else:
+        num_episodes = 50
 
     result_path = f"{try_numbers:03d}.png"
     weights_path = f"weights_{try_numbers:03d}.pth"
@@ -45,12 +50,6 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
 
     # Get number of actions from gym action space
     n_actions = 22
-
-    if torch.cuda.is_available():
-        num_episodes = 3000
-    else:
-        num_episodes = 50
-
 
     env = rp_env()
 
@@ -312,9 +311,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
         state, info = env.reset()
         state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
         print("state_reset = ", state, "\n")
-        len_episode = 0
-
-
+        # len_episode = 0
 
         # Store the transition in csv file
         # Each episode has a file
@@ -363,10 +360,10 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
 
             print("state, action, next_state, reward = ", state, action, next_state, reward, "\n")
 
-            len_episode = len_episode + 1
-            if len_episode == 500:
-                done = True
-                print("Terminated: Can not arrival target after 500 steps, stop the episode")
+            # len_episode = len_episode + 1
+            # if len_episode == 500:
+            #     done = True
+            #     print("Terminated: Can not arrival target after 500 steps, stop the episode")
 
             # # Store the transition in csv
             # new_row = pd.Series([state, action, next_state, reward])

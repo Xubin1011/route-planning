@@ -14,24 +14,25 @@ import math
 
 
 
-# x = np.linspace(-1, 2, 1000)
+x = np.linspace(-1, 5, 1000)
 # y = np.where(x<0, 0 ,np.where(x <= 0.75, np.exp(5 * x) - np.exp(3.75), - 10 * (np.exp(1.5 * x) - np.exp(1.125))))
-# plt.plot(x, y)
-# plt.xlabel('Charging time(in h)')
-# plt.ylabel('Reward')
-# plt.title('Reward for charging time')
-# plt.grid(True)
-# plt.show()
-
-
-x = np.linspace(-1, 0.75, 1000)
-y = np.where(x > 0, -2 * (np.exp(5 * x) - 1), -100)
+y = np.where(x<0, 0 ,np.where(x <= 0.75, np.exp(5 * x) - np.exp(3.75), -32* x + 24))
 plt.plot(x, y)
-plt.xlabel('Rest action in parking lots(%) * Remaining rest time (in h)')
+plt.xlabel('Charging time(in h)')
 plt.ylabel('Reward')
-plt.title('Reward for rest time in parking lots')
+plt.title('Reward for charging time')
 plt.grid(True)
 plt.show()
+
+
+# x = np.linspace(-1, 0.75, 1000)
+# y = np.where(x > 0, -2 * (np.exp(5 * x) - 1), -100)
+# plt.plot(x, y)
+# plt.xlabel('Rest action in parking lots(%) * Remaining rest time (in h)')
+# plt.ylabel('Reward')
+# plt.title('Reward for rest time in parking lots')
+# plt.grid(True)
+# plt.show()
 
 # x = np.linspace(-0.2, 0.2, 1000)
 # y = np.where(x < 0, -6, np.where(x <= 0.1, np.log(0.1 * x) + 5, 0.4))
