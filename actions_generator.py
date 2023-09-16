@@ -6,7 +6,6 @@ class ActionGenerator:
     def __init__(self):
         self.myway = way()
         self.next_node = np.arange(self.myway.n_pois)
-        print(self.next_node)
         self.charge = np.array([0, 0.3, 0.5, 0.8])
         self.rest = np.array([0, 0.3, 0.6, 0.9, 1])
 
