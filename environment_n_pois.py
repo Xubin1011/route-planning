@@ -7,6 +7,7 @@ import sys
 from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
+from way_calculation import way
 
 import math
 from typing import Optional
@@ -23,8 +24,8 @@ from gymnasium import logger, spaces
 #  An agent needs to choose the next action according to the current state, and observes the next state and reward
 
 
-## Action Space is a tuple, with 3 arrays, Action a:=(next_node, charge, rest )
-# next_node:= {1,2,3,4,5}
+## Action Space is a tuple, with 3 arrays, Action a:=(node_next, charge, rest )
+# node_next:= {1,2,3,4,5}
 # charge:= {0, 0.3, 0.5, 0.8}
 # rest:= {0, 0.3, 0.6, 0.9, 1}
 
@@ -57,30 +58,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
     def __init__(self, render_mode: Optional[str] = None):
         # initialization
-        self.x_source = 52.66181  # source
-        self.y_source = 13.38251
-        self.c_source = 47
-        self.x_target = 51.772324  # target
-        self.y_target = 12.402652
-        self.c_target = 88
-        self.m = 13500  # (Leergewicht) in kg
-        self.g = 9.81
-        self.rho = 1.225
-        self.A_front = 10.03
-        self.c_r = 0.01
-        self.c_d = 0.7
-        self.a = 0
-        self.eta_m = 0.82
-        self.eta_battery = 0.82
-
-        self.file_path_ch = 'cs_combo_bbox.csv'
-        self.file_path_p = 'parking_bbox.csv'
-        self.data_ch = pd.read_csv("cs_combo_bbox.csv")
-        self.data_p = pd.read_csv("parking_bbox.csv")
-        self.n_ch = 6  # Number of nearest charging station
-        self.n_p = 4  # Number of nearest parking lots
-        self.n_pois = 10
-
         # Limitation of battery
         self.battery_capacity = 588  # (in kWh)
         self.soc_min = 0.1
@@ -95,6 +72,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.w_charge = 1
         self.w_rest = 1
         self.w_driving = 1
+        self.target = 1000
 
         self.num_trapped = 0  # The number that trapped on the road
         self.max_trapped = 10
@@ -102,27 +80,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # # Initialize the actoin space, state space
         self.action_space = spaces.Discrete(22)
         self.df_actions = pd.read_csv("actions.csv")
-
         self.state = None
-
-    def cs_elevation_power(self, x1, y1):
-        matching_row = self.data_ch[(self.data_ch["Latitude"] == x1) & (self.data_ch["Longitude"] == y1)]
-        if not matching_row.empty:
-            cs_elevation = matching_row["Elevation"].values[0]
-            cs_power = matching_row["Power"].values[0]
-        else:
-            print("Current location not found in the dataset of cd")
-
-        return (cs_elevation, cs_power)
-
-    def p_elevation(self, x1, y1):
-        matching_row = self.data_p[(self.data_p["Latitude"] == x1) & (self.data_p["Longitude"] == y1)]
-        if not matching_row.empty:
-            p_elevation = matching_row["Altitude"].values[0]
-        else:
-            print("Current location not found in the dataset of p")
-
-        return (p_elevation)
+        
+        self.myway = way()
 
     def step(self, action):
         # Run one timestep of the environment’s dynamics using the agent actions.
@@ -142,77 +102,16 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # Obtain selected action
         index_cpu = action.cpu()
-        next_node, charge, rest = self.df_actions.iloc[index_cpu.item()]
-        print('next_node, charge, rest = ', next_node, charge, rest)
+        node_next, charge, rest = self.df_actions.iloc[index_cpu.item()]
+        print('node_next, charge, rest = ', node_next, charge, rest)
 
-        # Obtain the altitude and/or power of current location
-        if node_current in range(1, self.n_ch + 1):  # charging station
-            c_current, power_current = self.cs_elevation_power(x_current, y_current)
-        else:  # parking lots
-            c_current = self.p_elevation(x_current, y_current)
+        next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, x_current, y_current, node_next)
 
-        # Obtain n nearest POIs
-        poi_files = [self.file_path_ch, self.file_path_p]
-        n_values = [self.n_ch, self.n_p]
-        for poi_file, n in zip(poi_files, n_values):
-            nearest_poi = nearest_location(poi_file, x_current, y_current, n)
-            for i in range(n):
-                nearest_x = nearest_poi.loc[i, 'Latitude']
-                nearest_y = nearest_poi.loc[i, 'Longitude']
-                print(f'nearest_{i + 1}: {nearest_x}, {nearest_y}')
-
-        # Obtain the energy and time consumption from current node to next node
-        if next_node == 1:
-            d_next = haversine(nearest_x1, nearest_y1, self.x_target, self.y_target)
-            # consumption and typical_duration from current location to next node
-            nearest_c1, next_power = self.cs_elevation_power(nearest_x1, nearest_y1)
-            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
-                                                                                nearest_x1, nearest_y1,
-                                                                                nearest_c1, self.m, self.g,
-                                                                                self.c_r, self.rho, self.A_front,
-                                                                                self.c_d, self.a, self.eta_m,
-                                                                                self.eta_battery)
-        if next_node == 2:
-            d_next = haversine(nearest_x2, nearest_y2, self.x_target, self.y_target)
-            nearest_c2, next_power = self.cs_elevation_power(nearest_x2, nearest_y2)
-            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
-                                                                                nearest_x2, nearest_y2,
-                                                                                nearest_c2, self.m, self.g,
-                                                                                self.c_r, self.rho, self.A_front,
-                                                                                self.c_d, self.a, self.eta_m,
-                                                                                self.eta_battery)
-        if next_node == 3:
-            d_next = haversine(nearest_x3, nearest_y3, self.x_target, self.y_target)
-            nearest_c3, next_power = self.cs_elevation_power(nearest_x3, nearest_y3)
-            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
-                                                                                nearest_x3, nearest_y3,
-                                                                                nearest_c3, self.m, self.g,
-                                                                                self.c_r, self.rho, self.A_front,
-                                                                                self.c_d, self.a, self.eta_m,
-                                                                                self.eta_battery)
-        if next_node == 4:
-            d_next = haversine(nearest_x4, nearest_y4, self.x_target, self.y_target)
-            nearest_c4 = self.p_elevation(nearest_x4, nearest_y4)
-            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
-                                                                                nearest_x4, nearest_y4,
-                                                                                nearest_c4, self.m, self.g,
-                                                                                self.c_r, self.rho, self.A_front,
-                                                                                self.c_d, self.a, self.eta_m,
-                                                                                self.eta_battery)
-        if next_node == 5:
-            d_next = haversine(nearest_x5, nearest_y5, self.x_target, self.y_target)
-            nearest_c5 = self.p_elevation(nearest_x5, nearest_y5)
-            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, c_current,
-                                                                                nearest_x5, nearest_y5,
-                                                                                nearest_c5, self.m, self.g,
-                                                                                self.c_r, self.rho, self.A_front,
-                                                                                self.c_d, self.a, self.eta_m,
-                                                                                self.eta_battery)
-        print("Length, speed, consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h",
-              consumption / length_meters * 100000, "kWh/100km\n")
+        print("next_x, next_y, d_next, power_next, consumption, typical_duration=", next_x, next_y, d_next, power_next, consumption, typical_duration)
+        print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
 
         # the distance from current location to target
-        d_current = haversine(x_current, y_current, self.x_target, self.y_target)
+        d_current = haversine(x_current, y_current, self.myway.x_target, self.myway.y_target)
         # soc after driving
         soc_after_driving = soc - consumption / self.battery_capacity
         # the time that arriving next location
@@ -222,7 +121,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # Calculate reward for distance
         if d_next == 0:
-            r_distance = 1000
+            r_distance = self.target
             terminated = True
             print("Terminated: Arrival target")
         else:
@@ -278,50 +177,43 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # next node is an charging station
         # update t_stay, t_secch_current,t_secp_current
-        if next_node in [1, 2, 3]:
-            if charge == 0:
-                r_charge = 0
-                t_stay = 0
+        if node_next in range(self.myway.n_ch):# Calculate reward for suitable charging time in next node
+            if charge >= soc_after_driving:  # should be charged at next node
+                t_stay = (charge - soc_after_driving) * self.battery_capacity / power_next * 3600  # in s
+                t_departure = t_arrival + t_stay
                 if t_arrival >= self.section:  # A new section begin before arrival next state
                     t_secp_current = 0
-                    t_secch_current = 0
-            else:
-                if charge >= soc_after_driving:  # Calculate reward for suitable charging time in next node
-                    t_stay = (charge - soc_after_driving) * self.battery_capacity / next_power * 3600  # in s
-                    t_departure = t_arrival + t_stay
-                    if t_arrival >= self.section:  # A new section begin before arrival next state
+                    t_secch_current = t_stay
+                    if t_secch_current < self.min_rest:
+                        r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
+                    else:
+                        # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
+                        r_charge = -32 * t_secch_current / 3600 + 24
+                else:
+                    if t_departure >= self.section:  # A new section begin before leaving next state
+                        t_secch_current = t_departure % self.section
                         t_secp_current = 0
-                        t_secch_current = t_stay
+                        t_secd_current = 0
                         if t_secch_current < self.min_rest:
                             r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                         else:
                             # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
                             r_charge = -32 * t_secch_current / 3600 + 24
-                    else:
-                        if t_departure >= self.section:  # A new section begin before leaving next state
-                            t_secch_current = t_departure % self.section
-                            t_secp_current = 0
-                            t_secd_current = 0
-                            if t_secch_current < self.min_rest:
-                                r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
-                            else:
-                                # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
-                                r_charge = -32 * t_secch_current / 3600 + 24
-                        else:  # still in current section
-                            t_secch_current = t_stay + t_secch_current
-                            if t_secch_current < self.min_rest:
-                                r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
-                            else:
-                                # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
-                                r_charge = -32 * t_secch_current / 3600 + 24
-                    # if r_charge <= -175:
-                    #     r_charge = -200
-                else:
-                    r_charge = 0
-                    t_stay = 0
-                    if t_arrival >= self.section:  # A new section begin before arrival next state
-                        t_secp_current = 0
-                        t_secch_current = 0
+                    else:  # still in current section
+                        t_secch_current = t_stay + t_secch_current
+                        if t_secch_current < self.min_rest:
+                            r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
+                        else:
+                            # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
+                            r_charge = -32 * t_secch_current / 3600 + 24
+                # if r_charge <= -175:
+                #     r_charge = -200
+            else:
+                r_charge = 0
+                t_stay = 0
+                if t_arrival >= self.section:  # A new section begin before arrival next state
+                    t_secp_current = 0
+                    t_secch_current = 0
 
             # only the reward for a step, do not need to take totoal rest time into account
             r_parking = 0
@@ -379,19 +271,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # # update state
         # node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
-        if next_node == 1:
-            self.state = (1, nearest_x1, nearest_y1, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
-        if next_node == 2:
-            self.state = (2, nearest_x2, nearest_y2, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
-        if next_node == 3:
-            self.state = (3, nearest_x3, nearest_y3, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
-        if next_node == 4:
-            self.state = (
-            4, nearest_x4, nearest_y4, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
-        if next_node == 5:
-            self.state = (
-            5, nearest_x5, nearest_y5, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
-
+        # next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(
+            # node_current, x_current, y_current, node_next)
+        if node_next in range(self.myway.n_ch):
+            self.state = (node_next, next_x, next_y, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
+        else:
+            self.state = (node_next, next_x, next_y, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
+        
         return np.array(self.state, dtype=np.float32), reward, terminated
 
     def reset(self):

@@ -1,4 +1,8 @@
-from environment import rp_env 
+# Date: 2023-08-16
+# Author: Xubin Zhang
+# Description: Calculate the needed information between two pois
+# Input: current location, current node, next node
+# Output: Distance between next node and target, time and energy consumption between two points, location of next node, power if next node is a CS
 from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
@@ -54,7 +58,7 @@ class way():
 
     def info_way(self, node_current, x_current, y_current, node_next):
         # Obtain the altitude and/or power of current location
-        if node_current in range(0, self.n_ch):  # charging station
+        if node_current in range(self.n_ch):  # charging station
             alti_current, power_current = self.cs_elevation_power(x_current, y_current)
         else:  # parking lots
             alti_current = self.p_elevation(x_current, y_current)
@@ -66,52 +70,43 @@ class way():
         for poi_file, n in zip(poi_files, n_values):
             nearest_poi = nearest_location(poi_file, x_current, y_current, n)
             for i in range(n):
-                nearest_x = nearest_poi.loc[i, 'Latitude']
-                nearest_y = nearest_poi.loc[i, 'Longitude']
-                nearest_n.append([nearest_x, nearest_y])
-        print("nearest n locations:", nearest_n)
+                next_x = nearest_poi.loc[i, 'Latitude']
+                next_y = nearest_poi.loc[i, 'Longitude']
+                nearest_n.append([next_x, next_y])
+        # print("nearest n locations:", nearest_n)
 
         # Map the coordinates to the next location
         coordinates_dict = {}
         for i in range(self.n_pois):
             coordinates_dict[i] = nearest_n[i]
-        print(coordinates_dict)
+        # print(coordinates_dict)
 
         # Calculate the time and energy consumption between two points, the distance between next node and target
+        next_x, next_y = coordinates_dict[node_next]
+        d_next = haversine(next_x, next_y, self.x_target, self.y_target)
         if node_next in range(self.n_ch):
-            nearest_x, nearest_y = coordinates_dict[node_next]
-            d_next = haversine(nearest_x, nearest_y, self.x_target, self.y_target)
-            alti_next, next_power = self.cs_elevation_power(nearest_x, nearest_y)
-            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, alti_current,
-                                                                                nearest_x, nearest_y,
-                                                                                alti_next, self.m, self.g,
-                                                                                self.c_r, self.rho, self.A_front,
-                                                                                self.c_d, self.a, self.eta_m, self.eta_battery)
+            alti_next, power_next = self.cs_elevation_power(next_x, next_y)
         else:
-            nearest_x, nearest_y = coordinates_dict[node_next]
-            d_next = haversine(nearest_x, nearest_y, self.x_target, self.y_target)
-            alti_next = self.p_elevation(nearest_x, nearest_y)
-            consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, alti_current,
-                                                                                nearest_x, nearest_y,
-                                                                                alti_next, self.m, self.g,
-                                                                                self.c_r, self.rho, self.A_front,
-                                                                                self.c_d, self.a, self.eta_m, self.eta_battery)
-        return (d_next, consumption, typical_duration)
+            alti_next = self.p_elevation(next_x, next_y)
+            power_next = None
+        consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, alti_current,
+                                                                            next_x, next_y,
+                                                                            alti_next, self.m, self.g,
+                                                                            self.c_r, self.rho, self.A_front,
+                                                                            self.c_d, self.a, self.eta_m,
+                                                                            self.eta_battery)
+        return (next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
 
-
-
-
-
-
-
-
-
-# 根据next_node的值获取坐标
-
-
-print(nearest_x, nearest_y)
-print(d_next)
-print("Length, speed, consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
+# #test
+# x1 = 49.403861
+# y1 = 9.390352
+# node_c = 1
+# node_next = 5
+# myway = way()
+# next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = myway.info_way(node_c, x1, y1, node_next)
+#
+# print(next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
+# print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
 
 
 

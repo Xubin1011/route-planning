@@ -92,7 +92,7 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
 
     consumption = power * typical_duration / 3600 / 1000  #(in kWh)
 
-    return consumption, typical_duration, distance_meters
+    return consumption, typical_duration, distance_meters #(in kWh, s, m)
 
 # # test eCitaro 2 Türen
 # x1, y1, c1 = 52.66181,13.38251, 47
