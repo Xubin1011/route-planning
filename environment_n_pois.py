@@ -221,6 +221,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                 else:
                     r_charge = -32 * t_secch_current / 3600 + 24
+
                 if t_arrival >= self.section:  # A new section begins before arrival next state
                     t_secp_current = 0
                     t_secch_current = 0
