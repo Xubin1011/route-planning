@@ -152,7 +152,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # Calculate reward for suitable driving time when arriving next node
         # update t_secd_current
-        if t_arrival >= self.section:  # A new section begin before arrival next state
+        if t_arrival >= self.section:  # A new section begin before arrival next state, only consider the reward of last section
             t_secd_current = t_arrival % self.section
             rest_time = t_secp_current + t_secch_current
             if rest_time < self.min_rest:
@@ -178,27 +178,27 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # next node is an charging station
         # update t_stay, t_secch_current,t_secp_current
         if node_next in range(self.myway.n_ch):# Calculate reward for suitable charging time in next node
-            if charge >= soc_after_driving:  # should be charged at next node
+            if charge >= soc_after_driving:  # must be charged at next node
                 t_stay = (charge - soc_after_driving) * self.battery_capacity / power_next * 3600  # in s
                 t_departure = t_arrival + t_stay
-                if t_arrival >= self.section:  # A new section begin before arrival next state
-                    t_secp_current = 0
-                    t_secch_current = t_stay
+                if t_arrival >= self.section:  # A new section begin before arrival next state,only consider the reward of last section
                     if t_secch_current < self.min_rest:
                         r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                     else:
                         # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
                         r_charge = -32 * t_secch_current / 3600 + 24
+                    t_secp_current = 0
+                    t_secch_current = t_stay
                 else:
-                    if t_departure >= self.section:  # A new section begin before leaving next state
-                        t_secch_current = t_departure % self.section
-                        t_secp_current = 0
-                        t_secd_current = 0
+                    if t_departure >= self.section:  # A new section begin before leaving next state,only consider the reward of last section
                         if t_secch_current < self.min_rest:
                             r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                         else:
                             # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
                             r_charge = -32 * t_secch_current / 3600 + 24
+                        t_secch_current = t_departure % self.section
+                        t_secp_current = 0
+                        t_secd_current = 0
                     else:  # still in current section
                         t_secch_current = t_stay + t_secch_current
                         if t_secch_current < self.min_rest:
