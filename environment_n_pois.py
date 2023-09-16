@@ -177,7 +177,10 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # next node is an charging station
         # update t_stay, t_secch_current,t_secp_current
-        if node_next in range(self.myway.n_ch):# Calculate reward for suitable charging time in next node
+        if node_next in range(self.myway.n_ch):
+            # not a parking lot, only take total rest time into account
+            r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)
+            # Calculate reward for suitable charging time in next node
             if charge >= soc_after_driving:  # must be charged at next node
                 t_stay = (charge - soc_after_driving) * self.battery_capacity / power_next * 3600  # in s
                 t_departure = t_arrival + t_stay
@@ -222,12 +225,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     t_secp_current = 0
                     t_secch_current = 0
 
-            # only the reward for a step, do not need to take total rest time into account
-            r_parking = 0
+
 
         # next node is a parking lot
         else:
-            if rest == 0:
+            if rest == 0: # not reat at parking lits, max.reward
                 t_stay = 0
                 r_parking = 0
                 if t_arrival >= self.section:  # A new section begin before arrival next state
