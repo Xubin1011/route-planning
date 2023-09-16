@@ -270,6 +270,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:
             r_end = - 1
 
+
         # Calculate immediate reward
         r_distance_w = r_distance * self.w_distance
         r_energy_w = r_energy * self.w_energy

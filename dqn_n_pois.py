@@ -26,6 +26,18 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     else:
         num_episodes = 50
 
+    env = rp_env()
+    env.w_distance = 5000  # value range -1~+1
+    env.w_energy = 1500  # -6~0.4
+    env.w_driving = 1  # -100~0
+    env.w_charge = 0.1  # -232~0
+    env.w_parking = 10  # -100~0
+    env.w_target = 0  # 1 or -1
+
+    env.n_ch = 6  # Number of nearest charging station
+    env.n_p = 4  # Number of nearest parking lots
+    env.n_pois = 10
+
     result_path = f"{try_numbers:03d}.png"
     weights_path = f"weights_{try_numbers:03d}.pth"
 
@@ -85,7 +97,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     # Transition: A named tuple representing a single transition in an environment
     Transition = namedtuple('Transition',
                             ('state', 'action', 'next_state', 'reward'))
-    env = rp_env()
+
     # Get number of actions from gym action space
     n_actions = env.df_actions.shape[0]
     # Get the number of state observations
