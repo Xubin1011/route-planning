@@ -9,7 +9,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from collections import namedtuple, deque
 from itertools import count
-from environment import rp_env
+from environment_n_pois import rp_env
 import torch
 import torch.nn as nn
 import torch.optim as optim

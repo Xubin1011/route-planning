@@ -64,10 +64,11 @@ def nearest_location(file_path, x1, y1, n):
     return nearest_locations
 
 # # test
-# file_path = "cs_combo_bbox.csv"
+# # file_path = "cs_combo_bbox.csv"
+# file_path = 'parking_bbox.csv'
 # x1, y1 = 49.403861,9.390352
 #
-# n = 2
+# n = 4
 # nearest_locations = nearest_location(file_path, x1, y1, n)
 # # nearest_locations.drop(0, inplace=True)
 # print(nearest_locations)
