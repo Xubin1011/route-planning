@@ -6,20 +6,12 @@ from consumption_duration import consumption_duration
 from consumption_duration import haversine
 from way_calculation import way
 
-import math
-from typing import Optional
-
-import numpy as np
-import pandas as pd
-import gymnasium as gym
-from gymnasium.envs.classic_control import utils
-from gymnasium import logger, spaces
-from environment_n_pois import rp_env
-
-
-df_actions = pd.read_csv("actions.csv")
-print(df_actions)
-action_space = spaces.Discrete(df_actions.shape[0])
-print(action_space)
-n_actions = df_actions.shape[0]
-print(n_actions)
+class test1():
+    def __init__(self):
+        self.a = 100
+        self.b =3
+    def com(self, a, b):
+        if a >b:
+            print("a>b")
+        else:
+            print("a<b")

@@ -27,7 +27,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
         num_episodes = 50
 
     env = rp_env()
-    env.w_distance = 5000  # value range -1~+1
+    env.w_distance = 1000  # value range -1~+1
     env.w_energy = 1500  # -6~0.4
     env.w_driving = 1  # -100~0
     env.w_charge = 0.1  # -232~0
