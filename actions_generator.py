@@ -16,7 +16,7 @@ class ActionGenerator:
             if node in range(self.myway.n_ch):
                 for ch in self.charge:
                     actions.append([node, ch, 0])
-            elif node in range(self.myway.n_ch, self.myway.n_pois - 1):
+            elif node in range(self.myway.n_ch, self.myway.n_pois):
                 for r in self.rest:
                     actions.append([node, 0, r])
 
