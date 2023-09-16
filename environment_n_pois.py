@@ -78,8 +78,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.max_trapped = 10
 
         # # Initialize the actoin space, state space
-        self.action_space = spaces.Discrete(22)
         self.df_actions = pd.read_csv("actions.csv")
+        self.action_space = spaces.Discrete(self.df_actions.shape[0])
         self.state = None
         
         self.myway = way()
