@@ -181,7 +181,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             # not a parking lot, only take total rest time into account
             r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)
             # Calculate reward for suitable charging time in next node
-            if charge >= soc_after_driving:  # must be charged at next node
+            if charge > soc_after_driving:  # must be charged at next node
                 t_stay = (charge - soc_after_driving) * self.battery_capacity / power_next * 3600  # in s
                 t_departure = t_arrival + t_stay
                 if t_arrival >= self.section:  # A new section begin before arrival next state,only consider the reward of last section
@@ -225,46 +225,43 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     t_secp_current = 0
                     t_secch_current = 0
 
-
-
         # next node is a parking lot
         else:
-            if rest == 0: # not reat at parking lits, max.reward
+            # no charge at a parking lot, only take total charge time into account
+            if t_secch_current < self.min_rest:  # A new section begins before arrival or departure next state or still in current section
+                r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
+            else:
+                r_charge = -32 * t_secch_current / 3600 + 24
+
+            # Calculate reward for suitable rest time in next node
+            remain_rest = self.min_rest - t_secch_current - t_secp_current
+            t_stay = remain_rest * rest
+            if t_stay <= 0:  # Get enough rest before arriving next parking loy
                 t_stay = 0
-                r_parking = 0
+                r_parking = -100
                 if t_arrival >= self.section:  # A new section begin before arrival next state
                     t_secp_current = 0
                     t_secch_current = 0
-            else:
-                # Calculate reward for suitable rest time in next node
-                remain_rest = self.min_rest - t_secch_current - t_secp_current
-                if remain_rest <= 0:  # Get enough rest before arriving next parking loy
-                    t_stay = 0
-                    r_parking = -100
-                    if t_arrival >= self.section:  # A new section begin before arrival next state
-                        t_secp_current = 0
-                        t_secch_current = 0
+            else:# t_stay > 0
+                t_departure = t_arrival + t_stay
+                if t_arrival >= self.section:  # A new section begin before arrival next state
+                    r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1) # the reward of last section
+                    t_secp_current = t_stay
+                    t_secch_current = 0
                 else:
-                    t_stay = rest * remain_rest
-                    t_departure = t_arrival + t_stay
-                    if t_arrival >= self.section:  # A new section begin before arrival next state
-                        t_secp_current = t_stay
+                    if t_departure >= self.section:  # A new section begin before leaving next state
+                        t_secp_current += (t_stay - t_departure % self.section)
+                        if (t_stay - t_departure % self.section) < 0:
+                            print("Warning! wrong Value of t_secch_current")
+                            sys.exit(1)
+                        r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)# the reward of last section
+                        t_secp_current = t_departure % self.section
                         t_secch_current = 0
-                        r_parking = -2 * (np.exp(5 * t_stay / 3600) - 1)
-                    else:
-                        if t_departure >= self.section:  # A new section begin before leaving next state
-                            t_secp_current = t_departure % self.section
-                            t_secch_current = 0
-                            t_secd_current = 0
-                            r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)
-                        else:  # still in current section
-                            r_parking = -2 * (np.exp(5 * t_stay / 3600) - 1)
-            # Reward for charging time for a step,
-            if t_secch_current < self.min_rest:
-                r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
-            else:
-                # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
-                r_charge = -32 * t_secch_current / 3600 + 24
+                        t_secd_current = 0
+                    else:  # still in current section
+                        t_secp_current += t_stay
+                        r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)
+
 
         # Calculate immediate reward
         r_distance_w = r_distance * 1000
