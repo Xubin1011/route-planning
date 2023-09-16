@@ -217,6 +217,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 # if r_charge <= -175:
                 #     r_charge = -200
             else: # No need to charge
+                charge = soc_after_driving
                 t_stay = 0
                 if t_secch_current < self.min_rest: # A new section begins before arrival next state or still in current section
                     r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
