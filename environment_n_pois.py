@@ -72,7 +72,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.w_driving = 1  #-100~0
         self.w_charge = 0.1 # -232~0
         self.w_parking = 10 # -100~0
-        self.w_target = 0 # 1 or -1
+        self.w_target = 1000 # 1 or 0
 
         self.num_trapped = 0  # The number that trapped on the road
         self.max_trapped = 10
@@ -230,7 +230,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         # next node is a parking lot
         else:
-            # no charge at a parking lot, only take total charge time into account
+            # no charge at a parking lot, using total charge to calculate reward
             if t_secch_current < self.min_rest:  # A new section begins before arrival or departure next state or still in current section
                 r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
             else:
@@ -268,7 +268,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         if terminated == True and d_next == 0: # arrival target
             r_end = 1
         else:
-            r_end = - 1
+            r_end = 0
 
 
         # Calculate immediate reward

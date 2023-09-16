@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from collections import namedtuple, deque
 from itertools import count
 from environment_n_pois import rp_env
+from way_calculation import way
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -22,7 +23,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
 
     if torch.cuda.is_available():
-        num_episodes = 50
+        num_episodes = 1000
     else:
         num_episodes = 50
 
@@ -32,11 +33,12 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     env.w_driving = 1  # -100~0
     env.w_charge = 0.1  # -232~0
     env.w_parking = 10  # -100~0
-    env.w_target = 0  # 1 or -1
+    env.w_target = 1000  # 1 or 0
 
-    env.n_ch = 6  # Number of nearest charging station
-    env.n_p = 4  # Number of nearest parking lots
-    env.n_pois = 10
+    myway = way()
+    myway.n_ch = 6  # Number of nearest charging station
+    myway.n_p = 4  # Number of nearest parking lots
+    myway.n_pois = 10
 
     result_path = f"{try_numbers:03d}.png"
     weights_path = f"weights_{try_numbers:03d}.pth"
