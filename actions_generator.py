@@ -1,9 +1,12 @@
 import numpy as np
 import pandas as pd
+from way_calculation import way
 
 class ActionGenerator:
     def __init__(self):
-        self.next_node = np.array([1, 2, 3, 4, 5])
+        self.myway = way()
+        self.next_node = np.arange(self.myway.n_pois)
+        print(self.next_node)
         self.charge = np.array([0, 0.3, 0.5, 0.8])
         self.rest = np.array([0, 0.3, 0.6, 0.9, 1])
 
@@ -11,10 +14,10 @@ class ActionGenerator:
         actions = []
 
         for node in self.next_node:
-            if node in [1, 2, 3]:
+            if node in range(self.myway.n_ch):
                 for ch in self.charge:
                     actions.append([node, ch, 0])
-            elif node in [4, 5]:
+            elif node in range(self.myway.n_ch, self.myway.n_pois - 1):
                 for r in self.rest:
                     actions.append([node, 0, r])
 
