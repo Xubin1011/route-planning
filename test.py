@@ -5,13 +5,10 @@ from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
 from way_calculation import way
+from environment_n_pois import rp_env
 
-class test1():
-    def __init__(self):
-        self.a = 100
-        self.b =3
-    def com(self, a, b):
-        if a >b:
-            print("a>b")
-        else:
-            print("a<b")
+env = rp_env()
+x = 49.12345
+y = 9.67890
+loop = env.check_loop(x,y)
+print(loop)

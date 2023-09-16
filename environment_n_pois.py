@@ -84,6 +84,22 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         
         self.myway = way()
 
+    def check_loop(self, x, y):
+        loop_file = "loop_pois.csv"
+        try:
+            df = pd.read_csv(loop_file)
+        except FileNotFoundError:
+            df = pd.DataFrame(columns=["Latitude", "Longitude"])
+        # check if there is a loop
+        if ((df["Latitude"] == x) & (df["Longitude"] == y)).any():
+            return True
+        else:
+            # there is no loop
+            new_row = {"Latitude": x, "Longitude": y}
+            df = df.append(new_row, ignore_index=True)
+            df.to_csv(loop_file, index=False)
+            return False
+
     def step(self, action):
         # Run one timestep of the environment’s dynamics using the agent actions.
         # Calculate reward, update state
