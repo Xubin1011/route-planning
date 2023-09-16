@@ -67,12 +67,12 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.max_driving = 16200  # in s
         self.section = self.min_rest + self.max_driving
 
-        self.w_distance = 1
-        self.w_trapped = 1
-        self.w_charge = 1
-        self.w_rest = 1
-        self.w_driving = 1
-        self.target = 1000
+        self.w_distance = 1000  #value range -1~+1
+        self.w_energy = 1500 # -6~0.4
+        self.w_driving = 1  #-100~0
+        self.w_charge = 0.1 # -232~0
+        self.w_parking = 10 # -100~0
+        self.w_target = 0 # 1 or -1
 
         self.num_trapped = 0  # The number that trapped on the road
         self.max_trapped = 10
@@ -120,13 +120,14 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         t_secd_current = t_secd_current + typical_duration
 
         # Calculate reward for distance
+        r_distance = (d_current - d_next) / 25000
         if d_next == 0:
-            r_distance = self.target
+            # r_distance = self.target
             terminated = True
             print("Terminated: Arrival target")
-        else:
-            # r_distance = np.exp * ((d_current - d_next) / 25000) - 1
-            r_distance = (d_current - d_next) / 25000
+        # else:
+        #     # r_distance = np.exp * ((d_current - d_next) / 25000) - 1
+        #     r_distance = (d_current - d_next) / 25000
 
         # Reward for battery
         # If there is recuperated energy, the soc can be charged up to 0.8
@@ -263,17 +264,22 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                         t_secp_current += t_stay
                         r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)
 
+        if terminated == True and d_next == 0: # arrival target
+            r_end = 1
+        else:
+            r_end = - 1
 
         # Calculate immediate reward
-        r_distance_w = r_distance * 1000
-        r_energy_w = r_energy * 1500
-        r_driving_w = r_driving * 1
-        r_charge_w = r_charge * 0.1
-        r_parking_w = r_parking * 10
+        r_distance_w = r_distance * self.w_distance
+        r_energy_w = r_energy * self.w_energy
+        r_driving_w = r_driving * self.w_driving
+        r_charge_w = r_charge * self.w_charge
+        r_parking_w = r_parking * self.w_parking
+        r_terminated_w = r_end * self.w_target
 
-        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w
-        print("r_distance, r_energy, r_charge, r_driving, r_parking_p = ", r_distance_w, r_energy_w, r_charge_w,
-              r_driving_w, r_parking_w)
+        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w
+        print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end = ", r_distance_w, r_energy_w, r_charge_w,
+              r_driving_w, r_parking_w, r_terminated_w)
         print("reward = ", reward, "\n")
 
         # # update state
@@ -290,7 +296,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
     def reset(self):
 
         # s := (current_node, x1, y1, soc, t_stay, t_secd, t_secr, t_secch)
-        node = random.choice([4, 5])
+        node = random.randint(6, 9)
         data = pd.read_csv('parking_bbox.csv')
         # location = data.sample(n =1, random_state=42)
         location = data.sample(n=1)
