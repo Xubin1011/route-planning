@@ -191,6 +191,10 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     t_secch_current = t_stay
                 else:
                     if t_departure >= self.section:  # A new section begin before leaving next state,only consider the reward of last section
+                        t_secch_current += (t_stay - t_departure % self.section)
+                        if (t_stay - t_departure % self.section) < 0:
+                            print("Warning! wrong Value of t_secch_current")
+                            sys.exit(1)
                         if t_secch_current < self.min_rest:
                             r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                         else:
@@ -208,14 +212,17 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                             r_charge = -32 * t_secch_current / 3600 + 24
                 # if r_charge <= -175:
                 #     r_charge = -200
-            else:
-                r_charge = 0
+            else: # No need to charge
                 t_stay = 0
-                if t_arrival >= self.section:  # A new section begin before arrival next state
+                if t_secch_current < self.min_rest: # A new section begins before arrival next state or still in current section
+                    r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
+                else:
+                    r_charge = -32 * t_secch_current / 3600 + 24
+                if t_arrival >= self.section:  # A new section begins before arrival next state
                     t_secp_current = 0
                     t_secch_current = 0
 
-            # only the reward for a step, do not need to take totoal rest time into account
+            # only the reward for a step, do not need to take total rest time into account
             r_parking = 0
 
         # next node is a parking lot
