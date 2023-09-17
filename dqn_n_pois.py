@@ -17,13 +17,13 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import sys
-try_numbers = 31
+try_numbers = 32
 original_stdout = sys.stdout
 with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
 
     if torch.cuda.is_available():
-        num_episodes = 1000
+        num_episodes = 50
     else:
         num_episodes = 50
 
@@ -34,6 +34,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     env.w_charge = 0.1  # -232~0
     env.w_parking = 10  # -100~0
     env.w_target = 1000  # 1 or 0
+    env.w_loop = 1 # 1 or -10000
 
     myway = way()
     myway.n_ch = 6  # Number of nearest charging station
@@ -46,8 +47,8 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
     GAMMA = 0.99  # GAMMA is the discount factor as mentioned in the previous section
     EPS_START = 0.9  # EPS_START is the starting value of epsilon
-    EPS_END = 0.05  # EPS_END is the final value of epsilon
-    EPS_DECAY = 2000  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
+    EPS_END = 0.1  # EPS_END is the final value of epsilon
+    EPS_DECAY = 500  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
     TAU = 0.005  # TAU is the update rate of the target network
     LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
     REPLAYBUFFER = 10000
@@ -126,7 +127,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
 
 
     # Select action by Epsilon-Greedy Policy according to state
-    def select_action(state):
+    def select_action(state, eps_flag):
         global steps_done
         sample = random.random() # range 0~1
 
@@ -135,7 +136,14 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
         eps_threshold = EPS_END + (EPS_START - EPS_END) * \
             math.exp(-1. * steps_done / EPS_DECAY)
         steps_done += 1 # The value of threshold decreases, increasing the chance of exploration
-        if sample > eps_threshold:
+
+        # In the last episode, there is only exploitation
+        if eps_flag == num_episodes - 10:
+            eps_threshold == 0.05
+        if eps_flag == num_episodes:
+            eps_threshold == 0
+
+        if sample >= eps_threshold:
             # Exploitation, chooses the greedy action to get the most reward
             # by exploiting the agent’s current action-value estimates
             with torch.no_grad():
@@ -237,9 +245,11 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
         state, info = env.reset()
         state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
         print("state_reset = ", state, "\n")
+        # clear loop_pois.csv
+        env.clear_loop_file()
 
         for t in count():
-            action = select_action(state)
+            action = select_action(state, i_episode)
             observation, reward, terminated = env.step(action) # observation is next state
             # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
 

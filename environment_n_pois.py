@@ -73,6 +73,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.w_charge = 0.1 # -232~0
         self.w_parking = 10 # -100~0
         self.w_target = 1000 # 1 or 0
+        self.w_loop = 1 # 1 or -10000
 
         self.num_trapped = 0  # The number that trapped on the road
         self.max_trapped = 10
@@ -90,15 +91,20 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             df = pd.read_csv(loop_file)
         except FileNotFoundError:
             df = pd.DataFrame(columns=["Latitude", "Longitude"])
-        # check if there is a loop
+        # there is a same location, so there is a loop
         if ((df["Latitude"] == x) & (df["Longitude"] == y)).any():
             return True
         else:
             # there is no loop
             new_row = {"Latitude": x, "Longitude": y}
-            df = df.append(new_row, ignore_index=True)
+            df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
             df.to_csv(loop_file, index=False)
             return False
+
+    def clear_loop_file(self):
+        file_path = "loop_pois.csv"
+        df = pd.DataFrame(columns=['Latitude', 'Longitude'])
+        df.to_csv(file_path, index=False)
 
     def step(self, action):
         # Run one timestep of the environment’s dynamics using the agent actions.
@@ -125,7 +131,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
 
         print("next_x, next_y, d_next, power_next, consumption, typical_duration=", next_x, next_y, d_next, power_next, consumption, typical_duration)
         print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
-
+    ##################################################################
         # the distance from current location to target
         d_current = haversine(x_current, y_current, self.myway.x_target, self.myway.y_target)
         # soc after driving
@@ -134,7 +140,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         t_arrival = t_secd_current + t_secch_current + t_secp_current + typical_duration
         # the driving time when arrive next location
         t_secd_current = t_secd_current + typical_duration
-
+        ##################################################################
         # Calculate reward for distance
         r_distance = (d_current - d_next) / 25000
         if d_next == 0:
@@ -144,13 +150,20 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # else:
         #     # r_distance = np.exp * ((d_current - d_next) / 25000) - 1
         #     r_distance = (d_current - d_next) / 25000
-
+        ##################################################################
+        # Reward for no loop
+        loop = self.check_loop(next_x, next_y)
+        if loop:
+            r_loop = -10000
+        else:
+            r_loop = 1
+        ##################################################################
         # Reward for battery
         # If there is recuperated energy, the soc can be charged up to 0.8
         if consumption < 0:
             if soc_after_driving > 0.8:
                 soc_after_driving = 0.8
-
+        ##################################################################
         # Punishment for the trapped on the road
         if soc_after_driving < 0:  # Trapped
             terminated = True
@@ -166,7 +179,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     print("Terminated: Violated soc 10 times,should be reseted")
             else:
                 r_energy = 0.4  # No trapped
-
+        ##################################################################
         # Calculate reward for suitable driving time when arriving next node
         # update t_secd_current
         if t_arrival >= self.section:  # A new section begin before arrival next state, only consider the reward of last section
@@ -191,8 +204,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 terminated = True
                 # r_driving = -10 * (t_secd_current- self.max_driving)
                 r_driving = -100
-
-        # next node is an charging station
+        ##################################################################
+        # next node is a charging station
         # update t_stay, t_secch_current,t_secp_current
         if node_next in range(self.myway.n_ch):
             # not a parking lot, only take total rest time into account
@@ -243,7 +256,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 if t_arrival >= self.section:  # A new section begins before arrival next state
                     t_secp_current = 0
                     t_secch_current = 0
-
+        ##################################################################
         # next node is a parking lot
         else:
             # no charge at a parking lot, using total charge to calculate reward
@@ -280,12 +293,12 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     else:  # still in current section
                         t_secp_current += t_stay
                         r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)
-
+        ##################################################################
         if terminated == True and d_next == 0: # arrival target
             r_end = 1
         else:
             r_end = 0
-
+        ##################################################################
 
         # Calculate immediate reward
         r_distance_w = r_distance * self.w_distance
@@ -294,12 +307,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         r_charge_w = r_charge * self.w_charge
         r_parking_w = r_parking * self.w_parking
         r_terminated_w = r_end * self.w_target
+        r_loop_w = r_loop * self.w_loop
 
         reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w
         print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end = ", r_distance_w, r_energy_w, r_charge_w,
               r_driving_w, r_parking_w, r_terminated_w)
         print("reward = ", reward, "\n")
-
+        ##################################################################
         # # update state
         # node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
         # next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(

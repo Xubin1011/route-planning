@@ -5,10 +5,11 @@ from dqn_n_pois import DQN
 import numpy as np
 from environment_n_pois import rp_env
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 env = rp_env()
 state, info = env.reset()
 n_observations = len(state)
-n_actions = 22
+n_actions = env.df_actions.shape[0]
 Q_network = DQN(n_observations, n_actions).to(device)
 weights = torch.load("weights_path")
 Q_network.load_state_dict(weights['model_state_dict'])
