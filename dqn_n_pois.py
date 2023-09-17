@@ -140,7 +140,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
         # In the last episode, there is only exploitation
         if eps_flag == num_episodes - 10:
             eps_threshold == 0.05
-        if eps_flag == num_episodes:
+        if eps_flag == num_episodes - 1:
             eps_threshold == 0
 
         if sample >= eps_threshold:
