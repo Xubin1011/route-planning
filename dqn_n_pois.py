@@ -34,7 +34,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     env.w_charge = 0.1  # -232~0
     env.w_parking = 10  # -100~0
     env.w_target = 1000  # 1 or 0
-    env.w_loop = 1 # 1 or -10000
+    env.w_loop = 1 # 1 or -1000
 
     myway = way()
     myway.n_ch = 6  # Number of nearest charging station

@@ -154,7 +154,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Reward for no loop
         loop = self.check_loop(next_x, next_y)
         if loop:
-            r_loop = -10000
+            r_loop = -1000
         else:
             r_loop = 1
         ##################################################################
