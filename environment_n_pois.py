@@ -154,9 +154,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Reward for no loop
         loop = self.check_loop(next_x, next_y)
         if loop:
-            r_loop = 0
+            r_loop = -1000
         else:
-            r_loop = 1000
+            r_loop = 1
         ##################################################################
         # Reward for battery
         # If there is recuperated energy, the soc can be charged up to 0.8
