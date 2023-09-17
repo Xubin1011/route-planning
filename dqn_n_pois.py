@@ -23,7 +23,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
 
     if torch.cuda.is_available():
-        num_episodes = 50
+        num_episodes = 1000
     else:
         num_episodes = 50
 
@@ -53,7 +53,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     EPS_DECAY = 9618  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
     TAU = 0.005  # TAU is the update rate of the target network
     LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
-    REPLAYBUFFER = 10000
+    REPLAYBUFFER = 20000
 
     SGD = False
     Adam = True
