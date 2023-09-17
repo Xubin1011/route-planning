@@ -6,6 +6,19 @@ import numpy as np
 from dqn_n_pois import DQN
 from environment_n_pois import rp_env
 
+#########################################################
+route_path = "route.csv"
+def save_pois(x,y):
+    try:
+        df = pd.read_csv(route_path)
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=["Latitude", "Longitude"])
+    # save new location
+    new_row = {"Latitude": x, "Longitude": y}
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    df.to_csv(route_path, index=False)
+
+#############################################################
 actions_path = "actions.csv"
 weights_path ="weights_037.pth"
 # Initialization of state, Q-Network
@@ -13,9 +26,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 env = rp_env()
 state, info = env.reset()
+node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = state
+save_pois(x_current, y_current)
 state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
 n_observations = len(state)
 print("reseted state = ", state)
+
 
 n_actions = env.df_actions.shape[0]
 q_network = DQN(n_observations, n_actions).to(device)
@@ -34,7 +50,16 @@ sorted_q_values, sorted_indices = torch.sort(q_values, descending=True)
 
 # check each action from the largest q value to the smallest q value
 # until obtain an action that terminated is false
+for i in n_actions:
+    action = sorted_indices[i]
+    print(f"The action {i} with q value {sorted_q_values[i]} is selected")
+    observation, reward, terminated = env.step(action)
+    if terminated == False:
+        node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
+        save_pois(x_next, y_next)
+    else:
 
-df = pd.read_csv(actions_path)
-action =
+        
+        
+            
 
