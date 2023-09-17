@@ -252,6 +252,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
             action = select_action(state, i_episode)
             observation, reward, terminated = env.step(action) # observation is next state
             # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
+            print("**************step", t, "done**************")
 
             sum_reward = sum_reward + reward
             reward = torch.tensor([reward], device=device)
