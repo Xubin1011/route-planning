@@ -286,7 +286,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
 
             if t == steps_max - 1:
                 done = True
-                print(f"Terminated: Can not arrival target after {steps_max} steps, stop the episode")
+                print(f"Terminated: Can not arrival target after {steps_max} steps, stop the episode\n")
 
             if done: ## episode done
                 # episode_durations.append(t + 1)
