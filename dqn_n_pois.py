@@ -252,7 +252,6 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
             action = select_action(state, i_episode)
             observation, reward, terminated = env.step(action) # observation is next state
             # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
-            print("**************step", t, "done**************")
 
             sum_reward = sum_reward + reward
             reward = torch.tensor([reward], device=device)
@@ -287,7 +286,9 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
                 target_net_state_dict[key] = policy_net_state_dict[key]*TAU + target_net_state_dict[key]*(1-TAU)
             target_net.load_state_dict(target_net_state_dict)
 
-            if done:
+            print("**************step", t, "done**************")
+
+            if done: ## episode done
                 # episode_durations.append(t + 1)
                 # plot_durations()
                 print("Number of steps in an episode:", t+1)
