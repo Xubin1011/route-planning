@@ -17,18 +17,18 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import sys
-try_numbers = 35
+try_numbers = 37
 original_stdout = sys.stdout
 with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
 
     if torch.cuda.is_available():
-        num_episodes = 100
+        num_episodes = 500
     else:
         num_episodes = 50
 
     env = rp_env()
-    env.w_distance = 1000  # value range -1~+1
+    env.w_distance = 100  # value range -1~+1
     env.w_energy = 1500  # -6~0.4
     env.w_driving = 1  # -100~0
     env.w_charge = 0.1  # -232~0
@@ -40,6 +40,8 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     myway.n_ch = 6  # Number of nearest charging station
     myway.n_p = 4  # Number of nearest parking lots
     myway.n_pois = 10
+
+    steps_max = 1000
 
     result_path = f"{try_numbers:03d}.png"
     weights_path = f"weights_{try_numbers:03d}.pth"
@@ -264,13 +266,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
 
             # Store the transition in memory
             memory.push(state, action, next_state, reward)
-
             print("state, action, next_state, reward = ", state, action, next_state, reward, "\n")
-
-            # len_episode = len_episode + 1
-            # if len_episode == 500:
-            #     done = True
-            #     print("Terminated: Can not arrival target after 500 steps, stop the episode")
 
             # Move to the next state
             state = next_state
@@ -286,7 +282,11 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
                 target_net_state_dict[key] = policy_net_state_dict[key]*TAU + target_net_state_dict[key]*(1-TAU)
             target_net.load_state_dict(target_net_state_dict)
 
-            print("**************step", t, "done**************\n")
+            print(f"###Episode {i_episode} step {t} done ###")
+
+            if t == steps_max - 1:
+                done = True
+                print(f"Terminated: Can not arrival target after {steps_max} steps, stop the episode")
 
             if done: ## episode done
                 # episode_durations.append(t + 1)
@@ -296,7 +296,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
                 average_reward = sum_reward / (t+1)
                 print("Average reward:", average_reward)
                 average_rewards.append(average_reward)
-                print ("**************************************Episode", i_episode, "done**************************************\n")
+                print (f"**************************************Episode {i_episode}done**************************************\n")
                 break
 
     print('Complete')

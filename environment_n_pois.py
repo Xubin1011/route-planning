@@ -155,6 +155,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         loop = self.check_loop(next_x, next_y)
         if loop:
             r_loop = -1000
+            print(f"loop {next_x}, {next_y}")
         else:
             r_loop = 1
         ##################################################################
