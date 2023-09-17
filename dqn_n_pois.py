@@ -17,13 +17,13 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import sys
-try_numbers = 34
+try_numbers = 35
 original_stdout = sys.stdout
 with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
 
     if torch.cuda.is_available():
-        num_episodes = 500
+        num_episodes = 100
     else:
         num_episodes = 50
 
@@ -34,7 +34,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     env.w_charge = 0.1  # -232~0
     env.w_parking = 10  # -100~0
     env.w_target = 1000  # 1 or 0
-    env.w_loop = 1 # 1 or -1000
+    env.w_loop = 10 # 1 or -1000
 
     myway = way()
     myway.n_ch = 6  # Number of nearest charging station
