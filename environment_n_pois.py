@@ -309,9 +309,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         r_terminated_w = r_end * self.w_target
         r_loop_w = r_loop * self.w_loop
 
-        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w
-        print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end = ", r_distance_w, r_energy_w, r_charge_w,
-              r_driving_w, r_parking_w, r_terminated_w)
+        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w + r_loop_w
+        print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end, r_loop = ", r_distance_w, r_energy_w, r_charge_w,
+              r_driving_w, r_parking_w, r_terminated_w, r_loop_w)
         print("reward = ", reward, "\n")
         ##################################################################
         # # update state

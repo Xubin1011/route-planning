@@ -286,7 +286,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
                 target_net_state_dict[key] = policy_net_state_dict[key]*TAU + target_net_state_dict[key]*(1-TAU)
             target_net.load_state_dict(target_net_state_dict)
 
-            print("**************step", t, "done**************")
+            print("**************step", t, "done**************\n")
 
             if done: ## episode done
                 # episode_durations.append(t + 1)
