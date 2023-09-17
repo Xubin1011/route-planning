@@ -5,7 +5,7 @@ from dqn_n_pois import DQN
 import numpy as np
 from environment_n_pois import rp_env
 
-weights_path ="weights_033.pth"
+weights_path ="weights_037.pth"
 # Initialization of state, Q-Network
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -18,6 +18,7 @@ q_network = DQN(n_observations, n_actions).to(device)
 # Load weigths
 checkpoint = torch.load(weights_path)
 q_network.load_state_dict(checkpoint['model_state_dict'])
+
 
 
 

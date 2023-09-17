@@ -17,22 +17,22 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import sys
-try_numbers = 37
+try_numbers = 38
 original_stdout = sys.stdout
 with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     sys.stdout = file
 
     if torch.cuda.is_available():
-        num_episodes = 500
+        num_episodes = 1000
     else:
         num_episodes = 50
 
     env = rp_env()
     env.w_distance = 100  # value range -1~+1
-    env.w_energy = 1500  # -6~0.4
-    env.w_driving = 1  # -100~0
+    env.w_energy = 2000  # -6~0.4
+    env.w_driving = 5  # -100~0
     env.w_charge = 0.1  # -232~0
-    env.w_parking = 10  # -100~0
+    env.w_parking = 1  # -100~0
     env.w_target = 1000  # 1 or 0
     env.w_loop = 10 # 1 or -1000
 
@@ -50,7 +50,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
     GAMMA = 0.99  # GAMMA is the discount factor as mentioned in the previous section
     EPS_START = 0.9  # EPS_START is the starting value of epsilon
     EPS_END = 0.1  # EPS_END is the final value of epsilon
-    EPS_DECAY = 500  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
+    EPS_DECAY = 9618  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
     TAU = 0.005  # TAU is the update rate of the target network
     LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
     REPLAYBUFFER = 10000
@@ -173,7 +173,7 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
 
         plt.grid()
         plt.savefig(result_path)
-        plt.show()
+        plt.close()
 
     # A single step of the optimization
     def optimize_model():
@@ -299,9 +299,8 @@ with open(f"output_{try_numbers:03d}.txt", 'w') as file:
                 print (f"**************************************Episode {i_episode}done**************************************\n")
                 break
 
-    print('Complete')
+    torch.save(policy_net.state_dict(), weights_path)
     plot_average_reward()
-    weights = {'model_state_dict': policy_net.state_dict()}
-    torch.save(weights, weights_path)
+    print('Complete')
 
 sys.stdout = original_stdout

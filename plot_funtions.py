@@ -54,12 +54,17 @@ import math
 # plt.grid(True)
 # plt.show()
 
-###episolon greedy
-x = np.linspace(0, 1000, 1000)
+##episolon greedy
+x = np.linspace(0, 40000, 5000)
 # y = np.where(x<0, 0 ,np.where(x <= 0.75, np.exp(5 * x) - np.exp(3.75), - 10 * (np.exp(1.5 * x) - np.exp(1.125))))
-y = 0.05 + (0.9-0.05) * np.exp(-1 * x / 500)
+y = 0.1 + (0.9-0.1) * np.exp(-1 * x / 9618)
 plt.plot(x, y)
 plt.xlabel('x')
 plt.ylabel('eps_threshold')
 plt.grid(True)
 plt.show()
+
+# # y = 0.1 + (0.9-0.1) * np.exp(-1 * x / 3530)
+# y = -20000 / np.log(1/8)
+# print(y)
+
