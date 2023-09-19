@@ -80,12 +80,18 @@ q_network.load_state_dict(checkpoint['model_state_dict'])
 print("q_network:", q_network)
 q_network.eval()
 
+num_step = 0
+max_steps = 1000
 target_flag = False
 ##################################################
 # main loop
 while not target_flag:
     next_state, target_flag = check_acts(state)
     state = next_state
+    num_step += 1
+    if num_step == max_steps - 1:
+        print(f"can not find target after {max_steps} steps")
+        break
 
 visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target)
 
