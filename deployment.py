@@ -11,7 +11,12 @@ from visualization import  visualization
 env = rp_env()
 myway = way()
 #########################################################
+# actions_path = "actions.csv"
+weights_path ="weights_037.pth"
+cs_path = "cs_combo_bbox.csv"
+p_path = "parking_bbox.csv"
 route_path = "route.csv"
+
 def save_pois(x, y, t_stay):
     try:
         df = pd.read_csv(route_path)
@@ -56,11 +61,6 @@ def check_acts(state):
                     break
     return (next_state, target_flag)
 #############################################################
-# actions_path = "actions.csv"
-weights_path ="weights_037.pth"
-cs_path = "cs_combo_bbox.csv"
-p_path = "parking_bbox.csv"
-
 # Initialization of state, Q-Network
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
