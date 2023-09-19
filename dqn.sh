@@ -1,5 +1,5 @@
 #!/bin/bash
-/home/utlck/.conda/envs/rp/bin/python /home/utlck/PycharmProjects/route-planning/dqn_n_pois.py &
+/home/utlck/.conda/envs/rp/bin/python /home/utlck/PycharmProjects/route-planning/dqn_n_actions.py &
 
 python_pid=$!
 start_time=$(date +%s)

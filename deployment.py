@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pandas as pd
 import numpy as np
-from dqn_n_pois import DQN
-from environment_n_pois import rp_env
+from dqn_n_actions import DQN
+from env_n_actions import rp_env
 from way_calculation import way
 env = rp_env()
 myway = way()

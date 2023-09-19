@@ -5,7 +5,7 @@ from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
 from way_calculation import way
-from environment_n_pois import rp_env
+from env_n_actions import rp_env
 import pandas as pd
 
 env = rp_env()
