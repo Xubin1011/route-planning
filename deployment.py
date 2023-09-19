@@ -29,7 +29,7 @@ def save_pois(x, y, t_stay):
 
 ##############################################################
 # check each action from the largest q value to the smallest q value
-# until obtain an action that terminated is false
+# until obtain an action that does not violate constraint
 def check_acts(state):
     # obtaion q values
     q_values = q_network(state)
@@ -42,8 +42,8 @@ def check_acts(state):
         print(f"The action {i} with q value {sorted_q_values[i]} is selected")
         observation, terminated, d_next = env.step(action)
         node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
+        next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
         if terminated == False:  # accept action
-            next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
             save_pois(x_next, y_next, t_stay)
             target_flag = False
             break
