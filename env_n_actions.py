@@ -175,9 +175,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 # r_energy =  np.log(self.w3 * abs(soc_after_driving - 0.1))
                 r_energy = np.log(0.1 * soc_after_driving) + 5
                 self.num_trapped += 1
-                if self.num_trapped == 10:
+                if self.num_trapped == self.max_trapped - 1:
                     terminated = True  # Violate the self.max_trapped times, stop current episode
-                    print("Terminated: Violated soc 10 times,should be reseted")
+                    print(f"Terminated: Violated soc {self.max_trapped} times,should be reseted")
             else:
                 r_energy = 0.4  # No trapped
         ##################################################################

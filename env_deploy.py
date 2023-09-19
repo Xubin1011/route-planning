@@ -67,14 +67,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.max_driving = 16200  # in s
         self.section = self.min_rest + self.max_driving
 
-        self.w_distance = 1000  #value range -1~+1
-        self.w_energy = 1500 # -6~0.4
-        self.w_driving = 1  #-100~0
-        self.w_charge = 0.1 # -232~0
-        self.w_parking = 10 # -100~0
-        self.w_target = 1000 # 1 or 0
-        self.w_loop = 1 # 1 or -10000
-
         self.num_trapped = 0  # The number that trapped on the road
         self.max_trapped = 10
 
@@ -154,9 +146,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:  # No trapped
             if soc_after_driving < 0.1:  # Still can run, but violated constraint
                 self.num_trapped += 1
-                if self.num_trapped == 10:
+                if self.num_trapped == self.max_trapped:
                     terminated = True  # Violate the self.max_trapped times, stop current episode
-                    print("Terminated: Violated soc 10 times,should be reseted")
+                    print(f"Terminated: Violated soc {self.max_trapped} times,should be reseted")
             else:
                 terminated = False  # No trapped
         ##################################################################
