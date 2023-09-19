@@ -21,9 +21,8 @@ def save_pois(x, y, t_stay):
     df.to_csv(route_path, index=False)
 
 #############################################################
-actions_path = "actions.csv"
+# actions_path = "actions.csv"
 weights_path ="weights_037.pth"
-
 
 # Initialization of state, Q-Network
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
