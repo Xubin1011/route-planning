@@ -6,13 +6,6 @@ import pandas as pd
 import folium
 from bounding_box import bbox
 
-
-file1 = 'cs_combo_bbox.csv'
-file2 = 'parking_bbox.csv'
-file3 = 'path_coords.csv'
-source_lat, source_lon, target_lat, target_lon = 49.01302968199333, 8.409265137665193, 52.52533075184041, 13.369384859383123
-
-
 def visualization(file1, file2, file3, source_lat, source_lon, target_lat, target_lon):
     # calculate the bounding box
     south_lat, west_lon, north_lat, east_lon = bbox(source_lat, source_lon, target_lat, target_lon)
@@ -59,9 +52,12 @@ def visualization(file1, file2, file3, source_lat, source_lon, target_lat, targe
     # Save the map as an HTML file and display it
     map_object.save('map_with_bbox_pois_and_path.html')
 
-# test
-
-visualization(file1, file2, file3, source_lat, source_lon, target_lat, target_lon)
+# # test
+# file1 = 'cs_combo_bbox.csv'
+# file2 = 'parking_bbox.csv'
+# file3 = 'path_coords.csv'
+# source_lat, source_lon, target_lat, target_lon = 49.01302968199333, 8.409265137665193, 52.52533075184041, 13.369384859383123
+# visualization(file1, file2, file3, source_lat, source_lon, target_lat, target_lon)
 
 
 
