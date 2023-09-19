@@ -4,19 +4,19 @@ import torch.nn.functional as F
 import pandas as pd
 import numpy as np
 from dqn_n_actions import DQN
-from env_n_actions import rp_env
+from env_deploy import rp_env
 from way_calculation import way
 env = rp_env()
 myway = way()
 #########################################################
 route_path = "route.csv"
-def save_pois(x,y):
+def save_pois(x, y, t_stay):
     try:
         df = pd.read_csv(route_path)
     except FileNotFoundError:
-        df = pd.DataFrame(columns=["Latitude", "Longitude"])
+        df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay"])
     # save new location
-    new_row = {"Latitude": x, "Longitude": y}
+    new_row = {"Latitude": x, "Longitude": y, "Stay": t_stay}
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv(route_path, index=False)
 
@@ -30,7 +30,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 state, info = env.reset()
 node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = state
-save_pois(x_current, y_current)
+save_pois(x_current, y_current, t_stay)
 state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
 n_observations = len(state)
 print("reseted state = ", state)
@@ -56,22 +56,24 @@ sorted_q_values, sorted_indices = torch.sort(q_values, descending=True)
 for i in range(n_actions):
     action = sorted_indices[i]
     print(f"The action {i} with q value {sorted_q_values[i]} is selected")
-    observation, reward, terminated = env.step(action)
+    observation, terminated, d_next = env.step(action)
     node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
     if terminated == False:
         next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
-        save_pois(x_next, y_next)
+        save_pois(x_next, y_next, t_stay)
         state = next_state
         break
     else:
-        if x_next == myway.x_target and y_next == myway.y_target:
-            save_pois(x_next, y_next)
+        # if x_next == myway.x_target and y_next == myway.y_target:
+        if d_next <= 25000:
+            save_pois(x_next, y_next, t_stay)
+            print("arrival target")
             break
         else:
             if i == n_actions - 1:
                 print(f"No feasible route found at ({x_next},{y_next})")
                 break
-
+print("done")
 
 
         
