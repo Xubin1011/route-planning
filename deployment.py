@@ -42,37 +42,24 @@ def save_q(state):
     return(sorted_indices_list)
 
 ##############################################################
-# check an action from the largest q value to the smallest q value
-# until obtain an action that does not violate constraint
-# If no feasible action, take a step back
+# check an action, update flags
 def check_acts(action):
     observation, terminated, d_next = env.step(action)
     node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
     next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
+
     if terminated == False:  # accept action
         save_pois(x_next, y_next, t_stay)
-        target_flag = False
-        sorted_indices_list[num_step][i] = None # delete accepted action
-
+        step_flag = False
     else:
+        step_flag = True # Violate constrains
         # if x_next == myway.x_target and y_next == myway.y_target:
         if d_next <= 25000:  # arrival target, accept action
             save_pois(x_next, y_next, t_stay)
             target_flag = True
-            sorted_indices_list[num_step][i] = None  # delete accepted action
-            print("arrival target")
 
-        else:  # not a feasible action
-            sorted_indices_list[num_step][i] = None  # delete accepted action
-            if i == n_actions - 1:
-                target_flag = True
-                no_feasible_actions = True
-                del sorted_indices_list[num_step]
-                print(f"No feasible route found at ({x_next},{y_next}), take a step back")
-                # if step == 0:
-                #     print(f"No feasible route found with initial state {initial_state}")
 
-    return (next_state, target_flag, no_feasible_actions)
+    return (next_state, step_flag, target_flag)
 #############################################################
 # Initialization of state, Q-Network
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -96,36 +83,55 @@ q_network.eval()
 
 num_step = 0
 max_steps = 1000
-target_flag = False
-no_feasible_actions = False
+step_flag = False  # no terminated, "True": Violate constrains,terminated
+target_flag = False # not arrival target
+step_back = False
 ##################################################
 # main loop
-for num_step in range(0, max_steps):
-    sorted_indices_list = save_q(state)
-    for i in sorted_indices_list[num_step]:
-        action = sorted_indices_list[num_step][i]
+for i in range(0, max_steps):
+
+    if step_back == False: # new output from Q network
+        sorted_indices_list = save_q(state)
+
+    # check actions from the largest q value to the smallest q value
+    # until obtain an action that does not violate constraint
+    # If no feasible action, take a step back
+    for t in sorted_indices_list[num_step]:
+        action = sorted_indices_list[num_step][t]
+        sorted_indices_list[num_step][t] = None  # delete accepted action
         if action == None:
             continue
         else:
-            print(f"The action {action} in step {num_step} is selected")
-            next_state, target_flag, no_feasible_actions = check_acts(action)
-
-    if target_flag == False:
-        continue
-    else:
-
-        if not no_feasible_actions:
-            state = next_state
-            num_step += 1
-            if num_step == max_steps - 1:
-                print(f"can not find target after {max_steps} steps")
+            next_state, step_flag, target_flag = check_acts(action)
+            if target_flag == True:
+                print("Arrival target")
                 break
-        else:
-            num_step -= 1
-            next_state, target_flag, no_feasible_actions = check_acts(num_step)
+            else:
+                if step_flag == False: #accept action
+                    print(f"The action {action} in step {num_step} is selected")
+                    num_step += 1
+                    state = next_state
+                    break
+                else:# violate contraints
+                    if t == len(sorted_indices_list[num_step]) - 1:
+                        del sorted_indices_list[num_step]
+                        num_step -= 1
+                        step_back = True
+                        print(f"no feasible action found in step {num_step}, take a step back ")
+                        break
+    if target_flag == True:
+        print(f"Finding a  feasible route after {i+1} steps")
+        break
 
+    if num_step < 0:
+        print(f"No feasible route from initial state {initial_state}")
+        break
 
-visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target)
+if i == max_steps - 1 and not target_flag:
+    print(f"After {max_steps} steps no feasible route")
+
+if target_flag == True:
+    visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target)
 
 print("done")
 
