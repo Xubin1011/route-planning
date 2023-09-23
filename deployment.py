@@ -110,7 +110,9 @@ for num_step in range(0, max_steps):
             print(f"The action {action} in step {num_step} is selected")
             next_state, target_flag, no_feasible_actions = check_acts(action)
 
-    while not target_flag:
+    if target_flag == False:
+        continue
+    else:
 
         if not no_feasible_actions:
             state = next_state
