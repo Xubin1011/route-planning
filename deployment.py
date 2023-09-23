@@ -42,7 +42,7 @@ def save_q(state):
     return(sorted_indices_list)
 
 ##############################################################
-# check an action, update flags
+# check an action, update flags, save accept pois
 def check_acts(action):
     observation, terminated, d_next = env.step(action)
     node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
