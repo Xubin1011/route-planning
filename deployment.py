@@ -27,38 +27,56 @@ def save_pois(x, y, t_stay):
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv(route_path, index=False)
 
-##############################################################
-# check each action from the largest q value to the smallest q value
-# until obtain an action that does not violate constraint
-def check_acts(state):
+#########################################################
+# save all outputs from Q-Network
+sorted_indices_list = [] # This list saving all outputs from Q-Network
+def save_q(state):
     # obtaion q values
     q_values = q_network(state)
     print("q_values =", q_values)
     # Sort Q values from large to small
     sorted_q_values, sorted_indices = torch.sort(q_values, descending=True)
+    # Save the sorted_indices in list
+    sorted_indices_list.append(sorted_indices.clone())
+    print(sorted_indices_list)
 
-    for i in range(n_actions):
-        action = sorted_indices[i]
-        print(f"The action {i} with q value {sorted_q_values[i]} is selected")
+##############################################################
+# check each action from the largest q value to the smallest q value
+# until obtain an action that does not violate constraint
+# If no feasible action, take a step back
+def check_acts(num_step):
+    for i in sorted_indices_list[num_step]:
+        action = sorted_indices_list[num_step][i]
+        if action == None:
+            continue
+        print(f"The action {i} in step {num_step} is selected")
         observation, terminated, d_next = env.step(action)
         node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
         next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
         if terminated == False:  # accept action
             save_pois(x_next, y_next, t_stay)
             target_flag = False
+            sorted_indices_list[num_step][i] = None # delete accepted action
             break
         else:
             # if x_next == myway.x_target and y_next == myway.y_target:
             if d_next <= 25000:  # arrival target, accept action
                 save_pois(x_next, y_next, t_stay)
                 target_flag = True
+                sorted_indices_list[num_step][i] = None  # delete accepted action
                 print("arrival target")
                 break
-            else:  # no feasible action
+            else:  # not a feasible action
+                sorted_indices_list[num_step][i] = None  # delete accepted action
                 if i == n_actions - 1:
                     target_flag = True
                     print(f"No feasible route found at ({x_next},{y_next})")
-                    break
+                    if step == 0:
+                        print(f"No feasible route found with initial state {initial_state}")
+                    else:
+
+
+                    continue
     return (next_state, target_flag)
 #############################################################
 # Initialization of state, Q-Network
@@ -67,6 +85,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 state, info = env.reset()
 node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = state
 save_pois(x_current, y_current, t_stay)
+initial_state = state
 state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
 n_observations = len(state)
 print("reseted state = ", state)
@@ -83,10 +102,12 @@ q_network.eval()
 num_step = 0
 max_steps = 1000
 target_flag = False
+no_feasible_actions = False
 ##################################################
 # main loop
 while not target_flag:
-    next_state, target_flag = check_acts(state)
+    save_q(state)
+    next_state, target_flag = check_acts(num_step)
     state = next_state
     num_step += 1
     if num_step == max_steps - 1:
