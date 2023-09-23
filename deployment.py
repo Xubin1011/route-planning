@@ -45,7 +45,7 @@ def save_q(state):
 # check an action, update flags, save accept pois
 def check_acts(action):
     observation, terminated, d_next = env.step(action)
-    node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
+    # node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
     next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
 
     if terminated == False:  # accept action
