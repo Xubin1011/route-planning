@@ -1,5 +1,5 @@
 #!/bin/bash
-/home/utlck/.conda/envs/rp/bin/python /home/utlck/PycharmProjects/route-planning/dqn_n_actions.py &
+/home/utlck/.conda/envs/rp/bin/python /home/utlck/PycharmProjects/route-planning/dqn_n_actions.py >> "log.txt" 2>&1 &
 
 python_pid=$!
 start_time=$(date +%s)
