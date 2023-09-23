@@ -1,5 +1,11 @@
 #!/bin/bash
-/home/utlck/.conda/envs/rp/bin/python /home/utlck/PycharmProjects/route-planning/dqn_n_actions.py >> "log.txt" 2>&1 &
+
+try_number=38
+
+interpreter="/home/utlck/.conda/envs/rp/bin/python"
+script="/home/utlck/PycharmProjects/route-planning/dqn_n_actions.py"
+log_name="output_${try_number}.txt"
+$interpreter $script $try_number >> "$log_file" 2>&1 &
 
 python_pid=$!
 start_time=$(date +%s)
