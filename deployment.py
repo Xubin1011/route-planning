@@ -42,11 +42,10 @@ def save_q(state):
     return(sorted_indices_list)
 
 ##############################################################
-# check each action from the largest q value to the smallest q value
+# check an action from the largest q value to the smallest q value
 # until obtain an action that does not violate constraint
 # If no feasible action, take a step back
 def check_acts(action):
-
     observation, terminated, d_next = env.step(action)
     node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
     next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
@@ -54,7 +53,7 @@ def check_acts(action):
         save_pois(x_next, y_next, t_stay)
         target_flag = False
         sorted_indices_list[num_step][i] = None # delete accepted action
-        break
+
     else:
         # if x_next == myway.x_target and y_next == myway.y_target:
         if d_next <= 25000:  # arrival target, accept action
@@ -62,7 +61,7 @@ def check_acts(action):
             target_flag = True
             sorted_indices_list[num_step][i] = None  # delete accepted action
             print("arrival target")
-            break
+
         else:  # not a feasible action
             sorted_indices_list[num_step][i] = None  # delete accepted action
             if i == n_actions - 1:
@@ -72,7 +71,7 @@ def check_acts(action):
                 print(f"No feasible route found at ({x_next},{y_next}), take a step back")
                 # if step == 0:
                 #     print(f"No feasible route found with initial state {initial_state}")
-                break
+
     return (next_state, target_flag, no_feasible_actions)
 #############################################################
 # Initialization of state, Q-Network
@@ -107,10 +106,10 @@ for num_step in range(0, max_steps):
         action = sorted_indices_list[num_step][i]
         if action == None:
             continue
-        print(f"The action {i} in step {num_step} is selected")
+        else:
+            print(f"The action {action} in step {num_step} is selected")
+            next_state, target_flag, no_feasible_actions = check_acts(action)
 
-
-    next_state, target_flag, no_feasible_actions = check_acts(action)
     while not target_flag:
 
         if not no_feasible_actions:
