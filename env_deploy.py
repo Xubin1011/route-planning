@@ -25,22 +25,13 @@ from gymnasium import logger, spaces
 
 
 ## Action Space is a tuple, with 3 arrays, Action a:=(node_next, charge, rest )
-# node_next:= {1,2,3,4,5}
+# node_next:= {1,2,3,4,5} or more
 # charge:= {0, 0.3, 0.5, 0.8}
 # rest:= {0, 0.3, 0.6, 0.9, 1}
 
 
 ## State/Observation Space is a np.ndarray, with shape `(8,)`,
 # State s := (current_node, x1, y1, soc,t_stay, t_secd, t_secr, t_secch)
-
-
-# Rewards
-# r1: Reward for the distance to the target
-# r2: Reward based on Battery’s operation limits
-# r3: Reward for the suitable charging time
-# r4: Reward for the suitable driving time
-# r5: Reward for the suitable rest time at parking lots
-
 
 # Starting State
 # random state
@@ -77,26 +68,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         
         self.myway = way()
 
-    def check_loop(self, x, y):
-        loop_file = "loop_pois.csv"
-        try:
-            df = pd.read_csv(loop_file)
-        except FileNotFoundError:
-            df = pd.DataFrame(columns=["Latitude", "Longitude"])
-        # there is a same location, so there is a loop
-        if ((df["Latitude"] == x) & (df["Longitude"] == y)).any():
-            return True
-        else:
-            # there is no loop
-            new_row = {"Latitude": x, "Longitude": y}
-            df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-            df.to_csv(loop_file, index=False)
-            return False
-
-    def clear_loop_file(self):
-        file_path = "loop_pois.csv"
-        df = pd.DataFrame(columns=['Latitude', 'Longitude'])
-        df.to_csv(file_path, index=False)
 
     def step(self, action):
         # Run one timestep of the environment’s dynamics using the agent actions.
@@ -134,7 +105,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         t_secd_current = t_secd_current + typical_duration
         ##################################################################
         # check target
-        if d_next <= 25000:
+        if d_next <= 25000 and soc_after_driving >= 0.1:
             # r_distance = self.target
             terminated = True
             print("Terminated: Arrival target")

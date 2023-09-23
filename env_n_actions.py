@@ -25,7 +25,7 @@ from gymnasium import logger, spaces
 
 
 ## Action Space is a tuple, with 3 arrays, Action a:=(node_next, charge, rest )
-# node_next:= {1,2,3,4,5}
+# node_next:= {1,2,3,4,5} or more
 # charge:= {0, 0.3, 0.5, 0.8}
 # rest:= {0, 0.3, 0.6, 0.9, 1}
 
@@ -143,7 +143,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         ##################################################################
         # Calculate reward for distance
         r_distance = (d_current - d_next) / 25000
-        if d_next <= 25000:
+        if d_next <= 25000 and soc_after_driving >= 0.1:
             # r_distance = self.target
             terminated = True
             print("Terminated: Arrival target")
