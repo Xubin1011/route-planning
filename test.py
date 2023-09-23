@@ -14,18 +14,15 @@ import pandas as pd
 # # loop = env.check_loop(x,y)
 # # print(loop)
 # env.clear_loop_file()
-# 初始化一个包含多行的二维列表
-sorted_indices_list = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [None, 7, 8],
-    [9, 10],
-    [11, 12, 13, 14]
-]
+import sys
 
-# 查询第三行的所有元素
-third_row = sorted_indices_list[2]
+# 获取命令行参数，sys.argv[0] 是脚本的名称，sys.argv[1] 是第一个参数，以此类推
+if len(sys.argv) > 1:
+    try_numbers = int(sys.argv[1])
+else:
+    print("No value for try_numbers provided.")
+    sys.exit(1)
 
-# 打印第三行
-for element in third_row:
-    print(element)
+# 现在，您可以在脚本中使用try_numbers变量
+print(f"Received try_numbers: {try_numbers}")
+
