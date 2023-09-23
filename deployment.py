@@ -42,23 +42,23 @@ def save_q(state):
     return(sorted_indices_list)
 
 ##############################################################
-# check an action, update flags, save accept pois
-def check_acts(action):
-    observation, terminated, d_next = env.step(action)
-    # node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
-    next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
-
-    if terminated == False:  # accept action
-        # save_pois(x_next, y_next, t_stay)
-        step_flag = False
-    else:
-        step_flag = True # Violate constrains
-        # if x_next == myway.x_target and y_next == myway.y_target:
-        if d_next <= 25000:  # arrival target, accept action
-            # save_pois(x_next, y_next, t_stay)
-            target_flag = True
-
-    return (next_state, step_flag, target_flag)
+# # check an action, update flags, save accept pois
+# def check_acts(action):
+#     observation, terminated, d_next = env.step(action)
+#     # node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
+#     next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
+#
+#     if terminated == False:  # accept action
+#         # save_pois(x_next, y_next, t_stay)
+#         step_flag = False
+#     else:
+#         step_flag = True # Violate constrains
+#         # if x_next == myway.x_target and y_next == myway.y_target:
+#         if d_next <= 25000:  # arrival target, accept action
+#             # save_pois(x_next, y_next, t_stay)
+#             target_flag = True
+#
+#     return (next_state, step_flag, target_flag)
 #############################################################
 
 # Initialization of state, Q-Network, state history list
@@ -86,12 +86,12 @@ q_network.eval()
 
 num_step = 0
 max_steps = 1000
-step_flag = False  # no terminated, "True": Violate constrains,terminated
+# step_flag = False  # no terminated, "True": Violate constrains,terminated
 target_flag = False # not arrival target
 step_back = False
 ##################################################
 # main loop
-for i in range(0, max_steps):
+for i in range(0, max_steps): # loop for steps
 
     if step_back == False: # new output from Q network
         sorted_indices_list = save_q(state)
@@ -100,24 +100,29 @@ for i in range(0, max_steps):
     # until obtain an action that does not violate constraint
     # If no feasible action, take a step back
     for t in sorted_indices_list[num_step]:
+        # Set the checked actions to None
         action = sorted_indices_list[num_step][t]
         sorted_indices_list[num_step][t] = None  # delete accepted action
         if action == None:
             continue
         else:
-            next_state, step_flag, target_flag = check_acts(action)
-            if target_flag == True:
+            observation, terminated, d_next = env.step(action)
+            next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
+
+            if terminated == False: #accept action
+                print(f"The action {action} in step {num_step} is selected")
+                num_step += 1
+                state = next_state
                 state_history.append(next_state)
-                print("Arrival target")
                 break
             else:
-                if step_flag == False: #accept action
-                    print(f"The action {action} in step {num_step} is selected")
-                    num_step += 1
-                    state = next_state
+                if d_next <= 25000: # Arrival target
                     state_history.append(next_state)
+                    target_flag = True
+                    print("Arrival target")
                     break
-                else:# violate contraints
+                else:
+                    # violate contraints
                     if t == len(sorted_indices_list[num_step]) - 1:
                         del sorted_indices_list[num_step]
                         num_step -= 1
@@ -125,24 +130,22 @@ for i in range(0, max_steps):
                         del state_history[num_step]
                         print(f"no feasible action found in step {num_step}, take a step back ")
                         break
+
+    if i == max_steps - 1 and not target_flag:
+        print(f"After {max_steps} steps no feasible route")
+        break
+
     if target_flag == True:
         print(f"Finding a  feasible route after {i+1} steps")
+        for state in state_history:
+            x1, y1, t_stay = state[1], state[2], state[4]
+            save_pois(x1, y1, t_stay)
+        visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target)
         break
 
     if num_step < 0:
         print(f"No feasible route from initial state {initial_state}")
         break
-
-if i == max_steps - 1 and not target_flag:
-    print(f"After {max_steps} steps no feasible route")
-
-if target_flag == True:
-
-    for state in state_history:
-        x1, y1, t_stay = state[1], state[2], state[4]
-        save_pois(x1, y1, t_stay)
-
-    visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target)
 
 print("done")
 
