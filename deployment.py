@@ -58,7 +58,6 @@ def check_acts(action):
             save_pois(x_next, y_next, t_stay)
             target_flag = True
 
-
     return (next_state, step_flag, target_flag)
 #############################################################
 # Initialization of state, Q-Network
@@ -69,6 +68,7 @@ node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current,
 save_pois(x_current, y_current, t_stay)
 initial_state = state
 state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
+save_state(state)
 n_observations = len(state)
 print("reseted state = ", state)
 
@@ -104,6 +104,7 @@ for i in range(0, max_steps):
         else:
             next_state, step_flag, target_flag = check_acts(action)
             if target_flag == True:
+                save_state(next_state)
                 print("Arrival target")
                 break
             else:
@@ -111,12 +112,14 @@ for i in range(0, max_steps):
                     print(f"The action {action} in step {num_step} is selected")
                     num_step += 1
                     state = next_state
+                    save_state(next_state)
                     break
                 else:# violate contraints
                     if t == len(sorted_indices_list[num_step]) - 1:
                         del sorted_indices_list[num_step]
                         num_step -= 1
                         step_back = True
+                        delete_state(num_step)
                         print(f"no feasible action found in step {num_step}, take a step back ")
                         break
     if target_flag == True:
