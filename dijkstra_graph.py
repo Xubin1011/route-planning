@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 import folium
 
-
 #initialization
 x_source = 49.0130 #source
 y_source = 8.4093
@@ -97,50 +96,52 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
 
 # Obtain the location of charging stations in 100 small bbox
 def dijkstra_pois():
+    # Read the CSV file
     df = pd.read_csv('cs_combo_bbox.csv')
 
-    south_lat, west_lon, north_lat, east_lon = bounding_box(x_source, y_source, x_target, y_target)
-    # 创建地图
-    m = folium.Map(location=[(south_lat + north_lat) / 2, (west_lon + east_lon) / 2], zoom_start=10)
-    dijkstra_pois = {}
+    # Create an empty list to store the information of charging stations with the maximum power
+    dijkstra_pois = []
 
-    # 遍历每个小的bbox
+    south_lat, west_lon, north_lat, east_lon = bounding_box(x_source, y_source, x_target, y_target)
+    # Create a map
+    m = folium.Map(location=[(south_lat + north_lat) / 2, (west_lon + east_lon) / 2], zoom_start=10)
+
+    # Obtain 100 small bbox
     for i in range(10):
         for j in range(10):
-            # 计算当前小bbox的边界框范围
+            # Calculate the boundaries of the current small bbox
             bbox_south_lat = south_lat + (north_lat - south_lat) * i / 10
             bbox_north_lat = south_lat + (north_lat - south_lat) * (i + 1) / 10
             bbox_west_lon = west_lon + (east_lon - west_lon) * j / 10
             bbox_east_lon = west_lon + (east_lon - west_lon) * (j + 1) / 10
 
-            # 添加小的bbox范围
+            # Add the boundaries of the small bbox to the map
             folium.Rectangle(bounds=[(bbox_south_lat, bbox_west_lon), (bbox_north_lat, bbox_east_lon)],
                              color='blue').add_to(m)
 
-            # 筛选出位于当前小bbox内的充电站数据
+            # Filter charging station data within the current small bbox
             bbox_filtered_df = df[(df['Latitude'] >= bbox_south_lat) &
                                   (df['Latitude'] <= bbox_north_lat) &
                                   (df['Longitude'] >= bbox_west_lon) &
                                   (df['Longitude'] <= bbox_east_lon)]
 
-
             if not bbox_filtered_df.empty:
-                # 找到最大power的充电站
+                # Find charging stations with the maximum power
                 max_power_stations = bbox_filtered_df[bbox_filtered_df['Power'] == bbox_filtered_df['Power'].max()]
 
-                # 如果只有一个最大power的充电站，则将其坐标和power保存到dijkstra_pois中
-                if len(bbox_filtered_df) == 1:
+                # If there is only one charging station with the maximum power, save its coordinates and power
+                if len(max_power_stations) == 1:
                     max_power_station = max_power_stations.iloc[0]
-                    dijkstra_pois[(bbox_filtered_df['Latitude'].values[0],
-                                   bbox_filtered_df['Longitude'].values[0])] = (max_power_station['Latitude'],
-                                                                                max_power_station['Longitude'],
-                                                                                max_power_station['Power'])
+                    dijkstra_pois.append([max_power_station['Latitude'],
+                                          max_power_station['Longitude'],
+                                          max_power_station['Elevation'],
+                                          max_power_station['Power']])
                 else:
-                    # 计算当前bbox中心点
+                    # Calculate the center of the current bbox
                     bbox_center_lat = (bbox_south_lat + bbox_north_lat) / 2
                     bbox_center_lon = (bbox_west_lon + bbox_east_lon) / 2
 
-                    # 找到距离bbox中心点最近的充电站
+                    # Find the nearest charging station to the center of the bbox among those with the maximum power
                     nearest_station = None
                     min_distance = float('inf')
 
@@ -153,77 +154,89 @@ def dijkstra_pois():
                             nearest_station = row
                             min_distance = station_distance
 
-                    # 更新dijkstra_pois字典
-                    dijkstra_pois[(bbox_center_lat, bbox_center_lon)] = (nearest_station['Latitude'],
-                                                                         nearest_station['Longitude'],
-                                                                         nearest_station['Power'])
+                    # Save the coordinates and power of the nearest charging station to dijkstra_pois
+                    dijkstra_pois.append([nearest_station['Latitude'],
+                                          nearest_station['Longitude'],
+                                          nearest_station['Elevation'],
+                                          nearest_station['Power']])
 
-    # 添加选取的充电站坐标和power信息
-    for bbox_center, (station_lat, station_lon, station_power) in dijkstra_pois.items():
-        folium.Marker(location=[station_lat, station_lon],
-                      popup=f'Latitude: {station_lat}<br>Longitude: {station_lon}<br>Power: {station_power}',
+    # Add markers for selected charging stations with their coordinates and power to the map
+    for lat, lon, elevation, power in dijkstra_pois:
+        folium.Marker(location=[lat, lon],
+                      popup=f'Latitude: {lat}<br>Longitude: {lon}<br>Elevation: {elevation}<br>Power: {power}',
                       icon=folium.Icon(color='green')).add_to(m)
 
-    # 保存地图为HTML文件
-    m.save('charging_stations_map.html')
+    # Save the map as HTML file named dijkstra_pois.html
+    m.save('dijkstra_pois.html')
 
+    # Save the selected points to a CSV file named dijkstra_pois.csv
+    dijkstra_df = pd.DataFrame(dijkstra_pois, columns=['Latitude', 'Longitude', 'Elevation', 'Power'])
+    dijkstra_df.to_csv('dijkstra_pois.csv', index=False)
 
 
 #################################################################
 
 def dijkstra_edges():
-    pois_df = pd.read_csv('dijkstra_pois.csv')
-    # Define the number of points
-    num_points = len(pois_df)
-    # Create an empty matrix to store weights (initialize with infinity)
-    weights = np.full((num_points, num_points), np.inf)
-    # Loop through all pairs of points to calculate weights
-    for i in range(num_points):
-        for j in range(num_points):
-            if i == j:
-                continue  # Skip same point to same point
-            point_A = pois_df.iloc[i]
-            point_B = pois_df.iloc[j]
-            x1, y1, c1, p1 = point_A['Latitude'], point_A['Longitude'], point_A['Elevation'], point_A['Power']
-            x2, y2, c2, p2 = point_B['Latitude'], point_B['Longitude'], point_B['Elevation'], point_B['Power']
+    data = pd.read_csv("dijkstra_pois.csv")
 
-            # Calculate consumption and typical_duration
-            consumption, typical_duration, _ = consumption_duration(x1, y1, c1, x2, y2, c2, mass, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery)
+    # Obtain Latitude、Longitude、Elevation、Power
+    latitude = data["Latitude"].values
+    longitude = data["Longitude"].values
+    elevation = data["Elevation"].values
+    power = data["Power"].values
 
-            # Calculate charging time based on consumption
-            charging_time = consumption / p2 if p2 > 0 else 0
+    south_lat, west_lon, north_lat, east_lon = bounding_box(x_source, y_source, x_target, y_target)
+    # Create a map
+    m = folium.Map(location=[(south_lat + north_lat) / 2, (west_lon + east_lon) / 2], zoom_start=10)
 
-            # Calculate total edge weight (driving time + charging time)
-            total_weight = typical_duration + charging_time
+    num_stations = len(latitude)
+    # Creat a list to save weight
+    weight_matrix = np.full((num_stations, num_stations), np.inf)
 
-            # If driving time exceeds 4.5 hours, set weight to infinity
-            if typical_duration > 4.5 * 3600:
-                total_weight = np.inf
+    # visualize all pois
+    for i in range(num_stations):
+        label = f"Latitude: {latitude[i]:.2f}, Longitude: {longitude[i]:.2f}, Elevation: {elevation[i]:.2f}, Power: {power[i]:.2f}"
+        folium.Marker(location=[latitude[i], longitude[i]],
+                      popup=label,
+                      icon=folium.Icon(color='green')).add_to(m)
 
-            # Assign the weight to the matrix
-            weights[i, j] = total_weight
+    # obtain the coordinate of the target
+    n_latitude = latitude[-1]
+    n_longitude = longitude[-1]
 
-    # Save the weights matrix to dijkstra_edges.csv
-    pd.DataFrame(weights).to_csv('dijkstra_edges.csv', index=False)
+    # calculate weights of all edges
+    for i in range(num_stations):
+        for j in range(num_stations):
+            if i != j:
+                # calculate the distance from two vertices of an edge to the target
+                distance_i_to_n = haversine(latitude[i], longitude[i], n_latitude, n_longitude)
+                distance_j_to_n = haversine(latitude[j], longitude[j], n_latitude, n_longitude)
+                # For example: an edge with two vertices A and B, if the distance from B to target is smaller, the direction of the edge is from A to B
+                if distance_i_to_n > distance_j_to_n: #from i to j
+                    consumption, typical_duration, _ = consumption_duration(
+                        latitude[i], longitude[i], elevation[i],
+                        latitude[j], longitude[j], elevation[j],
+                        mass, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery
+                    )
 
-    # Create a Folium map for visualization
-    m = folium.Map(location=[pois_df['Latitude'].mean(), pois_df['Longitude'].mean()], zoom_start=10)
+                    weight_matrix[i][j] = typical_duration + consumption / power[j] * 3600
 
-    # Loop through the weights matrix to add edges to the map
-    for i in range(num_points):
-        for j in range(num_points):
-            weight = weights[i, j]
-            if weight != np.inf:
-                point_A = (pois_df.iloc[i]['Latitude'], pois_df.iloc[i]['Longitude'])
-                point_B = (pois_df.iloc[j]['Latitude'], pois_df.iloc[j]['Longitude'])
-                folium.PolyLine([point_A, point_B], color='blue', weight=1).add_to(m)
+                    # if driving time is greater than 4.5h, them delete this edge
+                    if typical_duration > 4.5 * 3600:
+                        weight_matrix[i][j] = np.inf
 
-    # Save the map to a file
-    m.save('dijkstra_map.html')
+                    # visualize the edge
+                    folium.PolyLine([(latitude[i], longitude[i]), (latitude[j], longitude[j])],
+                                    color='blue', weight=1).add_to(m)
 
+    # save weights
+    weight_df = pd.DataFrame(weight_matrix)
+    weight_df.to_csv("dijkstra_edges.csv", index=False, header=False)
 
+    # save map
+    m.save("dijkstra_edges.html")  # 保存地图到HTML文件
 
-dijkstra_pois()
+dijkstra_edges()
 
 
 
