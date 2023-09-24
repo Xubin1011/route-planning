@@ -15,12 +15,12 @@ class way():
         self.n_p = 4  # Number of nearest parking lots
         self.n_pois = 10
 
-        self.x_source = 52.66181  # source
-        self.y_source = 13.38251
-        self.c_source = 47
-        self.x_target = 51.772324  # target
-        self.y_target = 12.402652
-        self.c_target = 88
+        self.x_source = 49.0130  # source
+        self.y_source = 8.4093
+        # self.c_source = 47
+        self.x_target = 52.5253  # target
+        self.y_target = 13.3694
+        # self.c_target = 88
         self.m = 13500  # (Leergewicht) in kg
         self.g = 9.81
         self.rho = 1.225
