@@ -48,8 +48,11 @@ myway.n_pois = 10
 
 steps_max = 500
 
-result_path = f"{try_numbers:03d}.png"
-weights_path = f"weights_{try_numbers:03d}.pth"
+# result_path = f"{try_numbers:03d}.png"
+# weights_path = f"weights_{try_numbers:03d}.pth"
+folder_path = r'G:\Tuning results'
+result_path = f"{folder_path}\\{try_numbers:03d}.png"
+weights_path = f"{folder_path}\\weights_{try_numbers:03d}.pth"
 
 BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
 GAMMA = 0.99  # GAMMA is the discount factor as mentioned in the previous section
@@ -58,7 +61,7 @@ EPS_END = 0.1  # EPS_END is the final value of epsilon
 EPS_DECAY = 9618  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
 TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
-REPLAYBUFFER = 20000
+REPLAYBUFFER = 10000
 
 SGD = False
 Adam = True
