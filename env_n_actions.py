@@ -146,7 +146,10 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         if d_next <= 25000 and soc_after_driving >= 0.1:
             # r_distance = self.target
             terminated = True
+            r_end = 1
             print("Terminated: Arrival target")
+        else:
+            r_end = 0
         # else:
         #     # r_distance = np.exp * ((d_current - d_next) / 25000) - 1
         #     r_distance = (d_current - d_next) / 25000
@@ -301,10 +304,10 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                         t_secp_current += t_stay
                         r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)
         ##################################################################
-        if terminated == True and d_next == 0: # arrival target
-            r_end = 1
-        else:
-            r_end = 0
+        # if terminated == True and d_next == 0: # arrival target
+        #     r_end = 1
+        # else:
+        #     r_end = 0
         ##################################################################
 
         # Calculate immediate reward
