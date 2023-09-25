@@ -28,7 +28,7 @@ else:
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 50
+    num_episodes = 15
 else:
     num_episodes = 50
 
@@ -46,7 +46,7 @@ myway.n_ch = 6  # Number of nearest charging station
 myway.n_p = 4  # Number of nearest parking lots
 myway.n_pois = 10
 
-steps_max = 1000
+steps_max = 500
 
 result_path = f"{try_numbers:03d}.png"
 weights_path = f"weights_{try_numbers:03d}.pth"
