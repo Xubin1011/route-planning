@@ -11,8 +11,8 @@ import pandas as pd
 class way():
     def __init__(self):
         # initialization
-        self.n_ch = 6  # Number of nearest charging station
-        self.n_p = 4  # Number of nearest parking lots
+        self.n_ch = 6  # Number of the nearest charging stations
+        self.n_p = 4  # Number of the nearest parking lots
         self.n_pois = 10
 
         self.x_source = 49.0130  # source
