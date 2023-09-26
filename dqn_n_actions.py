@@ -50,7 +50,7 @@ steps_max = 500
 
 # result_path = f"{try_numbers:03d}.png"
 # weights_path = f"weights_{try_numbers:03d}.pth"
-folder_path = r'G:\Tuning results'
+folder_path = r'/home/utlck/PycharmProjects/Tunning_results'
 result_path = f"{folder_path}\\{try_numbers:03d}.png"
 weights_path = f"{folder_path}\\weights_{try_numbers:03d}.pth"
 
