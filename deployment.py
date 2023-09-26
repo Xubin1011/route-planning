@@ -3,19 +3,34 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pandas as pd
 import numpy as np
-from dqn_n_actions import DQN
+# from dqn_n_actions import DQN
 from env_deploy import rp_env
 from way_calculation import way
-from visualization import  visualization
+from visualization import visualization
 
 env = rp_env()
 myway = way()
 #########################################################
 # actions_path = "actions.csv"
-weights_path ="weights_037.pth"
+weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_040.pth"
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
 route_path = "route.csv"
+
+class DQN(nn.Module):
+
+    #Q-Network with 2 hidden layers, 128 neurons
+    def __init__(self, n_observations, n_actions):
+        super(DQN, self).__init__()
+        self.layer1 = nn.Linear(n_observations, 128)
+        self.layer2 = nn.Linear(128, 128)
+        self.layer3 = nn.Linear(128, n_actions)
+
+    # Forward propagation with ReLU
+    def forward(self, x):
+        x = F.relu(self.layer1(x))
+        x = F.relu(self.layer2(x))
+        return self.layer3(x)
 
 def save_pois(x, y, t_stay):
     try:

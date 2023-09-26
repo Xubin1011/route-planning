@@ -1,5 +1,5 @@
 import torch
-pth_file_path = "weights_011.pth"
+pth_file_path = "/home/utlck/PycharmProjects/Tunning_results/weights_040.pth"
 
 checkpoint = torch.load(pth_file_path)
 
