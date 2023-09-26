@@ -47,7 +47,7 @@ myway.n_p = 4  # Number of nearest parking lots
 myway.n_pois = 10
 
 steps_max = 500
-
+REPLAYBUFFER = 10000
 # result_path = f"{try_numbers:03d}.png"
 # weights_path = f"weights_{try_numbers:03d}.pth"
 folder_path = r'/home/utlck/PycharmProjects/Tunning_results'
@@ -61,7 +61,7 @@ EPS_END = 0.1  # EPS_END is the final value of epsilon
 EPS_DECAY = 9618  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
 TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
-REPLAYBUFFER = 10000
+
 
 SGD = False
 Adam = True
