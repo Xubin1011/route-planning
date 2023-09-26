@@ -28,7 +28,7 @@ else:
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 1000
+    num_episodes = 500
 else:
     num_episodes = 500
 
@@ -48,8 +48,11 @@ myway.n_pois = 10
 
 steps_max = 500
 
-result_path = f"{try_numbers:03d}.png"
-weights_path = f"weights_{try_numbers:03d}.pth"
+# result_path = f"{try_numbers:03d}.png"
+# weights_path = f"weights_{try_numbers:03d}.pth"
+folder_path = r'G:\Tuning results'
+result_path = f"{folder_path}\\{try_numbers:03d}.png"
+weights_path = f"{folder_path}\\weights_{try_numbers:03d}.pth"
 
 BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
 GAMMA = 0.99  # GAMMA is the discount factor as mentioned in the previous section
@@ -301,10 +304,11 @@ for i_episode in range(num_episodes):
             average_reward = sum_reward / (t+1)
             print("Average reward:", average_reward)
             average_rewards.append(average_reward)
-            print (f"**************************************Episode {i_episode}done**************************************\n")
+            torch.save(policy_net.state_dict(), weights_path)
+            print(f"**************************************Episode {i_episode}done**************************************\n")
             break
 
-torch.save(policy_net.state_dict(), weights_path)
+# torch.save(policy_net.state_dict(), weights_path)
 plot_average_reward()
 print('Complete')
 
