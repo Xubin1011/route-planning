@@ -305,7 +305,7 @@ for i_episode in range(num_episodes):
             print("Average reward:", average_reward)
             average_rewards.append(average_reward)
             torch.save(policy_net.state_dict(), weights_path)
-            print (f"**************************************Episode {i_episode}done**************************************\n")
+            print(f"**************************************Episode {i_episode}done**************************************\n")
             break
 
 # torch.save(policy_net.state_dict(), weights_path)
