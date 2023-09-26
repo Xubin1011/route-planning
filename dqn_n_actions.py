@@ -304,10 +304,11 @@ for i_episode in range(num_episodes):
             average_reward = sum_reward / (t+1)
             print("Average reward:", average_reward)
             average_rewards.append(average_reward)
+            torch.save(policy_net.state_dict(), weights_path)
             print (f"**************************************Episode {i_episode}done**************************************\n")
             break
 
-torch.save(policy_net.state_dict(), weights_path)
+# torch.save(policy_net.state_dict(), weights_path)
 plot_average_reward()
 print('Complete')
 
