@@ -41,6 +41,14 @@ def save_pois(x, y, t_stay):
     new_row = {"Latitude": x, "Longitude": y, "Stay": t_stay}
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv(route_path, index=False)
+#########################################################
+def clear_route():
+    try:
+        df = pd.read_csv(route_path)
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay"])
+    df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay"])
+    df.to_csv(route_path, index=False)
 
 #########################################################
 # save all outputs from Q-Network
@@ -53,7 +61,7 @@ def save_q(state):
     sorted_q_values, sorted_indices = torch.sort(q_values, descending=True)
     # Save the sorted_indices in list
     sorted_indices_list.append(sorted_indices.clone())
-    print(sorted_indices_list)
+    print("sorted_indices_list = ", sorted_indices_list)
     return(sorted_indices_list)
 
 ##############################################################
@@ -78,6 +86,7 @@ def save_q(state):
 
 # Initialization of state, Q-Network, state history list
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+clear_route()
 
 state, info = env.reset()
 n_observations = len(state)
