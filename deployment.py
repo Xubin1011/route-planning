@@ -47,7 +47,7 @@ def save_pois(x, y, t_stay):
 sorted_indices_list = [] # This list saving all outputs from Q-Network
 def save_q(state):
     # obtaion q values
-    q_values = q_network(state)
+    q_values = policy_net(state)
     print("q_values =", q_values)
     # Sort Q values from large to small
     sorted_q_values, sorted_indices = torch.sort(q_values, descending=True)
@@ -80,24 +80,26 @@ def save_q(state):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 state, info = env.reset()
+n_observations = len(state)
 node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = state
 save_pois(x_current, y_current, t_stay)
 initial_state = state
 state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
+print("reseted state = ", state)
 state_history = []# save state tensor in a list
 state_history.append(state)
 print("state history = ", state_history)
-n_observations = len(state)
-print("reseted state = ", state)
 
 n_actions = env.df_actions.shape[0]
-q_network = DQN(n_observations, n_actions).to(device)
+policy_net= DQN(n_observations, n_actions).to(device)
 
 # Load weigths
 checkpoint = torch.load(weights_path)
-q_network.load_state_dict(checkpoint['model_state_dict'])
-print("q_network:", q_network)
-q_network.eval()
+print(checkpoint)
+# policy_net.load_state_dict(checkpoint['model_state_dict'])
+policy_net.load_state_dict(checkpoint)
+print("policy_net:", policy_net)
+policy_net.eval()
 
 num_step = 0
 max_steps = 1000

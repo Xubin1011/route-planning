@@ -1,6 +1,6 @@
 #!/bin/bash
 
-try_number=041
+try_number=042
 
 interpreter="/home/utlck/.conda/envs/rp/bin/python"
 script="/home/utlck/PycharmProjects/route-planning/dqn_n_actions.py"
