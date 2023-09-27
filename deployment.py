@@ -12,7 +12,7 @@ env = rp_env()
 myway = way()
 #########################################################
 # actions_path = "actions.csv"
-weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_040.pth"
+weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_041.pth"
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
 route_path = "route.csv"
@@ -61,7 +61,7 @@ def save_q(state):
     sorted_q_values, sorted_indices = torch.sort(q_values, descending=True)
     # Save the sorted_indices in list
     sorted_indices_list.append(sorted_indices[0].tolist())
-    print("sorted_indices_list = ", sorted_indices_list)
+    # print("sorted_indices_list = ", sorted_indices_list)
     return(sorted_indices_list)
 
 ##############################################################
@@ -98,7 +98,7 @@ state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
 print("reseted state = ", state)
 state_history = []# save state tensor in a list
 state_history.append(state)
-print("state history = ", state_history)
+# print("state history = ", state_history)
 
 n_actions = env.df_actions.shape[0]
 policy_net= DQN(n_observations, n_actions).to(device)
@@ -108,7 +108,7 @@ checkpoint = torch.load(weights_path)
 print(checkpoint)
 # policy_net.load_state_dict(checkpoint['model_state_dict'])
 policy_net.load_state_dict(checkpoint)
-print("policy_net:", policy_net)
+# print("policy_net:", policy_net)
 policy_net.eval()
 
 num_step = 0
@@ -130,6 +130,7 @@ for i in range(0, max_steps): # loop for steps
         # Set the checked actions to None
         action = sorted_indices_list[-1][t]
         sorted_indices_list[-1][t] = None  # delete accepted action
+        print("sorted_indices_list[-1] =", sorted_indices_list[-1])
         if action == None:
             continue
         else:
