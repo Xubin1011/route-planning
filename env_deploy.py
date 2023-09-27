@@ -86,8 +86,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current) #test
 
         # Obtain selected action
-        index_cpu = action.cpu()
-        node_next, charge, rest = self.df_actions.iloc[index_cpu.item()]
+        # index_cpu = action.cpu()
+        # node_next, charge, rest = self.df_actions.iloc[index_cpu.item()]
+        node_next, charge, rest = self.df_actions.iloc[action]
         print('node_next, charge, rest = ', node_next, charge, rest)
 
         next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, x_current, y_current, node_next)

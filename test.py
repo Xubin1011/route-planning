@@ -16,5 +16,9 @@ import pandas as pd
 # env.clear_loop_file()
 
 list = [[1,2,3],[4,5,6],[7,8,9]]
-last = list[0][-1]
+for t in list[-1]:
+    t += 1
+    print(t)
+last = list[-1]
 print(last)
+
