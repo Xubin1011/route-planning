@@ -60,7 +60,7 @@ def save_q(state):
     # Sort Q values from large to small
     sorted_q_values, sorted_indices = torch.sort(q_values, descending=True)
     # Save the sorted_indices in list
-    sorted_indices_list.append(sorted_indices.clone())
+    sorted_indices_list.append(sorted_indices.tolist())
     print("sorted_indices_list = ", sorted_indices_list)
     return(sorted_indices_list)
 
@@ -126,6 +126,7 @@ for i in range(0, max_steps): # loop for steps
     # until obtain an action that does not violate constraint
     # If no feasible action, take a step back
     for t in sorted_indices_list[num_step]:
+
         # Set the checked actions to None
         action = sorted_indices_list[num_step][t]
         sorted_indices_list[num_step][t] = None  # delete accepted action
