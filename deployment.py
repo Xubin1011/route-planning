@@ -89,6 +89,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 clear_route()
 
 state, info = env.reset()
+state = [9, 49.0130, 8.4093, 0.8, 0, 0, 0, 0]  # test
 n_observations = len(state)
 node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = state
 save_pois(x_current, y_current, t_stay)
@@ -125,10 +126,9 @@ for i in range(0, max_steps): # loop for steps
     # check actions from the largest q value to the smallest q value
     # until obtain an action that does not violate constraint
     # If no feasible action, take a step back
-    for t in sorted_indices_list[-1]:
-
+    for t in range(n_actions):
         # Set the checked actions to None
-        action = t
+        action = sorted_indices_list[-1][t]
         sorted_indices_list[-1][t] = None  # delete accepted action
         if action == None:
             continue
