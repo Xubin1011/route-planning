@@ -11,8 +11,6 @@ import heapq
 from env_noloops import rp_env
 
 
-
-
 class way():
     def __init__(self):
         # initialization
@@ -150,7 +148,7 @@ class way():
         if node_next in range(self.n_ch):
             index_next = self.initial_data_ch[(self.initial_data_ch["Latitude"] == next_x) & (self.initial_data_ch["Longitude"] == next_y)].index
         else:
-            index_next = self.initial_data_ch[(self.initial_data_ch["Latitude"] == next_x) & (self.initial_data_ch["Longitude"] == next_y)].index
+            index_next = self.initial_data_p[(self.initial_data_p["Latitude"] == next_x) & (self.initial_data_p["Longitude"] == next_y)].index
         _, _, alti_next, power_next = self.geo_coord(node_next, index_next)
 
         d_next = haversine(next_x, next_y, self.x_target, self.y_target)
@@ -181,7 +179,7 @@ class way():
 
         # print(len(self.data_ch), len(self.data_p))
 
-        return (next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
+        return (index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
 
 # #test
 # x1 = 49.403861

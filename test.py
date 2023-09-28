@@ -15,30 +15,55 @@ import pandas as pd
 # # print(loop)
 # env.clear_loop_file()
 
-class MyData:
-    def __init__(self):
-        self.data_ch = pd.DataFrame({'Latitude': [1.0, 2.0, 3.0],
-                                     'Longitude': [4.0, 5.0, 6.0],
-                                     'Alt':[2,4,5]})
 
+# 创建一个示例 DataFrame
+data_p = pd.DataFrame({'Latitude': [51.4958, 51.4960, 51.4962],
+                       'Longitude': [12.4970, 12.4972, 12.4974]})
 
-def test_data_ch_manipulation():
-    # 创建一个示例并加载数据
-    my_data = MyData()
-    print(my_data.data_ch)
+# 打印原始 DataFrame
+print("原始 DataFrame:")
+print(data_p)
 
-    # 设置要匹配的经纬度值
-    next_x = 2.0  # 实际的经度值
-    next_y = 5.0  # 实际的纬度值
+# 要删除的索引列表
+delete_indexes = [0, 2]
 
-    # 使用布尔索引筛选出要删除的行
-    mask = (my_data.data_ch['Latitude'] != next_x) | (my_data.data_ch['Longitude'] != next_y)
+# 使用 drop 方法删除指定的行
+data_p = data_p.drop(delete_indexes)
 
-    # 根据条件删除行
-    my_data.data_ch = my_data.data_ch[mask]
-    print(my_data.data_ch)
+# 打印删除后的 DataFrame
+print("\n删除后的 DataFrame:")
+print(data_p)
 
+import pandas as pd
 
+# 创建一个示例 DataFrame
+data_p = pd.DataFrame({'Latitude': [51.4958, 51.4960, 51.4962, 51.4960],
+                       'Longitude': [12.4970, 12.4972, 12.4974, 12.4970]})
 
-# 运行测试函数
-test_data_ch_manipulation()
+# 打印原始 DataFrame
+print("原始 DataFrame:")
+print(data_p)
+
+# 指定要查找的经纬度值
+x = 51.4960
+y = 12.4970
+
+# 使用条件筛选获取匹配的索引
+matching_indexes = data_p[(data_p["Latitude"] == x) & (data_p["Longitude"] == y)].index
+
+# 打印匹配的索引
+print("\n匹配的索引:")
+print(matching_indexes)
+
+# 使用 drop 方法删除指定的行
+data_p = data_p.drop(1)
+
+# 打印删除后的 DataFrame
+print("\n删除后的 DataFrame:")
+print(data_p)
+# 使用条件筛选获取匹配的索引
+matching_indexes = data_p[(data_p["Latitude"] == x) & (data_p["Longitude"] == y)].index
+
+# 打印匹配的索引
+print("\n匹配的索引:")
+print(matching_indexes)

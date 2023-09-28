@@ -144,9 +144,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         node_next, charge, rest = self.df_actions.iloc[index_cpu.item()]
         print('node_next, charge, rest = ', node_next, charge, rest)
 
-        next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, index_current, x_current, y_current, alti_current, node_next)
+        index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, index_current, x_current, y_current, alti_current, node_next)
 
-        print("next_x, next_y, d_next, power_next, consumption, typical_duration=", next_x, next_y, d_next, power_next, consumption, typical_duration)
+        print("index_next, next_x, next_y, d_next, power_next, consumption, typical_duration=", index_next, next_x, next_y, d_next, power_next, consumption, typical_duration)
         print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
     ##################################################################
         # the distance from current location to target
@@ -346,9 +346,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(
             # node_current, x_current, y_current, node_next)
         if node_next in range(self.myway.n_ch):
-            self.state = (node_next, next_x, next_y, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
+            self.state = (node_next, index_next, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
         else:
-            self.state = (node_next, next_x, next_y, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
+            self.state = (node_next, index_next, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
         
         return np.array(self.state, dtype=np.float32), reward, terminated
 

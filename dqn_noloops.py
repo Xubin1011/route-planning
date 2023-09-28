@@ -33,7 +33,7 @@ else:
 if torch.cuda.is_available():
     num_episodes = 1000
 else:
-    num_episodes = 50
+    num_episodes = 10
 
 env = rp_env()
 env.w_distance = 100  # value range -1~+1
