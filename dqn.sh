@@ -9,8 +9,8 @@ $interpreter $script $try_number > /home/utlck/PycharmProjects/Tunning_results/"
 
 python_pid=$!
 start_time=$(date +%s)
-echo -e "running dqn_n_pois.py"
-echo -e "running dqn_n_pois.py"
+echo -e "running dqn_noloops.py"
+echo -e "running dqn_noloops.py"
 
 while true; do
     current_time=$(date +%s)

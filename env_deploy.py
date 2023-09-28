@@ -7,7 +7,7 @@ import sys
 from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
-from way_calculation import way
+from way_noloops import way
 
 import math
 from typing import Optional

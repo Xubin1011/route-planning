@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 # from dqn_n_actions import DQN
 from env_deploy import rp_env
-from way_calculation import way
+from way_noloops import way
 from visualization import visualization
 
 env = rp_env()
