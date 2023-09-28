@@ -8,6 +8,7 @@ from consumption_duration import consumption_duration
 from consumption_duration import haversine
 import pandas as pd
 import heapq
+from env_noloops import rp_env
 
 
 
@@ -41,6 +42,8 @@ class way():
         self.initial_data_p = pd.read_csv("parking_bbox.csv")
         self.data_ch = self.initial_data_ch.copy()
         self.data_p = self.initial_data_p.copy()
+
+        self.geo_coord = rp_env.geo_coord()
 
     def reset_df(self):
         self.data_ch = self.initial_data_ch.copy()
@@ -96,32 +99,32 @@ class way():
         nearest_locations = closest_locations.head(n).reset_index(drop=True)
         return nearest_locations
 
-    # obatin the elevation and power of a CS
-    def cs_elevation_power(self, x, y):
-        matching_row = self.data_ch[(self.data_ch["Latitude"] == x) & (self.data_ch["Longitude"] == y)]
-        if not matching_row.empty:
-            cs_elevation = matching_row["Elevation"].values[0]
-            cs_power = matching_row["Power"].values[0]
-        else:
-            print("Current location not found in the dataset of cd")
-
-        return (cs_elevation, cs_power)
+    # # obatin the elevation and power of a CS
+    # def cs_elevation_power(self, x, y):
+    #     matching_row = self.data_ch[(self.data_ch["Latitude"] == x) & (self.data_ch["Longitude"] == y)]
+    #     if not matching_row.empty:
+    #         cs_elevation = matching_row["Elevation"].values[0]
+    #         cs_power = matching_row["Power"].values[0]
+    #     else:
+    #         print("Current location not found in the dataset of cd")
+    #
+    #     return (cs_elevation, cs_power)
 
     # obtain the elevation of a parking lat
-    def p_elevation(self, x, y):
-        matching_row = self.data_p[(self.data_p["Latitude"] == x) & (self.data_p["Longitude"] == y)]
-        if not matching_row.empty:
-            p_elevation = matching_row["Altitude"].values[0]
-        else:
-            print("Current location not found in the dataset of p")
-        return (p_elevation)
+    # def p_elevation(self, x, y):
+    #     matching_row = self.data_p[(self.data_p["Latitude"] == x) & (self.data_p["Longitude"] == y)]
+    #     if not matching_row.empty:
+    #         p_elevation = matching_row["Altitude"].values[0]
+    #     else:
+    #         print("Current location not found in the dataset of p")
+    #     return (p_elevation)
 
-    def info_way(self, node_current, x_current, y_current, node_next):
-        # Obtain the altitude and/or power of current location
-        if node_current in range(self.n_ch):  # charging station
-            alti_current, power_current = self.cs_elevation_power(x_current, y_current)
-        else:  # parking lots
-            alti_current = self.p_elevation(x_current, y_current)
+    def info_way(self, node_current, index_current, x_current, y_current, alti_current, node_next):
+        # # Obtain the altitude and/or power of current location
+        # if node_current in range(self.n_ch):  # charging station
+        #     alti_current, power_current = self.cs_elevation_power(x_current, y_current)
+        # else:  # parking lots
+        #     alti_current = self.p_elevation(x_current, y_current)
 
         # Obtain n_ch nearest charging stations and n_p nearest parking lots, saving in list nearest_n
         nearest_n = []
@@ -143,13 +146,21 @@ class way():
 
         # Calculate the time and energy consumption between two points, the distance between next node and target
         next_x, next_y = coordinates_dict[node_next]
+        # Obtain the index of next poi
+        if node_next in range(self.n_ch):
+            index_next = self.initial_data_ch[(self.initial_data_ch["Latitude"] == next_x) & (self.initial_data_ch["Longitude"] == next_y)].index
+        else:
+            index_next = self.initial_data_ch[(self.initial_data_ch["Latitude"] == next_x) & (self.initial_data_ch["Longitude"] == next_y)].index
+        _, _, alti_next, power_next = self.geo_coord(node_next, index_next)
+
         d_next = haversine(next_x, next_y, self.x_target, self.y_target)
 
-        if node_next in range(self.n_ch):
-            alti_next, power_next = self.cs_elevation_power(next_x, next_y)
-        else:
-            alti_next = self.p_elevation(next_x, next_y)
-            power_next = None
+        # if node_next in range(self.n_ch):
+        #     alti_next, power_next = self.cs_elevation_power(next_x, next_y)
+        # else:
+        #     alti_next = self.p_elevation(next_x, next_y)
+        #     power_next = None
+
         consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, alti_current,
                                                                             next_x, next_y,
                                                                             alti_next, self.m, self.g,
@@ -160,11 +171,13 @@ class way():
         # delete current node
         # print(len(self.data_ch), len(self.data_p))
         if node_current in range(self.n_ch):
-            mask = (self.data_ch['Latitude'] != x_current) | (self.data_ch['Longitude'] != y_current)
-            self.data_ch = self.data_ch[mask]
+            # mask = (self.data_ch['Latitude'] != x_current) | (self.data_ch['Longitude'] != y_current)
+            # self.data_ch = self.data_ch[mask]
+            self.data_ch = self.data_ch.drop(index_current)
         else:
-            mask = (self.data_p['Latitude'] != x_current) | (self.data_p['Longitude'] != y_current)
-            self.data_p = self.data_p[mask]
+            # mask = (self.data_p['Latitude'] != x_current) | (self.data_p['Longitude'] != y_current)
+            # self.data_p = self.data_p[mask]
+            self.data_p = self.data_p.drop(index_current)
 
         # print(len(self.data_ch), len(self.data_p))
 

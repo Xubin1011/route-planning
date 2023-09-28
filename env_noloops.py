@@ -32,6 +32,7 @@ from gymnasium import logger, spaces
 
 ## State/Observation Space is a np.ndarray, with shape `(8,)`,
 # State s := (current_node, x1, y1, soc,t_stay, t_secd, t_secr, t_secch)
+# New State s := (current_node, index_current, soc,t_stay, t_secd, t_secr, t_secch)
 
 
 # Rewards
@@ -106,6 +107,20 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         df = pd.DataFrame(columns=['Latitude', 'Longitude'])
         df.to_csv(file_path, index=False)
 
+    def geo_coord(self, node, index):     
+        if node in range(self.myway.n_ch):
+            x = np.float32(self.myway.initial_data_ch[index, 'Latitude'].values[0])
+            y = np.float32(self.myway.initial_data_ch[index, 'Longitude'].values[0])
+            alti = np.float32(self.myway.initial_data_ch[index, 'Elevation'].values[0])
+            power = np.float32(self.myway.initial_data_ch[index, 'Power'].values[0])
+        else:
+            x = np.float32(self.myway.initial_data_ch[index, 'Latitude'].values[0])
+            y = np.float32(self.myway.initial_data_ch[index, 'Longitude'].values[0])
+            alti = np.float32(self.myway.initial_data_ch[index, 'Elevation'].values[0])
+            power = None
+        return x,y,alti,power
+
+
     def step(self, action):
         # Run one timestep of the environment’s dynamics using the agent actions.
         # Calculate reward, update state
@@ -119,7 +134,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Obtain current state
         # If current POI is a charging station, soc is battery capacity that after charging, t_secch_current includes charging time at the current location
         # If current POI is a parking lot, t_secp_current includes rest  time at the current location
-        node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
+        node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
+        x_current, y_current, alti_current, power = self.geo_coord(node_current, index_current)
+
         # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current) #test
 
         # Obtain selected action
@@ -127,7 +144,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         node_next, charge, rest = self.df_actions.iloc[index_cpu.item()]
         print('node_next, charge, rest = ', node_next, charge, rest)
 
-        next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, x_current, y_current, node_next)
+        next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, index_current, x_current, y_current, alti_current, node_next)
 
         print("next_x, next_y, d_next, power_next, consumption, typical_duration=", next_x, next_y, d_next, power_next, consumption, typical_duration)
         print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
@@ -341,15 +358,14 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         node = random.randint(6, 9)
         # data = pd.read_csv('parking_bbox.csv')
         # location = data.sample(n =1, random_state=42)
-        location = data.sample(n=1)
-        x = np.float32(location['Latitude'].values[0])
-        y = np.float32(location['Longitude'].values[0])
+        index = random.randint(0, len(data))
+
         soc = random.uniform(0.1, 0.8)
         t_stay = 0
         t_secd = 0
         t_secr = 0
         t_secch = 0
-        self.state = (node, x, y, soc, t_stay, t_secd, t_secr, t_secch)
+        self.state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
 
         # if self.render_mode == "human":
         #     self.render()
