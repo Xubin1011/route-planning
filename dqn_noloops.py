@@ -265,7 +265,7 @@ for i_episode in range(num_episodes):
     # clear loop_pois.csv
     env.clear_loop_file()
 
-    for t in count():
+    for t in range(steps_max):
         action = select_action(state, i_episode)
         observation, reward, terminated = env.step(action) # observation is next state
         # print("observation, reward, terminated = ", observation, reward, terminated, "\n")

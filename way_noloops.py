@@ -37,12 +37,14 @@ class way():
 
         self.file_path_ch = 'cs_combo_bbox.csv'
         self.file_path_p = 'parking_bbox.csv'
-        self.data_ch = pd.read_csv("cs_combo_bbox.csv")
-        self.data_p = pd.read_csv("parking_bbox.csv")
+        self.initial_data_ch = pd.read_csv("cs_combo_bbox.csv")
+        self.initial_data_p = pd.read_csv("parking_bbox.csv")
+        self.data_ch = self.initial_data_ch.copy()
+        self.data_p = self.initial_data_p.copy()
 
     def reset_df(self):
-        self.data_ch = pd.read_csv("cs_combo_bbox.csv")
-        self.data_p = pd.read_csv("parking_bbox.csv")
+        self.data_ch = self.initial_data_ch.copy()
+        self.data_p = self.initial_data_p.copy()
 
     def nearest_location(self, path, x1, y1, n):
 
