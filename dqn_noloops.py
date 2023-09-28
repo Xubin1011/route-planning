@@ -260,7 +260,7 @@ for i_episode in range(num_episodes):
     sum_reward = 0
     # Initialize the environment and get it's state
     # state, info = env.reset(myway.data_p)
-    # state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
+    state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
     print("state_reset = ", state, "\n")
     # clear loop_pois.csv
     env.clear_loop_file()
@@ -274,7 +274,7 @@ for i_episode in range(num_episodes):
         reward = torch.tensor([reward], device=device)
         done = terminated
 
-        if terminated :
+        if terminated:
             next_state = None # Stop Episode
         else:
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
