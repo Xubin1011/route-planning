@@ -335,11 +335,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         
         return np.array(self.state, dtype=np.float32), reward, terminated
 
-    def reset(self):
+    def reset(self, data):
 
         # s := (current_node, x1, y1, soc, t_stay, t_secd, t_secr, t_secch)
         node = random.randint(6, 9)
-        data = pd.read_csv('parking_bbox.csv')
+        # data = pd.read_csv('parking_bbox.csv')
         # location = data.sample(n =1, random_state=42)
         location = data.sample(n=1)
         x = location['Latitude'].values[0]
