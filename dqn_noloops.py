@@ -16,6 +16,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import sys
+import os
 
 if len(sys.argv) > 1:
     try_numbers = int(sys.argv[1])
@@ -53,8 +54,12 @@ REPLAYBUFFER = 10000
 # result_path = f"{try_numbers:03d}.png"
 # weights_path = f"weights_{try_numbers:03d}.pth"
 folder_path = r'/home/utlck/PycharmProjects/Tunning_results'
-result_path = f"{folder_path}\\{try_numbers:03d}.png"
-weights_path = f"{folder_path}\\weights_{try_numbers:03d}.pth"
+## Linux
+result_path = os.path.join(folder_path, f"{try_numbers:03d}.png")
+weights_path = os.path.join(folder_path, f"weights_{try_numbers:03d}.pth")
+## windows
+# result_path = f"{folder_path}\\{try_numbers:03d}.png"
+# weights_path = f"{folder_path}\\weights_{try_numbers:03d}.pth"
 
 BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
 GAMMA = 0.99  # GAMMA is the discount factor as mentioned in the previous section
