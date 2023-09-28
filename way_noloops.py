@@ -152,7 +152,7 @@ class way():
                                                                             self.eta_battery)
 
         # delete current node
-        print(len(self.data_ch), len(self.data_p))
+        # print(len(self.data_ch), len(self.data_p))
         if node_current in range(self.n_ch):
             mask = (self.data_ch['Latitude'] != x_current) | (self.data_ch['Longitude'] != y_current)
             self.data_ch = self.data_ch[mask]
@@ -160,7 +160,7 @@ class way():
             mask = (self.data_p['Latitude'] != x_current) | (self.data_p['Longitude'] != y_current)
             self.data_p = self.data_p[mask]
 
-        print(len(self.data_ch), len(self.data_p))
+        # print(len(self.data_ch), len(self.data_p))
 
         return (next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
 
