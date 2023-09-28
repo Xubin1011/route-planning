@@ -12,7 +12,7 @@
 import pandas as pd
 import heapq
 # the haversine function from distance_haversine.py
-from code_old.distance_haversine import haversine
+from consumption_duration import haversine
 
 
 def nearest_location(file_path, x1, y1, n):

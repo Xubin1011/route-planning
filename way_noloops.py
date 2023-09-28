@@ -3,10 +3,14 @@
 # Description: Calculate the needed information between two pois
 # Input: current location, current node, next node
 # Output: Distance between next node and target, time and energy consumption between two points, location of next node, power if next node is a CS
-from nearest_location import nearest_location
+# from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
 import pandas as pd
+import heapq
+
+
+
 
 class way():
     def __init__(self):
@@ -36,7 +40,57 @@ class way():
         self.data_ch = pd.read_csv("cs_combo_bbox.csv")
         self.data_p = pd.read_csv("parking_bbox.csv")
 
-    # obatin the elevation and power of a CS 
+    def nearest_location(self, path, x1, y1, n):
+
+        if path == self.file_path_ch:
+            data = self.data_ch
+        else:
+            data = self.data_p
+
+        latitudes = data["Latitude"]
+        longitudes = data["Longitude"]
+
+        # Priority queue to store information of the n nearest locations
+        closest_locations = []
+
+        # Iterate through all the locations
+        for lat, lon in zip(latitudes, longitudes):
+            # Calculate the distance
+            distance = haversine(x1, y1, lat, lon)
+
+            if distance < 25000:
+                continue
+
+            # negate the distance to find the farthest distance,
+            # closest_locations[0] is the farthest location now
+            neg_distance = -distance
+
+            # If the number of locations in the queue is less than n,
+            # insert the current location
+            if len(closest_locations) < n:
+                heapq.heappush(closest_locations, (neg_distance, lat, lon))
+            else:
+                # find the farthest location in the current queue
+                min_neg_distance, _, _ = closest_locations[0]
+
+                # If the current location is closer, replace the farthest location
+                if neg_distance > min_neg_distance:
+                    heapq.heappop(closest_locations)  # pop the farthest location
+                    heapq.heappush(closest_locations, (neg_distance, lat, lon))  # insert the closer location
+
+        # convert the distance back to positive values
+        closest_locations = pd.DataFrame(closest_locations, columns=["Neg_Distance", "Latitude", "Longitude"])
+        closest_locations["Distance"] = -closest_locations["Neg_Distance"]
+        closest_locations.drop(columns=["Neg_Distance"], inplace=True)
+
+        # Sort by distance in ascending order
+        closest_locations.sort_values(by="Distance", inplace=True)
+
+        # Extract information of the n nearest locations
+        nearest_locations = closest_locations.head(n).reset_index(drop=True)
+        return nearest_locations
+
+    # obatin the elevation and power of a CS
     def cs_elevation_power(self, x, y):
         matching_row = self.data_ch[(self.data_ch["Latitude"] == x) & (self.data_ch["Longitude"] == y)]
         if not matching_row.empty:
@@ -68,7 +122,7 @@ class way():
         poi_files = [self.file_path_ch, self.file_path_p]
         n_values = [self.n_ch, self.n_p]
         for poi_file, n in zip(poi_files, n_values):
-            nearest_poi = nearest_location(poi_file, x_current, y_current, n)
+            nearest_poi = self.nearest_location(poi_file, x_current, y_current, n)
             for i in range(n):
                 next_x = nearest_poi.loc[i, 'Latitude']
                 next_y = nearest_poi.loc[i, 'Longitude']
@@ -84,13 +138,6 @@ class way():
         # Calculate the time and energy consumption between two points, the distance between next node and target
         next_x, next_y = coordinates_dict[node_next]
         d_next = haversine(next_x, next_y, self.x_target, self.y_target)
-                # delete selected node
-        if node_next in range(self.n_ch):
-            mask = (self.data_ch['Latitude'] != next_x) | (self.data_ch['Longitude'] != next_y)
-            self.data_ch = self.data_ch[mask]
-        else:
-            mask = (self.data_p['Latitude'] != next_x) | (self.data_p['Longitude'] != next_y)
-            self.data_p = self.data_p[mask]
 
         if node_next in range(self.n_ch):
             alti_next, power_next = self.cs_elevation_power(next_x, next_y)
@@ -103,6 +150,15 @@ class way():
                                                                             self.c_r, self.rho, self.A_front,
                                                                             self.c_d, self.a, self.eta_m,
                                                                             self.eta_battery)
+
+        # delete current node
+        if node_next in range(self.n_ch):
+            mask = (self.data_ch['Latitude'] != x_current) | (self.data_ch['Longitude'] != y_current)
+            self.data_ch = self.data_ch[mask]
+        else:
+            mask = (self.data_p['Latitude'] != x_current) | (self.data_p['Longitude'] != y_current)
+            self.data_p = self.data_p[mask]
+
         return (next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
 
 # #test

@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from collections import namedtuple, deque
 from itertools import count
 from env_noloops import rp_env
-from way_calculation import way
+from way_noloops import way
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -23,6 +23,8 @@ else:
     print("No value for try_numbers provided.")
     sys.exit(1)
 
+# try_numbers = 1 #test
+
 # original_stdout = sys.stdout
 # with open(f"output_{try_numbers:03d}.txt", 'w') as file:
 #     sys.stdout = file
@@ -30,7 +32,7 @@ else:
 if torch.cuda.is_available():
     num_episodes = 1000
 else:
-    num_episodes = 1000
+    num_episodes = 10
 
 env = rp_env()
 env.w_distance = 100  # value range -1~+1
