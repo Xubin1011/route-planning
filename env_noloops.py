@@ -107,18 +107,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         df = pd.DataFrame(columns=['Latitude', 'Longitude'])
         df.to_csv(file_path, index=False)
 
-    def geo_coord(self, node, index):     
-        if node in range(self.myway.n_ch):
-            x = np.float32(self.myway.initial_data_ch[index, 'Latitude'].values[0])
-            y = np.float32(self.myway.initial_data_ch[index, 'Longitude'].values[0])
-            alti = np.float32(self.myway.initial_data_ch[index, 'Elevation'].values[0])
-            power = np.float32(self.myway.initial_data_ch[index, 'Power'].values[0])
-        else:
-            x = np.float32(self.myway.initial_data_ch[index, 'Latitude'].values[0])
-            y = np.float32(self.myway.initial_data_ch[index, 'Longitude'].values[0])
-            alti = np.float32(self.myway.initial_data_ch[index, 'Elevation'].values[0])
-            power = None
-        return x,y,alti,power
+
 
 
     def step(self, action):
@@ -135,7 +124,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # If current POI is a charging station, soc is battery capacity that after charging, t_secch_current includes charging time at the current location
         # If current POI is a parking lot, t_secp_current includes rest  time at the current location
         node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
-        x_current, y_current, alti_current, power = self.geo_coord(node_current, index_current)
+        x_current, y_current, alti_current, power = self.myway.geo_coord(node_current, index_current)
 
         # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current) #test
 

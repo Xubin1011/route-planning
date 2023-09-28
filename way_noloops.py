@@ -8,8 +8,7 @@ from consumption_duration import consumption_duration
 from consumption_duration import haversine
 import pandas as pd
 import heapq
-from env_noloops import rp_env
-
+import numpy as np
 
 class way():
     def __init__(self):
@@ -41,11 +40,22 @@ class way():
         self.data_ch = self.initial_data_ch.copy()
         self.data_p = self.initial_data_p.copy()
 
-        self.geo_coord = rp_env.geo_coord()
-
     def reset_df(self):
         self.data_ch = self.initial_data_ch.copy()
         self.data_p = self.initial_data_p.copy()
+
+    def geo_coord(self, node, index):
+        if node in range(self.n_ch):
+            x = np.float32(self.initial_data_ch.loc[index, 'Latitude'])
+            y = np.float32(self.initial_data_ch.loc[index, 'Longitude'])
+            alti = np.float32(self.initial_data_ch.loc[index, 'Elevation'])
+            power = np.float32(self.initial_data_ch.loc[index, 'Power'])
+        else:
+            x = np.float32(self.initial_data_p.loc[index, 'Latitude'])
+            y = np.float32(self.initial_data_p.loc[index, 'Longitude'])
+            alti = np.float32(self.initial_data_p.loc[index, 'Altitude'])
+            power = None
+        return x, y, alti, power
 
     def nearest_location(self, path, x1, y1, n):
 
@@ -149,7 +159,7 @@ class way():
             index_next = self.initial_data_ch[(self.initial_data_ch["Latitude"] == next_x) & (self.initial_data_ch["Longitude"] == next_y)].index
         else:
             index_next = self.initial_data_p[(self.initial_data_p["Latitude"] == next_x) & (self.initial_data_p["Longitude"] == next_y)].index
-        _, _, alti_next, power_next = self.geo_coord(node_next, index_next)
+        _, _, alti_next, power_next = geo_coord(node_next, index_next)
 
         d_next = haversine(next_x, next_y, self.x_target, self.y_target)
 
