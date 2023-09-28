@@ -46,16 +46,19 @@ class way():
 
     def geo_coord(self, node, index):
         if node in range(self.n_ch):
-            x = np.float32(self.initial_data_ch.loc[index, 'Latitude'])
-            y = np.float32(self.initial_data_ch.loc[index, 'Longitude'])
-            alti = np.float32(self.initial_data_ch.loc[index, 'Elevation'])
-            power = np.float32(self.initial_data_ch.loc[index, 'Power'])
+            Latitude, Longitude, Elevation, Power = self.initial_data_ch.iloc[index]
+            # x = np.float32(self.initial_data_ch.loc[index, 'Latitude'])
+            # y = np.float32(self.initial_data_ch.loc[index, 'Longitude'])
+            # alti = np.float32(self.initial_data_ch.loc[index, 'Elevation'])
+            # power = np.float32(self.initial_data_ch.loc[index, 'Power'])
+            return Latitude, Longitude, Elevation, Power
         else:
-            x = np.float32(self.initial_data_p.loc[index, 'Latitude'])
-            y = np.float32(self.initial_data_p.loc[index, 'Longitude'])
-            alti = np.float32(self.initial_data_p.loc[index, 'Altitude'])
+            Latitude, Longitude, Altitude = self.initial_data_p.iloc[index]
+            # x = np.float32(self.initial_data_p.loc[index, 'Latitude'])
+            # y = np.float32(self.initial_data_p.loc[index, 'Longitude'])
+            # alti = np.float32(self.initial_data_p.loc[index, 'Altitude'])
             power = None
-        return x, y, alti, power
+            return Latitude, Longitude, Altitude, power
 
     def nearest_location(self, path, x1, y1, n):
 
@@ -156,10 +159,10 @@ class way():
         next_x, next_y = coordinates_dict[node_next]
         # Obtain the index of next poi
         if node_next in range(self.n_ch):
-            index_next = self.initial_data_ch[(self.initial_data_ch["Latitude"] == next_x) & (self.initial_data_ch["Longitude"] == next_y)].index
+            index_next = self.initial_data_ch[(self.initial_data_ch["Latitude"] == next_x) & (self.initial_data_ch["Longitude"] == next_y)].index.values[0]
         else:
-            index_next = self.initial_data_p[(self.initial_data_p["Latitude"] == next_x) & (self.initial_data_p["Longitude"] == next_y)].index
-        _, _, alti_next, power_next = geo_coord(node_next, index_next)
+            index_next = self.initial_data_p[(self.initial_data_p["Latitude"] == next_x) & (self.initial_data_p["Longitude"] == next_y)].index.values[0]
+        _, _, alti_next, power_next = self.geo_coord(node_next, index_next)
 
         d_next = haversine(next_x, next_y, self.x_target, self.y_target)
 
