@@ -1,9 +1,9 @@
 #!/bin/bash
 
-try_number=042
+try_number=043
 
 interpreter="/home/utlck/.conda/envs/rp/bin/python"
-script="/home/utlck/PycharmProjects/route-planning/dqn_n_actions.py"
+script="/home/utlck/PycharmProjects/route-planning/dqn_noloops.py"
 log_name="output_${try_number}.txt"
 $interpreter $script $try_number > /home/utlck/PycharmProjects/Tunning_results/"$log_name" 2>&1 &
 
