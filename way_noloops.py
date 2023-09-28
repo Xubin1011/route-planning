@@ -40,6 +40,10 @@ class way():
         self.data_ch = pd.read_csv("cs_combo_bbox.csv")
         self.data_p = pd.read_csv("parking_bbox.csv")
 
+    def reset_df(self):
+        self.data_ch = pd.read_csv("cs_combo_bbox.csv")
+        self.data_p = pd.read_csv("parking_bbox.csv")
+
     def nearest_location(self, path, x1, y1, n):
 
         if path == self.file_path_ch:

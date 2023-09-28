@@ -313,8 +313,7 @@ for i_episode in range(num_episodes):
             average_rewards.append(average_reward)
             torch.save(policy_net.state_dict(), weights_path)
             # reset data_ch, data_p
-            myway.data_ch = pd.read_csv("cs_combo_bbox.csv")
-            myway.data_p = pd.read_csv("parking_bbox.csv")
+            myway.reset_df()
 
             print(f"**************************************Episode {i_episode}done**************************************\n")
             break
