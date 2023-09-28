@@ -18,13 +18,13 @@ import torch.nn.functional as F
 import sys
 import os
 
-# if len(sys.argv) > 1:
-#     try_numbers = int(sys.argv[1])
-# else:
-#     print("No value for try_numbers provided.")
-#     sys.exit(1)
+if len(sys.argv) > 1:
+    try_numbers = int(sys.argv[1])
+else:
+    print("No value for try_numbers provided.")
+    sys.exit(1)
 
-try_numbers = 1 #test
+# try_numbers = 1 #test
 
 # original_stdout = sys.stdout
 # with open(f"output_{try_numbers:03d}.txt", 'w') as file:
@@ -33,7 +33,7 @@ try_numbers = 1 #test
 if torch.cuda.is_available():
     num_episodes = 1000
 else:
-    num_episodes = 10
+    num_episodes = 20
 
 env = rp_env()
 env.w_distance = 100  # value range -1~+1
