@@ -121,7 +121,7 @@ Transition = namedtuple('Transition',
 # Get number of actions from gym action space
 n_actions = env.df_actions.shape[0]
 # Get the number of state observations
-state, info = env.reset()
+state, info = env.reset(myway.data_p)
 n_observations = len(state)
 
 policy_net = DQN(n_observations, n_actions).to(device)
@@ -259,8 +259,8 @@ for i_episode in range(num_episodes):
     # Initialize the sum_reward in an episode
     sum_reward = 0
     # Initialize the environment and get it's state
-    state, info = env.reset(myway.data_p)
-    state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
+    # state, info = env.reset(myway.data_p)
+    # state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
     print("state_reset = ", state, "\n")
     # clear loop_pois.csv
     env.clear_loop_file()
