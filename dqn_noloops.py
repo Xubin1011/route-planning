@@ -18,13 +18,13 @@ import torch.nn.functional as F
 import sys
 import os
 
-# if len(sys.argv) > 1:
-#     try_numbers = int(sys.argv[1])
-# else:
-#     print("No value for try_numbers provided.")
-#     sys.exit(1)
+if len(sys.argv) > 1:
+    try_numbers = int(sys.argv[1])
+else:
+    print("No value for try_numbers provided.")
+    sys.exit(1)
 
-try_numbers = 1 #test
+# try_numbers = 1 #test
 
 # original_stdout = sys.stdout
 # with open(f"output_{try_numbers:03d}.txt", 'w') as file:
