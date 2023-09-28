@@ -138,7 +138,7 @@ for i in range(0, max_steps): # loop for steps
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
 
             if terminated == False: #accept action
-                print(f"The action {action} in step {num_step} is selected")
+                print(f"******The action {action} in step {num_step} is selected\n")
                 num_step += 1
                 state = next_state
                 state_history.append(next_state)
@@ -147,7 +147,7 @@ for i in range(0, max_steps): # loop for steps
                 if d_next <= 25000: # Arrival target
                     state_history.append(next_state)
                     target_flag = True
-                    print("Arrival target")
+                    print("******Arrival target\n")
                     break
                 else:
                     # violate contraints
@@ -156,7 +156,7 @@ for i in range(0, max_steps): # loop for steps
                         num_step -= 1
                         step_back = True
                         del state_history[num_step]
-                        print(f"no feasible action found in step {num_step}, take a step back ")
+                        print(f"******no feasible action found in step {num_step}, take a step back\n")
                         break
 
     if i == max_steps - 1 and not target_flag:

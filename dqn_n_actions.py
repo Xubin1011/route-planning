@@ -28,13 +28,13 @@ else:
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 2000
+    num_episodes = 1000
 else:
-    num_episodes = 2000
+    num_episodes = 1000
 
 env = rp_env()
 env.w_distance = 100  # value range -1~+1
-env.w_energy = 2000  # -6~0.4
+env.w_energy = 1000  # -6~0.4
 env.w_driving = 5  # -100~0
 env.w_charge = 0.1  # -232~0
 env.w_parking = 1  # -100~0
@@ -147,11 +147,11 @@ def select_action(state, eps_flag):
         math.exp(-1. * steps_done / EPS_DECAY)
     steps_done += 1 # The value of threshold decreases, increasing the chance of exploration
 
-    # In the last episode, there is only exploitation
-    if eps_flag == num_episodes - 10:
-        eps_threshold == 0.05
-    if eps_flag == num_episodes - 1:
-        eps_threshold == 0
+    # # In the last episode, there is only exploitation
+    # if eps_flag == num_episodes - 10:
+    #    eps_threshold == 0.05
+    # if eps_flag == num_episodes - 1:
+    #    eps_threshold == 0
 
     if sample >= eps_threshold:
         # Exploitation, chooses the greedy action to get the most reward
