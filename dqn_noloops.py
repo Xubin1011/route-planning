@@ -314,7 +314,6 @@ for i_episode in range(num_episodes):
             torch.save(policy_net.state_dict(), weights_path)
             # reset data_ch, data_p
             myway.reset_df()
-
             print(f"**************************************Episode {i_episode}done**************************************\n")
             break
 
