@@ -192,7 +192,7 @@ class way():
             index_current = self.data_p[(self.data_p["Latitude"] == x_current) & (self.data_p["Longitude"] == y_current)].index.values[0]
             self.data_p = self.data_p.drop(index_current)
 
-        # print(len(self.data_ch), len(self.data_p))
+        print(index_current)
 
         return (index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
 
