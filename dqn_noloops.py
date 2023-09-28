@@ -259,7 +259,7 @@ for i_episode in range(num_episodes):
     # Initialize the sum_reward in an episode
     sum_reward = 0
     # Initialize the environment and get it's state
-    # state, info = env.reset(myway.data_p)
+    state, info = env.reset(myway.data_p)
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
     print("state_reset = ", state, "\n")
     # clear loop_pois.csv
