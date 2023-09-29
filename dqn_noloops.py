@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from collections import namedtuple, deque
 from itertools import count
 from env_noloops import rp_env
-from way_noloops import way, golbal
+from way_noloops import way
 import torch
 import torch.nn as nn
 import torch.optim as optim
