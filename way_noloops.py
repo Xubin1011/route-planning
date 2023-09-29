@@ -144,7 +144,7 @@ class way():
             global data_ch
             #indices of the same point in initial_data_ch or data_ch are different
             index_current = data_ch[
-                (data_ch["Latitude"] == x_current) & (data_ch["Longitude"] == y_current) & (data_ch["Elevation"] == alti_current) & (data_ch["Power"] == power_current)].index.values[0]
+                (data_ch["Latitude"] == x_current) & (data_ch["Longitude"] == y_current) & (data_ch["Elevation"] == alti_current)].index.values[0]
             data_ch = data_ch.drop(index_current)
         else:
             global data_p
