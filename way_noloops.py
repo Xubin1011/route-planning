@@ -100,7 +100,7 @@ class way():
         nearest_locations = closest_locations.head(n).reset_index(drop=True)
         return nearest_locations
 
-    def info_way(self, node_current, index_current, x_current, y_current, alti_current, node_next):
+    def info_way(self, node_current, power_current, x_current, y_current, alti_current, node_next):
         global data_ch, data_p
 
         # Obtain n_ch nearest charging stations and n_p nearest parking lots, saving in list nearest_n
@@ -144,12 +144,12 @@ class way():
             global data_ch
             #indices of the same point in initial_data_ch or data_ch are different
             index_current = data_ch[
-                (data_ch["Latitude"] == x_current) & (data_ch["Longitude"] == y_current)].index.values[0]
+                (data_ch["Latitude"] == x_current) & (data_ch["Longitude"] == y_current) & (data_ch["Elevation"] == alti_current) & (data_ch["Power"] == power_current)].index.values[0]
             data_ch = data_ch.drop(index_current)
         else:
             global data_p
             index_current = data_p[
-                (data_p["Latitude"] == x_current) & (data_p["Longitude"] == y_current)].index.values[0]
+                (data_p["Latitude"] == x_current) & (data_p["Longitude"] == y_current) & (data_p["Altitude"] == alti_current)].index.values[0]
             data_p = data_p.drop(index_current)
 
         return (index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
