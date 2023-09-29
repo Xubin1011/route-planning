@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from collections import namedtuple, deque
 from itertools import count
 from env_noloops import rp_env
-from way_noloops import way
+from way_noloops import way, golbal
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -44,10 +44,10 @@ env.w_parking = 1  # -100~0
 env.w_target = 1000  # 1 or 0
 env.w_loop = 10 # 1 or -1000
 
-myway = way()
-myway.n_ch = 6  # Number of nearest charging station
-myway.n_p = 4  # Number of nearest parking lots
-myway.n_pois = 10
+theway = way()
+theway.n_ch = 6  # Number of nearest charging station
+theway.n_p = 4  # Number of nearest parking lots
+theway.n_pois = 10
 
 steps_max = 500
 REPLAYBUFFER = 10000
@@ -121,7 +121,7 @@ Transition = namedtuple('Transition',
 # Get number of actions from gym action space
 n_actions = env.df_actions.shape[0]
 # Get the number of state observations
-state, info = env.reset(myway.data_p)
+state, info = env.reset()
 n_observations = len(state)
 
 policy_net = DQN(n_observations, n_actions).to(device)
@@ -259,7 +259,7 @@ for i_episode in range(num_episodes):
     # Initialize the sum_reward in an episode
     sum_reward = 0
     # Initialize the environment and get it's state
-    state, info = env.reset(myway.data_p)
+    state, info = env.reset()
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
     print("state_reset = ", state, "\n")
     # clear loop_pois.csv
@@ -313,9 +313,7 @@ for i_episode in range(num_episodes):
             average_rewards.append(average_reward)
             torch.save(policy_net.state_dict(), weights_path)
             # reset data_ch, data_p
-            print(len(myway.data_ch), len(myway.data_p))
-            myway.reset_df()
-            print(len(myway.data_ch), len(myway.data_p))
+            theway.reset_df()
             print(f"**************************************Episode {i_episode}done**************************************\n")
             break
 

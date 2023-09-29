@@ -10,6 +10,17 @@ import pandas as pd
 import heapq
 import numpy as np
 
+class golbal_var:
+    def __int__(self):
+        self.file_path_ch = 'cs_combo_bbox.csv'
+        self.file_path_p = 'parking_bbox.csv'
+        self.initial_data_ch = pd.read_csv("cs_combo_bbox.csv")
+        self.initial_data_p = pd.read_csv("parking_bbox.csv")
+        self.data_ch = self.initial_data_ch.copy()
+        self.data_p = self.initial_data_p.copy()
+
+golbal = golbal_var()
+
 class way():
     def __init__(self):
         # initialization
@@ -33,27 +44,29 @@ class way():
         self.eta_m = 0.82
         self.eta_battery = 0.82
 
-        self.file_path_ch = 'cs_combo_bbox.csv'
-        self.file_path_p = 'parking_bbox.csv'
-        self.initial_data_ch = pd.read_csv("cs_combo_bbox.csv")
-        self.initial_data_p = pd.read_csv("parking_bbox.csv")
-        self.data_ch = self.initial_data_ch.copy()
-        self.data_p = self.initial_data_p.copy()
+        # self.file_path_ch = 'cs_combo_bbox.csv'
+        # self.file_path_p = 'parking_bbox.csv'
+        # self.initial_data_ch = pd.read_csv("cs_combo_bbox.csv")
+        # self.initial_data_p = pd.read_csv("parking_bbox.csv")
+        # self.data_ch = self.initial_data_ch.copy()
+        # self.data_p = self.initial_data_p.copy()
 
     def reset_df(self):
-        self.data_ch = self.initial_data_ch.copy()
-        self.data_p = self.initial_data_p.copy()
+        print(len(golbal.data_ch), len(golbal.data_p))
+        golbal.data_ch = golbal.initial_data_ch.copy()
+        golbal.data_p = golbal.initial_data_p.copy()
+        print(len(golbal.data_ch), len(golbal.data_p))
 
     def geo_coord(self, node, index):
         if node in range(self.n_ch):
-            Latitude, Longitude, Elevation, Power = self.initial_data_ch.iloc[index]
+            Latitude, Longitude, Elevation, Power = golbal.initial_data_ch.iloc[index]
             # x = np.float32(self.initial_data_ch.loc[index, 'Latitude'])
             # y = np.float32(self.initial_data_ch.loc[index, 'Longitude'])
             # alti = np.float32(self.initial_data_ch.loc[index, 'Elevation'])
             # power = np.float32(self.initial_data_ch.loc[index, 'Power'])
             return Latitude, Longitude, Elevation, Power
         else:
-            Latitude, Longitude, Altitude = self.initial_data_p.iloc[index]
+            Latitude, Longitude, Altitude = golbal.initial_data_p.iloc[index]
             # x = np.float32(self.initial_data_p.loc[index, 'Latitude'])
             # y = np.float32(self.initial_data_p.loc[index, 'Longitude'])
             # alti = np.float32(self.initial_data_p.loc[index, 'Altitude'])
@@ -62,10 +75,10 @@ class way():
 
     def nearest_location(self, path, x1, y1, n):
 
-        if path == self.file_path_ch:
-            data = self.data_ch
+        if path == golbal.file_path_ch:
+            data = golbal.data_ch
         else:
-            data = self.data_p
+            data = golbal.data_p
 
         latitudes = data["Latitude"]
         longitudes = data["Longitude"]
@@ -139,8 +152,8 @@ class way():
 
         # Obtain n_ch nearest charging stations and n_p nearest parking lots, saving in list nearest_n
         nearest_n = []
-        poi_files = [self.file_path_ch, self.file_path_p]
-        n_values = [self.n_ch, self.n_p]
+        poi_files = [golbal.file_path_ch, golbal.file_path_p]
+        n_values = [golbal.n_ch, golbal.n_p]
         for poi_file, n in zip(poi_files, n_values):
             nearest_poi = self.nearest_location(poi_file, x_current, y_current, n)
             for i in range(n):
@@ -159,9 +172,9 @@ class way():
         next_x, next_y = coordinates_dict[node_next]
         # Obtain the index of next poi
         if node_next in range(self.n_ch):
-            index_next = self.initial_data_ch[(self.initial_data_ch["Latitude"] == next_x) & (self.initial_data_ch["Longitude"] == next_y)].index.values[0]
+            index_next = golbal.initial_data_ch[(golbal.initial_data_ch["Latitude"] == next_x) & (golbal.initial_data_ch["Longitude"] == next_y)].index.values[0]
         else:
-            index_next = self.initial_data_p[(self.initial_data_p["Latitude"] == next_x) & (self.initial_data_p["Longitude"] == next_y)].index.values[0]
+            index_next = golbal.initial_data_p[(golbal.initial_data_p["Latitude"] == next_x) & (golbal.initial_data_p["Longitude"] == next_y)].index.values[0]
         _, _, alti_next, power_next = self.geo_coord(node_next, index_next)
 
         d_next = haversine(next_x, next_y, self.x_target, self.y_target)
@@ -185,16 +198,16 @@ class way():
             # mask = (self.data_ch['Latitude'] != x_current) | (self.data_ch['Longitude'] != y_current)
             # self.data_ch = self.data_ch[mask]
             # index_current = self.data_ch[(self.data_ch["Latitude"] == x_current) & (self.data_ch["Longitude"] == y_current)].index.values[0]
-            print(len(self.data_ch))
-            self.data_ch = self.data_ch.drop(index_current)
-            print(len(self.data_ch))
+            print(len(golbal.data_ch))
+            golbal.data_ch = golbal.data_ch.drop(index_current)
+            print(len(golbal.data_ch))
         else:
             # mask = (self.data_p['Latitude'] != x_current) | (self.data_p['Longitude'] != y_current)
             # self.data_p = self.data_p[mask]
             # index_current = self.data_p[(self.data_p["Latitude"] == x_current) & (self.data_p["Longitude"] == y_current)].index.values[0]
-            print(len(self.data_p))
-            self.data_p = self.data_p.drop(index_current)
-            print(len(self.data_p))
+            print(len(golbal.data_p))
+            golbal.data_p = golbal.data_p.drop(index_current)
+            print(len(golbal.data_p))
 
         print(index_current)
 
