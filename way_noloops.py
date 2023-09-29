@@ -53,10 +53,10 @@ class way():
     def nearest_location(self, path, x1, y1, n):
         if path == file_path_ch:
             data = data_ch
-            print(len(data_ch))
+            # print(len(data_ch))
         else:
             data = data_p
-            print(len(data_p))
+            # print(len(data_p))
         latitudes = data["Latitude"]
         longitudes = data["Longitude"]
 
