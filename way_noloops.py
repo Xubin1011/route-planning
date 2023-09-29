@@ -184,13 +184,17 @@ class way():
         if node_current in range(self.n_ch):
             # mask = (self.data_ch['Latitude'] != x_current) | (self.data_ch['Longitude'] != y_current)
             # self.data_ch = self.data_ch[mask]
-            index_current = self.data_ch[(self.data_ch["Latitude"] == x_current) & (self.data_ch["Longitude"] == y_current)].index.values[0]
+            # index_current = self.data_ch[(self.data_ch["Latitude"] == x_current) & (self.data_ch["Longitude"] == y_current)].index.values[0]
+            print(len(self.data_ch))
             self.data_ch = self.data_ch.drop(index_current)
+            print(len(self.data_ch))
         else:
             # mask = (self.data_p['Latitude'] != x_current) | (self.data_p['Longitude'] != y_current)
             # self.data_p = self.data_p[mask]
-            index_current = self.data_p[(self.data_p["Latitude"] == x_current) & (self.data_p["Longitude"] == y_current)].index.values[0]
+            # index_current = self.data_p[(self.data_p["Latitude"] == x_current) & (self.data_p["Longitude"] == y_current)].index.values[0]
+            print(len(self.data_p))
             self.data_p = self.data_p.drop(index_current)
+            print(len(self.data_p))
 
         print(index_current)
 
