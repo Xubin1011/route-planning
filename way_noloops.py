@@ -142,9 +142,13 @@ class way():
         # delete current node
         if node_current in range(self.n_ch):
             global data_ch
+            index_current = data_ch[
+                (data_ch["Latitude"] == next_x) & (data_ch["Longitude"] == next_y)].index.values[0]
             data_ch = data_ch.drop(index_current)
         else:
             global data_p
+            index_current = data_p[
+                (data_p["Latitude"] == next_x) & (data_p["Longitude"] == next_y)].index.values[0]
             data_p = data_p.drop(index_current)
 
         return (index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
