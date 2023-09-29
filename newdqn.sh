@@ -1,5 +1,5 @@
 #!/bin/bash
-
+start_time=$(date +%s)
 try_number=001
 
 interpreter="/home/utlck/.conda/envs/rp/bin/python"
@@ -9,7 +9,6 @@ log_file="/home/utlck/PycharmProjects/Tunning_results/$log_name"
 $interpreter $script $try_number 2>&1 | tee "$log_file"
 
 end_time=$(date +%s)
-start_time=$(date -r "$log_file" +%s)
 elapsed_time=$((end_time - start_time))
 
 echo "Total elapsed time: $((elapsed_time / 60)) mins" | tee -a "$log_file"
