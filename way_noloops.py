@@ -9,17 +9,14 @@ from consumption_duration import haversine
 import pandas as pd
 import heapq
 import numpy as np
+from global_var import initial_data_p, initial_data_ch, data_p, data_ch, file_path_p, file_path_ch
 
-class global_var:
-    def __int__(self):
-        self.file_path_ch = 'cs_combo_bbox.csv'
-        self.file_path_p = 'parking_bbox.csv'
-        self.initial_data_ch = pd.read_csv("cs_combo_bbox.csv")
-        self.initial_data_p = pd.read_csv("parking_bbox.csv")
-        self.data_ch = self.initial_data_ch.copy()
-        self.data_p = self.initial_data_p.copy()
-
-global_vars = global_var()
+def reset_df():
+    global data_ch, data_p
+    # print(len(data_ch), len(data_p))
+    data_ch = initial_data_ch.copy()
+    data_p = initial_data_p.copy()
+    # print(len(data_ch), len(data_p))
 
 class way():
     def __init__(self):
@@ -44,42 +41,22 @@ class way():
         self.eta_m = 0.82
         self.eta_battery = 0.82
 
-        # self.file_path_ch = 'cs_combo_bbox.csv'
-        # self.file_path_p = 'parking_bbox.csv'
-        # self.initial_data_ch = pd.read_csv("cs_combo_bbox.csv")
-        # self.initial_data_p = pd.read_csv("parking_bbox.csv")
-        # self.data_ch = self.initial_data_ch.copy()
-        # self.data_p = self.initial_data_p.copy()
-
-    def reset_df(self):
-        print(len(global_vars.data_ch), len(global_vars.data_p))
-        global_vars.data_ch = global_vars.initial_data_ch.copy()
-        global_vars.data_p = global_vars.initial_data_p.copy()
-        print(len(global_vars.data_ch), len(global_vars.data_p))
-
     def geo_coord(self, node, index):
         if node in range(self.n_ch):
-            Latitude, Longitude, Elevation, Power = global_vars.initial_data_ch.iloc[index]
-            # x = np.float32(self.initial_data_ch.loc[index, 'Latitude'])
-            # y = np.float32(self.initial_data_ch.loc[index, 'Longitude'])
-            # alti = np.float32(self.initial_data_ch.loc[index, 'Elevation'])
-            # power = np.float32(self.initial_data_ch.loc[index, 'Power'])
+            Latitude, Longitude, Elevation, Power = initial_data_ch.iloc[index]
             return Latitude, Longitude, Elevation, Power
         else:
-            Latitude, Longitude, Altitude = global_vars.initial_data_p.iloc[index]
-            # x = np.float32(self.initial_data_p.loc[index, 'Latitude'])
-            # y = np.float32(self.initial_data_p.loc[index, 'Longitude'])
-            # alti = np.float32(self.initial_data_p.loc[index, 'Altitude'])
+            Latitude, Longitude, Altitude = initial_data_p.iloc[index]
             power = None
             return Latitude, Longitude, Altitude, power
 
     def nearest_location(self, path, x1, y1, n):
-
-        if path == global_vars.file_path_ch:
-            data = global_vars.data_ch
+        if path == file_path_ch:
+            data = data_ch
+            print(len(data_ch))
         else:
-            data = global_vars.data_p
-
+            data = data_p
+            print(len(data_p))
         latitudes = data["Latitude"]
         longitudes = data["Longitude"]
 
@@ -123,37 +100,13 @@ class way():
         nearest_locations = closest_locations.head(n).reset_index(drop=True)
         return nearest_locations
 
-    # # obatin the elevation and power of a CS
-    # def cs_elevation_power(self, x, y):
-    #     matching_row = self.data_ch[(self.data_ch["Latitude"] == x) & (self.data_ch["Longitude"] == y)]
-    #     if not matching_row.empty:
-    #         cs_elevation = matching_row["Elevation"].values[0]
-    #         cs_power = matching_row["Power"].values[0]
-    #     else:
-    #         print("Current location not found in the dataset of cd")
-    #
-    #     return (cs_elevation, cs_power)
-
-    # obtain the elevation of a parking lat
-    # def p_elevation(self, x, y):
-    #     matching_row = self.data_p[(self.data_p["Latitude"] == x) & (self.data_p["Longitude"] == y)]
-    #     if not matching_row.empty:
-    #         p_elevation = matching_row["Altitude"].values[0]
-    #     else:
-    #         print("Current location not found in the dataset of p")
-    #     return (p_elevation)
-
     def info_way(self, node_current, index_current, x_current, y_current, alti_current, node_next):
-        # # Obtain the altitude and/or power of current location
-        # if node_current in range(self.n_ch):  # charging station
-        #     alti_current, power_current = self.cs_elevation_power(x_current, y_current)
-        # else:  # parking lots
-        #     alti_current = self.p_elevation(x_current, y_current)
+        global data_ch, data_p
 
         # Obtain n_ch nearest charging stations and n_p nearest parking lots, saving in list nearest_n
         nearest_n = []
-        poi_files = [global_vars.file_path_ch, global_vars.file_path_p]
-        n_values = [global_vars.n_ch, global_vars.n_p]
+        poi_files = [file_path_ch, file_path_p]
+        n_values = [self.n_ch, self.n_p]
         for poi_file, n in zip(poi_files, n_values):
             nearest_poi = self.nearest_location(poi_file, x_current, y_current, n)
             for i in range(n):
@@ -172,18 +125,12 @@ class way():
         next_x, next_y = coordinates_dict[node_next]
         # Obtain the index of next poi
         if node_next in range(self.n_ch):
-            index_next = global_vars.initial_data_ch[(global_vars.initial_data_ch["Latitude"] == next_x) & (global_vars.initial_data_ch["Longitude"] == next_y)].index.values[0]
+            index_next = initial_data_ch[(initial_data_ch["Latitude"] == next_x) & (initial_data_ch["Longitude"] == next_y)].index.values[0]
         else:
-            index_next = global_vars.initial_data_p[(global_vars.initial_data_p["Latitude"] == next_x) & (global_vars.initial_data_p["Longitude"] == next_y)].index.values[0]
+            index_next = initial_data_p[(initial_data_p["Latitude"] == next_x) & (initial_data_p["Longitude"] == next_y)].index.values[0]
         _, _, alti_next, power_next = self.geo_coord(node_next, index_next)
 
         d_next = haversine(next_x, next_y, self.x_target, self.y_target)
-
-        # if node_next in range(self.n_ch):
-        #     alti_next, power_next = self.cs_elevation_power(next_x, next_y)
-        # else:
-        #     alti_next = self.p_elevation(next_x, next_y)
-        #     power_next = None
 
         consumption, typical_duration, length_meters = consumption_duration(x_current, y_current, alti_current,
                                                                             next_x, next_y,
@@ -193,23 +140,12 @@ class way():
                                                                             self.eta_battery)
 
         # delete current node
-        # print(len(self.data_ch), len(self.data_p))
         if node_current in range(self.n_ch):
-            # mask = (self.data_ch['Latitude'] != x_current) | (self.data_ch['Longitude'] != y_current)
-            # self.data_ch = self.data_ch[mask]
-            # index_current = self.data_ch[(self.data_ch["Latitude"] == x_current) & (self.data_ch["Longitude"] == y_current)].index.values[0]
-            print(len(global_vars.data_ch))
-            global_vars.data_ch = global_vars.data_ch.drop(index_current)
-            print(len(global_vars.data_ch))
+            global data_ch
+            data_ch = data_ch.drop(index_current)
         else:
-            # mask = (self.data_p['Latitude'] != x_current) | (self.data_p['Longitude'] != y_current)
-            # self.data_p = self.data_p[mask]
-            # index_current = self.data_p[(self.data_p["Latitude"] == x_current) & (self.data_p["Longitude"] == y_current)].index.values[0]
-            print(len(global_vars.data_p))
-            global_vars.data_p = global_vars.data_p.drop(index_current)
-            print(len(global_vars.data_p))
-
-        print(index_current)
+            global data_p
+            data_p = data_p.drop(index_current)
 
         return (index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
 

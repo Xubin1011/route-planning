@@ -7,7 +7,8 @@ import sys
 from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
-from way_noloops import way, global_vars
+from way_noloops import way
+from global_var import initial_data_p
 
 import math
 from typing import Optional
@@ -347,7 +348,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         node = random.randint(6, 9)
         # data = pd.read_csv('parking_bbox.csv')
         # location = data.sample(n =1, random_state=42)
-        index = random.randint(0, len(global_vars.initial_data_p))
+        index = random.randint(0, len(initial_data_p))
 
         soc = random.uniform(0.1, 0.8)
         t_stay = 0

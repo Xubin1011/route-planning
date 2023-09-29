@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 from collections import namedtuple, deque
 from itertools import count
 from env_noloops import rp_env
-from way_noloops import way
+from way_noloops import way, reset_df
+from global_var import initial_data_p, initial_data_ch, data_p, data_ch
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -18,13 +20,13 @@ import torch.nn.functional as F
 import sys
 import os
 
-# if len(sys.argv) > 1:
-#     try_numbers = int(sys.argv[1])
-# else:
-#     print("No value for try_numbers provided.")
-#     sys.exit(1)
+if len(sys.argv) > 1:
+    try_numbers = int(sys.argv[1])
+else:
+    print("No value for try_numbers provided.")
+    sys.exit(1)
 
-try_numbers = 1 #test
+# try_numbers = 1 #test
 
 # original_stdout = sys.stdout
 # with open(f"output_{try_numbers:03d}.txt", 'w') as file:
@@ -44,10 +46,10 @@ env.w_parking = 1  # -100~0
 env.w_target = 1000  # 1 or 0
 env.w_loop = 10 # 1 or -1000
 
-theway = way()
-theway.n_ch = 6  # Number of nearest charging station
-theway.n_p = 4  # Number of nearest parking lots
-theway.n_pois = 10
+# theway = way()
+# theway.n_ch = 6  # Number of nearest charging station
+# theway.n_p = 4  # Number of nearest parking lots
+# theway.n_pois = 10
 
 steps_max = 500
 REPLAYBUFFER = 10000
@@ -77,6 +79,7 @@ AdamW = False
 SmoothL1Loss = True
 MSE = False
 MAE = False
+
 
 #Use a cyclic buffer of bounded size that holds the transitions observed recently.
 class ReplayMemory(object):
@@ -145,7 +148,7 @@ print("Batchsize, Gamma, EPS_start, EPS_end, EPS_decay, TAU, LR, Replaybuffer, a
 
 # Select action by Epsilon-Greedy Policy according to state
 def select_action(state, eps_flag):
-    global steps_done
+    global steps_done, data_p, data_ch
     sample = random.random() # range 0~1
 
     #Epsilon-Greedy Policy
@@ -313,7 +316,7 @@ for i_episode in range(num_episodes):
             average_rewards.append(average_reward)
             torch.save(policy_net.state_dict(), weights_path)
             # reset data_ch, data_p
-            theway.reset_df()
+            reset_df()
             print(f"**************************************Episode {i_episode}done**************************************\n")
             break
 
