@@ -142,6 +142,7 @@ class way():
         # delete current node
         if node_current in range(self.n_ch):
             global data_ch
+            #indice of point in
             index_current = data_ch[
                 (data_ch["Latitude"] == x_current) & (data_ch["Longitude"] == y_current)].index.values[0]
             data_ch = data_ch.drop(index_current)
