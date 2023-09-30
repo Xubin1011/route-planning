@@ -12,7 +12,7 @@ env = rp_env()
 myway = way()
 #########################################################
 # actions_path = "actions.csv"
-weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_041.pth"
+weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth"
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
 route_path = "route.csv"
@@ -89,7 +89,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 clear_route()
 
 state, info = env.reset()
-state = [9, 49.0130, 8.4093, 0.8, 0, 0, 0, 0]  # test
+# state = [9, 49.0130, 8.4093, 0.8, 0, 0, 0, 0]  # test
 n_observations = len(state)
 node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = state
 save_pois(x_current, y_current, t_stay)

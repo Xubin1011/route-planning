@@ -35,16 +35,16 @@ else:
 if torch.cuda.is_available():
     num_episodes = 1000
 else:
-    num_episodes = 100
+    num_episodes = 2000
 
 env = rp_env()
-env.w_distance = 100  # value range -1~+1
-env.w_energy = 1000  # -6~0.4
+env.w_distance = 1000  # value range -1~+1
+env.w_energy = 2000  # -6~0.4
 env.w_driving = 5  # -100~0
 env.w_charge = 0.1  # -232~0
 env.w_parking = 1  # -100~0
 env.w_target = 1000  # 1 or 0
-env.w_loop = 10 # 1 or -1000
+env.w_loop = 0 # 1 or -1000
 
 # theway = way()
 # theway.n_ch = 6  # Number of nearest charging station
