@@ -100,7 +100,7 @@ class way():
         nearest_locations = closest_locations.head(n).reset_index(drop=True)
         return nearest_locations
 
-    def info_way(self, node_current, power_current, x_current, y_current, alti_current, node_next):
+    def info_way(self, node_current, x_current, y_current, alti_current, node_next):
         global data_ch, data_p
 
         # Obtain n_ch nearest charging stations and n_p nearest parking lots, saving in list nearest_n

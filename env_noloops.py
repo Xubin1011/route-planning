@@ -134,7 +134,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         node_next, charge, rest = self.df_actions.iloc[index_cpu.item()]
         print('node_next, charge, rest = ', node_next, charge, rest)
 
-        index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, power_current, x_current, y_current, alti_current, node_next)
+        index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, x_current, y_current, alti_current, node_next)
 
         print("index_next, next_x, next_y, d_next, power_next, consumption, typical_duration=", index_next, next_x, next_y, d_next, power_next, consumption, typical_duration)
         print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")

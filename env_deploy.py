@@ -8,6 +8,7 @@ from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
 from way_noloops import way
+from global_var import initial_data_p, initial_data_ch, data_p, data_ch
 
 import math
 from typing import Optional
@@ -68,7 +69,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         
         self.myway = way()
 
-
     def step(self, action):
         # Run one timestep of the environment’s dynamics using the agent actions.
         # Calculate reward, update state
@@ -82,8 +82,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Obtain current state
         # If current POI is a charging station, soc is battery capacity that after charging, t_secch_current includes charging time at the current location
         # If current POI is a parking lot, t_secp_current includes rest  time at the current location
-        node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
+        node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
         # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current) #test
+        x_current, y_current, alti_current, power = self.myway.geo_coord(node_current, index_current)
 
         # Obtain selected action
         # index_cpu = action.cpu()
@@ -91,7 +92,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         node_next, charge, rest = self.df_actions.iloc[action]
         print('node_next, charge, rest = ', node_next, charge, rest)
 
-        next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, x_current, y_current, node_next)
+        index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, x_current, y_current, alti_current, node_next)
 
         print("next_x, next_y, d_next, power_next, consumption, typical_duration=", next_x, next_y, d_next, power_next, consumption, typical_duration)
         print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
