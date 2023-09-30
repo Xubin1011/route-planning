@@ -196,27 +196,46 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(
             # node_current, x_current, y_current, node_next)
         if node_next in range(self.myway.n_ch):
-            self.state = (node_next, next_x, next_y, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
+            self.state = (node_next, index_next, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
         else:
-            self.state = (node_next, next_x, next_y, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
+            self.state = (node_next, index_next, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
         
         return np.array(self.state, dtype=np.float32), terminated, d_next
 
+    # def reset(self):
+    #
+    #     # s := (current_node, x1, y1, soc, t_stay, t_secd, t_secr, t_secch)
+    #     node = random.randint(6, 9)
+    #     data = pd.read_csv('parking_bbox.csv')
+    #     # location = data.sample(n =1, random_state=42)
+    #     location = data.sample(n=1)
+    #     x = location['Latitude'].values[0]
+    #     y = location['Longitude'].values[0]
+    #     soc = random.uniform(0.1, 0.8)
+    #     t_stay = 0
+    #     t_secd = 0
+    #     t_secr = 0
+    #     t_secch = 0
+    #     self.state = (node, x, y, soc, t_stay, t_secd, t_secr, t_secch)
+    #
+    #     # if self.render_mode == "human":
+    #     #     self.render()
+    #     return np.array(self.state, dtype=np.float32), {}
+
     def reset(self):
 
-        # s := (current_node, x1, y1, soc, t_stay, t_secd, t_secr, t_secch)
+        # s := (current_node, index, soc, t_stay, t_secd, t_secr, t_secch)
         node = random.randint(6, 9)
-        data = pd.read_csv('parking_bbox.csv')
+        # data = pd.read_csv('parking_bbox.csv')
         # location = data.sample(n =1, random_state=42)
-        location = data.sample(n=1)
-        x = location['Latitude'].values[0]
-        y = location['Longitude'].values[0]
+        index = random.randint(0, len(initial_data_p))
+
         soc = random.uniform(0.1, 0.8)
         t_stay = 0
         t_secd = 0
         t_secr = 0
         t_secch = 0
-        self.state = (node, x, y, soc, t_stay, t_secd, t_secr, t_secch)
+        self.state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
 
         # if self.render_mode == "human":
         #     self.render()

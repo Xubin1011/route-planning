@@ -89,10 +89,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 clear_route()
 
 state, info = env.reset()
-# state = [9, 49.0130, 8.4093, 0.8, 0, 0, 0, 0]  # test
+# state = [9, 5, 0.8, 0, 0, 0, 0]  # test
 n_observations = len(state)
-node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = state
+node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = state
+x_current, y_current, alti_current, power = myway.geo_coord(node_current, int(index_current))
 save_pois(x_current, y_current, t_stay)
+
 initial_state = state
 state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
 print("reseted state = ", state)
@@ -101,7 +103,7 @@ state_history.append(state)
 # print("state history = ", state_history)
 
 n_actions = env.df_actions.shape[0]
-policy_net= DQN(n_observations, n_actions).to(device)
+policy_net = DQN(n_observations, n_actions).to(device)
 
 # Load weigths
 checkpoint = torch.load(weights_path)
