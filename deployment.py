@@ -17,6 +17,7 @@ weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth"
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
 route_path = "route.csv"
+map_name = "dqn_route.html"
 
 class DQN(nn.Module):
 
@@ -183,7 +184,7 @@ for i in range(0, max_steps): # loop for steps
             node, index, t_stay = first_three_values.tolist()
             x, y, _, _, = geo_coord(node, int(index))
             save_pois(x, y, t_stay)
-        visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target)
+        visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target, map_name)
         break
 
     if num_step < 0:
