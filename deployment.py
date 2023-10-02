@@ -104,7 +104,7 @@ state, info = env.reset()
 n_observations = len(state)
 node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = state
 x_current, y_current, alti_current, power = myway.geo_coord(node_current, int(index_current))
-save_pois(x_current, y_current, t_stay)
+save_pois(state)
 
 initial_state = state
 state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
@@ -136,7 +136,7 @@ for i in range(0, max_steps): # loop for steps
     if step_back == False: # new output from Q network
         sorted_indices_list = save_q(state)
 
-    # check actions from the largest q value to the smallest q value
+    # check actions one by one from the largest q value to the smallest q value
     # until obtain an action that does not violate constraint
     # If no feasible action, take a step back
     for t in range(n_actions):
@@ -153,6 +153,7 @@ for i in range(0, max_steps): # loop for steps
             if terminated == False: #accept action
                 print(f"******The action {action} in step {num_step} is selected\n")
                 num_step += 1
+
                 state = next_state
                 state_history.append(next_state)
                 break
@@ -164,8 +165,8 @@ for i in range(0, max_steps): # loop for steps
                     break
                 else:
                     # violate contraints
-                    if t == len(sorted_indices_list[num_step]) - 1:
-                        del sorted_indices_list[num_step]
+                    if t == n_actions - 1: # all q-values have been checked
+                        del sorted_indices_list[num_step] # disable action, delete from list
                         num_step -= 1
                         step_back = True
                         del state_history[num_step]
