@@ -20,6 +20,7 @@ a = 0
 eta_m = 0.82
 eta_battery = 0.82
 
+max_edge_length = 50000 # in m
 ####################################################################
 def bounding_box(source_lat, source_lon, target_lat, target_lon):
     # Calculate the North latitude, West longitude, South latitude, and East longitude
@@ -231,7 +232,7 @@ def dijkstra_edges():
                     if typical_duration > 4.5 * 3600:
                         weight_matrix[i][j] = np.inf
 
-                    if distance_meters < 25000 or distance_meters > 300000:
+                    if distance_meters < 25000 or distance_meters > max_edge_length:
                         weight_matrix[i][j] = np.inf
 
                     # visualize the edge
@@ -240,10 +241,10 @@ def dijkstra_edges():
 
     # save weights
     weight_df = pd.DataFrame(weight_matrix)
-    weight_df.to_csv("dijkstra_edges_300.csv", index=False, header=True)
+    weight_df.to_csv(f"dijkstra_edges_{max_edge_length/1000}.csv", index=False, header=True)
 
     # save map
-    m.save("dijkstra_edges_300.html")  # 保存地图到HTML文件
+    m.save(f"dijkstra_edges_{max_edge_length/1000}.html")  # 保存地图到HTML文件
 
 # dijkstra_pois()
 dijkstra_edges()

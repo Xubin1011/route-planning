@@ -6,7 +6,7 @@ import pandas as pd
 import folium
 from bounding_box import bbox
 
-def visualization(file1, file2, file3, source_lat, source_lon, target_lat, target_lon):
+def visualization(file1, file2, file3, source_lat, source_lon, target_lat, target_lon, map_name):
     # calculate the bounding box
     south_lat, west_lon, north_lat, east_lon = bbox(source_lat, source_lon, target_lat, target_lon)
 
@@ -46,11 +46,19 @@ def visualization(file1, file2, file3, source_lat, source_lon, target_lat, targe
     path_data = pd.read_csv(file3)
     path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
 
+    for coord in path_coords:
+        latitude, longitude = coord
+        folium.Marker(location=[latitude, longitude],
+                      popup=f'Latitude: {latitude}<br>Longitude: {longitude}',
+                      icon=folium.Icon(color='green')).add_to(map_object)
+        # folium.CircleMarker(location=[latitude, longitude], radius=2, color='red', fill=True, fill_color='red').add_to(
+        #     map_object)
+
     # Add a red line to represent the path
     folium.PolyLine(locations=path_coords, color='red').add_to(map_object)
 
     # Save the map as an HTML file and display it
-    map_object.save('map_with_bbox_pois_and_path.html')
+    map_object.save(map_name)
 
 # # test
 # file1 = 'cs_combo_bbox.csv'
