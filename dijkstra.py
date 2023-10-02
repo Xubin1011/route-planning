@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import networkx as nx  # 用于实现Dijkstra算法
 import os
+import random
 
 from dijkstra_graph import haversine, x_source, y_source, x_target, y_target
 
@@ -23,6 +24,12 @@ def get_closest_node(G, latitude, longitude):
 
     return closest_node
 
+path_lat = []
+path_lon = []
+path_alt = []
+path_power = []
+
+
 # 加载权重矩阵
 weights_df = pd.read_csv('dijkstra_edges.csv')
 weights_matrix = weights_df.values
@@ -35,15 +42,14 @@ longitude = pois_df['Longitude'].values
 # 创建有向图
 G = nx.DiGraph()
 
-source = get_closest_node(G, x_source, y_source)
-target = get_closest_node(G, x_target, y_target)
-
-print("source:", source)
-print("target:", target)
-
 # 添加节点到图中
 for i, row in pois_df.iterrows():
     G.add_node(i, latitude=row['Latitude'], longitude=row['Longitude'])
+
+source = get_closest_node(G, x_source, y_source)
+target = get_closest_node(G, x_target, y_target)
+print("source:", source)
+print("target:", target)
 
 # 添加边和权重到图中
 for i in range(len(pois_df)):
@@ -52,23 +58,50 @@ for i in range(len(pois_df)):
         if weight != np.inf:
             G.add_edge(i, j, weight=weight)
 
-k = 1
+k = 100
 shortest_paths = []
 for _ in range(k):
     shortest_path = nx.shortest_path(G, source=source, target=target, weight='weight', method="dijkstra")
+    print(shortest_path)
+    total_cost = sum(G[shortest_path[i]][shortest_path[i + 1]]['weight'] for i in range(len(shortest_path) - 1))
+    print(total_cost)
     shortest_paths.append(shortest_path)
     # for edge in shortest_path:
     #     # 在图中删除已找到的路径，以找到下一条最短路径
     #     G.remove_edge(edge[0], edge[1])
 
+    if len(shortest_path) > 2:
+        remove_node = random.choice(shortest_path[1:-1])  # 随机选择一个中间节点
+        print(remove_node)
+        G.remove_node(remove_node)
+
 print("Shortest Paths:", shortest_paths)
 
-# 假设shortest_paths包含了最短路径的字典列表
-for path_dict in shortest_paths:
-    path = list(path_dict.values())[0]  # 获取字典中的路径
-    print("Shortest Path:", path)
+# cheack each path
 
-#
+def check_path(path):
+    for i in range(len(path)):
+        Latitude, Longitude, Elevation, Power = pois_df.iloc[path[i]]
+        path_lat.append(Latitude)
+        path_lon.append(Longitude)
+        path_alt.append(Elevation)
+        path_power.append(Power)
+
+
+
+
+
+
+    def geo_coord(index):
+        if node in range(self.n_ch):
+            Latitude, Longitude, Elevation, Power = initial_data_ch.iloc[index]
+            return Latitude, Longitude, Elevation, Power
+        else:
+            Latitude, Longitude, Altitude = initial_data_p.iloc[index]
+            power = None
+            return Latitude, Longitude, Altitude, power
+
+
 # # 使用Dijkstra算法计算前100条最短路径
 # shortest_paths = []
 # counter = 0

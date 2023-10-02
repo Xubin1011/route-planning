@@ -107,13 +107,13 @@ def dijkstra_pois():
     m = folium.Map(location=[(south_lat + north_lat) / 2, (west_lon + east_lon) / 2], zoom_start=10)
 
     # Obtain 100 small bbox
-    for i in range(10):
-        for j in range(10):
+    for i in range(20):
+        for j in range(20):
             # Calculate the boundaries of the current small bbox
-            bbox_south_lat = south_lat + (north_lat - south_lat) * i / 10
-            bbox_north_lat = south_lat + (north_lat - south_lat) * (i + 1) / 10
-            bbox_west_lon = west_lon + (east_lon - west_lon) * j / 10
-            bbox_east_lon = west_lon + (east_lon - west_lon) * (j + 1) / 10
+            bbox_south_lat = south_lat + (north_lat - south_lat) * i / 20
+            bbox_north_lat = south_lat + (north_lat - south_lat) * (i + 1) / 20
+            bbox_west_lon = west_lon + (east_lon - west_lon) * j / 20
+            bbox_east_lon = west_lon + (east_lon - west_lon) * (j + 1) / 20
 
             # Add the boundaries of the small bbox to the map
             folium.Rectangle(bounds=[(bbox_south_lat, bbox_west_lon), (bbox_north_lat, bbox_east_lon)],
@@ -193,6 +193,8 @@ def dijkstra_edges():
     # Creat a list to save weight
     weight_matrix = np.full((num_stations, num_stations), np.inf)
 
+    t_stay = np.full((num_stations, num_stations), 0)
+
     # visualize all pois
     for i in range(num_stations):
         label = f"Latitude: {latitude[i]:.2f}, Longitude: {longitude[i]:.2f}, Elevation: {elevation[i]:.2f}, Power: {power[i]:.2f}"
@@ -218,24 +220,32 @@ def dijkstra_edges():
                         latitude[j], longitude[j], elevation[j],
                         mass, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery
                     )
+                    t_stay[i][j] = consumption / power[j] * 3600
+                    weight_matrix[i][j] = typical_duration + t_stay[i][j]
 
-                    weight_matrix[i][j] = typical_duration + consumption / power[j] * 3600
+                    # if consumption is greater than battery capacity, delete this edge
+                    if consumption > 588: # 588kWh
+                        weight_matrix[i][j] = np.inf
 
-                    # if driving time is greater than 4.5h, them delete this edge
+                    # if driving time is greater than 4.5h, then delete this edge
                     if typical_duration > 4.5 * 3600:
                         weight_matrix[i][j] = np.inf
 
                     # visualize the edge
-                    folium.PolyLine([(latitude[i], longitude[i]), (latitude[j], longitude[j])],
-                                    color='blue', weight=1).add_to(m)
+                    if weight_matrix[i][j] != np.inf:
+                        folium.PolyLine([(latitude[i], longitude[i]), (latitude[j], longitude[j])], color='blue', weight=1).add_to(m)
 
     # save weights
     weight_df = pd.DataFrame(weight_matrix)
     weight_df.to_csv("dijkstra_edges.csv", index=False, header=True)
 
+    t_stay_df = pd.DataFrame(t_stay)
+    t_stay_df.to_csv("t_stay.csv", index=False, header=True)
+
     # save map
     m.save("dijkstra_edges.html")  # 保存地图到HTML文件
 
+# dijkstra_pois()
 dijkstra_edges()
 
 
