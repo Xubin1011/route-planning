@@ -151,7 +151,6 @@ for i in range(0, max_steps): # loop for steps
             if terminated == False: #accept action
                 print(f"******The action {action} in step {num_step} is selected\n")
                 num_step += 1
-
                 state = next_state
                 state_history.append(next_state)
                 break
