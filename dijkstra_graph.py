@@ -220,7 +220,6 @@ def dijkstra_edges():
                         latitude[j], longitude[j], elevation[j],
                         mass, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery
                     )
-                    t_stay[i][j] = consumption / power[j] * 3600
                     weight_matrix[i][j] = typical_duration + t_stay[i][j]
 
                     # if consumption is greater than battery capacity, delete this edge
