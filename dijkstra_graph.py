@@ -215,11 +215,12 @@ def dijkstra_edges():
                 distance_j_to_n = haversine(latitude[j], longitude[j], n_latitude, n_longitude)
                 # For example: an edge with two vertices A and B, if the distance from B to target is shorter, the direction of the edge is from A to B
                 if distance_i_to_n > distance_j_to_n: #from i to j
-                    consumption, typical_duration, _ = consumption_duration(
+                    consumption, typical_duration, distance_meters = consumption_duration(
                         latitude[i], longitude[i], elevation[i],
                         latitude[j], longitude[j], elevation[j],
                         mass, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery
                     )
+                    t_stay[i][j] = consumption / power[j]
                     weight_matrix[i][j] = typical_duration + t_stay[i][j]
 
                     # if consumption is greater than battery capacity, delete this edge
@@ -230,19 +231,19 @@ def dijkstra_edges():
                     if typical_duration > 4.5 * 3600:
                         weight_matrix[i][j] = np.inf
 
+                    if distance_meters < 25000 or distance_meters > 300000:
+                        weight_matrix[i][j] = np.inf
+
                     # visualize the edge
                     if weight_matrix[i][j] != np.inf:
                         folium.PolyLine([(latitude[i], longitude[i]), (latitude[j], longitude[j])], color='blue', weight=1).add_to(m)
 
     # save weights
     weight_df = pd.DataFrame(weight_matrix)
-    weight_df.to_csv("dijkstra_edges.csv", index=False, header=True)
-
-    t_stay_df = pd.DataFrame(t_stay)
-    t_stay_df.to_csv("t_stay.csv", index=False, header=True)
+    weight_df.to_csv("dijkstra_edges_300.csv", index=False, header=True)
 
     # save map
-    m.save("dijkstra_edges.html")  # 保存地图到HTML文件
+    m.save("dijkstra_edges_300.html")  # 保存地图到HTML文件
 
 # dijkstra_pois()
 dijkstra_edges()

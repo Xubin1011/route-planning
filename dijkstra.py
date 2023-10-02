@@ -6,6 +6,7 @@ import random
 
 from dijkstra_graph import haversine, x_source, y_source, x_target, y_target
 from consumption_duration import consumption_duration
+from visualization import visualization
 
 m = 13500 #(Leergewicht)
 g = 9.81
@@ -15,6 +16,10 @@ c_r = 0.01
 c_d = 0.7
 a = 0
 eta_m, eta_battery = 0.8, 0.8
+
+route_path = "dij_path_300.csv"
+weights_path = 'dijkstra_edges_300.csv'
+map_name = "dij_path_300.html"
 
 # select the closest node in graph G
 def get_closest_node(G, latitude, longitude):
@@ -83,13 +88,20 @@ def check_path(path):
             unfeasible = False
     return unfeasible
 
-def visualization(path):
+
+#visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target)
+cs_path = 'cs_combo_bbox.csv'
+p_path = 'parking_bbox.csv'
+def visu(path):
     for i in range(len(path)):
         Latitude, Longitude, Elevation, Power = pois_df.iloc[path[i]]
         path_lat.append(Latitude)
         path_lon.append(Longitude)
         path_alt.append(Elevation)
         path_power.append(Power)
+    geo_coord = pd.DataFrame({'Latitude': path_lat, 'Longitude': path_lon})
+    geo_coord.to_csv(route_path, index=False)
+    visualization(cs_path, p_path, route_path, x_source, y_source, x_target, y_target, map_name)
 
 
 
@@ -105,7 +117,7 @@ max_driving = 16200  # in s
 section = min_rest + max_driving
 
 # load weights
-weights_df = pd.read_csv('dijkstra_edges.csv')
+weights_df = pd.read_csv(weights_path)
 weights_matrix = weights_df.values
 
 # load pois
@@ -134,8 +146,7 @@ for i in range(len(pois_df)):
 
 # find the shortest_path and check it
 k = 100
-shortest_paths = []
-for _ in range(k):
+for i in range(k):
     shortest_path = nx.shortest_path(G, source=source, target=target, weight='weight', method="dijkstra")
     unfeasible = check_path(shortest_path)
     print(f"shortest_path {shortest_path}, unfeasible is {unfeasible}")
@@ -145,14 +156,16 @@ for _ in range(k):
             remove_node = random.choice(shortest_path[1:-1])  # 随机选择一个中间节点
             print(remove_node)
             G.remove_node(remove_node)
+        if i == k - 1:
+            print(f"can not find a feasible path in {k}-shortest paths")
         continue
     total_cost = sum(G[shortest_path[i]][shortest_path[i + 1]]['weight'] for i in range(len(shortest_path) - 1))
     print(total_cost)
     break
+visu(shortest_path)
 
-    # shortest_paths.append(shortest_path)
 
-print("Shortest Paths:", shortest_paths)
+
 
 
 
