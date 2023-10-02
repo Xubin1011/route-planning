@@ -211,7 +211,7 @@ def dijkstra_edges():
                 # calculate the distance from two vertices of an edge to the target
                 distance_i_to_n = haversine(latitude[i], longitude[i], n_latitude, n_longitude)
                 distance_j_to_n = haversine(latitude[j], longitude[j], n_latitude, n_longitude)
-                # For example: an edge with two vertices A and B, if the distance from B to target is smaller, the direction of the edge is from A to B
+                # For example: an edge with two vertices A and B, if the distance from B to target is shorter, the direction of the edge is from A to B
                 if distance_i_to_n > distance_j_to_n: #from i to j
                     consumption, typical_duration, _ = consumption_duration(
                         latitude[i], longitude[i], elevation[i],
@@ -231,7 +231,7 @@ def dijkstra_edges():
 
     # save weights
     weight_df = pd.DataFrame(weight_matrix)
-    weight_df.to_csv("dijkstra_edges.csv", index=False, header=False)
+    weight_df.to_csv("dijkstra_edges.csv", index=False, header=True)
 
     # save map
     m.save("dijkstra_edges.html")  # 保存地图到HTML文件
