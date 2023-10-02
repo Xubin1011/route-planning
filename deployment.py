@@ -177,9 +177,11 @@ for i in range(0, max_steps): # loop for steps
     if target_flag == True:
         print(f"Finding a  feasible route after {i+1} steps")
         print("State history:", state_history)
+        print("sorted_indices_list: ", sorted_indices_list)
         for state in state_history:
-            node, index, t_stay = state[0], state[1], state[2]
-            x, y, _, _, = geo_coord(node, index)
+            first_three_values = state[0, :3]
+            node, index, t_stay = first_three_values.tolist()
+            x, y, _, _, = geo_coord(node, int(index))
             save_pois(x, y, t_stay)
         visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target)
         break
