@@ -92,6 +92,7 @@ def check_path(path):
 
 
 
+
     def geo_coord(index):
         if node in range(self.n_ch):
             Latitude, Longitude, Elevation, Power = initial_data_ch.iloc[index]
