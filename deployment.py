@@ -7,12 +7,13 @@ import numpy as np
 from env_deploy import rp_env
 from way_noloops import way
 from visualization import visualization
+from global_var import initial_data_p, initial_data_ch, data_p, data_ch
 
 env = rp_env()
 myway = way()
 #########################################################
 # actions_path = "actions.csv"
-weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth"
+weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_044.pth"
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
 route_path = "route.csv"
@@ -31,13 +32,23 @@ class DQN(nn.Module):
         x = F.relu(self.layer1(x))
         x = F.relu(self.layer2(x))
         return self.layer3(x)
+def geo_coord(node, index):
+    if node in range(myway.n_ch):
+        Latitude, Longitude, Elevation, Power = initial_data_ch.iloc[index]
+        return Latitude, Longitude, Elevation, Power
+    else:
+        Latitude, Longitude, Altitude = initial_data_p.iloc[index]
+        power = None
+        return Latitude, Longitude, Altitude, power
 
-def save_pois(x, y, t_stay):
+def save_pois(state):
     try:
         df = pd.read_csv(route_path)
     except FileNotFoundError:
         df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay"])
     # save new location
+    node, index, t_stay = state[0], state[1], state[2]
+    x, y, _, -_, = geo_coord(node, index)
     new_row = {"Latitude": x, "Longitude": y, "Stay": t_stay}
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv(route_path, index=False)
