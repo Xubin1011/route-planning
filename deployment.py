@@ -41,14 +41,12 @@ def geo_coord(node, index):
         power = None
         return Latitude, Longitude, Altitude, power
 
-def save_pois(state):
+def save_pois(x, y, t_stay):
     try:
         df = pd.read_csv(route_path)
     except FileNotFoundError:
         df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay"])
     # save new location
-    node, index, t_stay = state[0], state[1], state[2]
-    x, y, _, -_, = geo_coord(node, index)
     new_row = {"Latitude": x, "Longitude": y, "Stay": t_stay}
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv(route_path, index=False)
@@ -104,7 +102,7 @@ state, info = env.reset()
 n_observations = len(state)
 node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = state
 x_current, y_current, alti_current, power = myway.geo_coord(node_current, int(index_current))
-save_pois(state)
+# save_pois(state)
 
 initial_state = state
 state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
@@ -165,11 +163,11 @@ for i in range(0, max_steps): # loop for steps
                     break
                 else:
                     # violate contraints
-                    if t == n_actions - 1: # all q-values have been checked
-                        del sorted_indices_list[num_step] # disable action, delete from list
+                    if t == n_actions - 1: # all q-values have been checked, disable last state,
+                        del sorted_indices_list[num_step] #  state values are deleted from list
                         num_step -= 1
                         step_back = True
-                        del state_history[num_step]
+                        del state_history[num_step] # delete last state
                         print(f"******no feasible action found in step {num_step}, take a step back\n")
                         break
 
@@ -180,8 +178,9 @@ for i in range(0, max_steps): # loop for steps
     if target_flag == True:
         print(f"Finding a  feasible route after {i+1} steps")
         for state in state_history:
-            x1, y1, t_stay = state[1], state[2], state[4]
-            save_pois(x1, y1, t_stay)
+            node, index, t_stay = state[0], state[1], state[2]
+            x, y, _, -_, = geo_coord(node, index)
+            save_pois(x, y, t_stay)
         visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target)
         break
 
