@@ -115,13 +115,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # check soc constraint
         if soc_after_driving < 0:  # Trapped
             terminated = True
-            print("Terminated: Trapped on the road, should be reseted")
+            print("Terminated: Trapped on the road")
         else:  # No trapped
             if soc_after_driving < 0.1:  # Still can run, but violated constraint
                 self.num_trapped += 1
                 if self.num_trapped == self.max_trapped:
                     terminated = True  # Violate the self.max_trapped times, stop current episode
-                    print(f"Terminated: Violated soc {self.max_trapped} times,should be reseted")
+                    print(f"Terminated: Violated soc {self.max_trapped} times")
             else:
                 terminated = False  # No trapped
         ##################################################################
@@ -131,10 +131,10 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             rest_time = t_secp_current + t_secch_current
             if rest_time < self.min_rest:
                 terminated = True
-                print("Terminated: Violated self.max_driving times,should be reseted")
+                print("Terminated: Violated self.max_driving times")
         else:  # still in current section when arriving next poi
             if t_secd_current >= self.max_driving:
-                print("Terminated: Violated self.max_driving times,should be reseted")
+                print("Terminated: Violated self.max_driving times")
                 terminated = True
         ##################################################################
         # next node is a charging station

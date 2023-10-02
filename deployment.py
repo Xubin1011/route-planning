@@ -176,6 +176,7 @@ for i in range(0, max_steps): # loop for steps
 
     if target_flag == True:
         print(f"Finding a  feasible route after {i+1} steps")
+        print("State history:", state_history)
         for state in state_history:
             node, index, t_stay = state[0], state[1], state[2]
             x, y, _, _, = geo_coord(node, index)
