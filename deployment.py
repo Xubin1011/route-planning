@@ -13,7 +13,7 @@ env = rp_env()
 myway = way()
 #########################################################
 # actions_path = "actions.csv"
-weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_044.pth"
+weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth"
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
 route_path = "route.csv"
@@ -178,7 +178,7 @@ for i in range(0, max_steps): # loop for steps
         print(f"Finding a  feasible route after {i+1} steps")
         for state in state_history:
             node, index, t_stay = state[0], state[1], state[2]
-            x, y, _, -_, = geo_coord(node, index)
+            x, y, _, _, = geo_coord(node, index)
             save_pois(x, y, t_stay)
         visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target)
         break
