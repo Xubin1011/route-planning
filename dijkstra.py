@@ -17,9 +17,9 @@ c_d = 0.7
 a = 0
 eta_m, eta_battery = 0.8, 0.8
 
-route_path = "dij_path_300.csv"
+route_path = 'dij_path_300.csv'
 weights_path = 'dijkstra_edges_300.csv'
-map_name = "dij_path_300.html"
+map_name = 'dij_path_300.html'
 
 # select the closest node in graph G
 def get_closest_node(G, latitude, longitude):
@@ -93,18 +93,19 @@ def check_path(path):
 cs_path = 'cs_combo_bbox.csv'
 p_path = 'parking_bbox.csv'
 def visu(path):
+    if os.path.exists(route_path):
+        os.remove(route_path)
     for i in range(len(path)):
         Latitude, Longitude, Elevation, Power = pois_df.iloc[path[i]]
         path_lat.append(Latitude)
         path_lon.append(Longitude)
-        path_alt.append(Elevation)
-        path_power.append(Power)
+        # path_alt.append(Elevation)
+        # path_power.append(Power)
     geo_coord = pd.DataFrame({'Latitude': path_lat, 'Longitude': path_lon})
     geo_coord.to_csv(route_path, index=False)
     visualization(cs_path, p_path, route_path, x_source, y_source, x_target, y_target, map_name)
 
-
-
+###########################################
 path_lat = []
 path_lon = []
 path_alt = []
