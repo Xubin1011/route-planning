@@ -20,7 +20,7 @@ a = 0
 eta_m = 0.82
 eta_battery = 0.82
 
-max_edge_length = 50000 # in m
+max_edge_length = 40000 # in m
 ####################################################################
 def bounding_box(source_lat, source_lon, target_lat, target_lon):
     # Calculate the North latitude, West longitude, South latitude, and East longitude
@@ -168,17 +168,17 @@ def dijkstra_pois():
                       icon=folium.Icon(color='green')).add_to(m)
 
     # Save the map as HTML file named dijkstra_pois.html
-    m.save('dijkstra_pois.html')
+    m.save('G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.html')
 
     # Save the selected points to a CSV file named dijkstra_pois.csv
     dijkstra_df = pd.DataFrame(dijkstra_pois, columns=['Latitude', 'Longitude', 'Elevation', 'Power'])
-    dijkstra_df.to_csv('dijkstra_pois.csv', index=False)
+    dijkstra_df.to_csv('G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv', index=False)
 
 
 #################################################################
 
-def dijkstra_edges():
-    data = pd.read_csv("dijkstra_pois.csv")
+def dijkstra_edges(max_edge_length):
+    data = pd.read_csv("G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv")
 
     # Obtain Latitude、Longitude、Elevation、Power
     latitude = data["Latitude"].values
@@ -241,13 +241,14 @@ def dijkstra_edges():
 
     # save weights
     weight_df = pd.DataFrame(weight_matrix)
-    weight_df.to_csv(f"dijkstra_edges_{max_edge_length/1000}.csv", index=False, header=True)
+    weight_df.to_csv(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.csv", index=False, header=True)
 
     # save map
-    m.save(f"dijkstra_edges_{max_edge_length/1000}.html")  # 保存地图到HTML文件
+    m.save(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.html")
+
 
 # dijkstra_pois()
-dijkstra_edges()
+dijkstra_edges(max_edge_length)
 
 
 

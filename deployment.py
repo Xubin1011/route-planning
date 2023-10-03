@@ -3,10 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pandas as pd
 import numpy as np
-# from dqn_n_actions import DQN
+import folium
 from env_deploy import rp_env
 from way_noloops import way
-from visualization import visualization
 from global_var import initial_data_p, initial_data_ch, data_p, data_ch
 
 env = rp_env()
@@ -75,23 +74,53 @@ def save_q(state):
     return(sorted_indices_list)
 
 ##############################################################
-# # check an action, update flags, save accept pois
-# def check_acts(action):
-#     observation, terminated, d_next = env.step(action)
-#     # node_next, x_next, y_next, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
-#     next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
-#
-#     if terminated == False:  # accept action
-#         # save_pois(x_next, y_next, t_stay)
-#         step_flag = False
-#     else:
-#         step_flag = True # Violate constrains
-#         # if x_next == myway.x_target and y_next == myway.y_target:
-#         if d_next <= 25000:  # arrival target, accept action
-#             # save_pois(x_next, y_next, t_stay)
-#             target_flag = True
-#
-#     return (next_state, step_flag, target_flag)
+def bbox(source_lat, source_lon, target_lat, target_lon):
+    # Calculate the North latitude, West longitude, South latitude, and East longitude
+    south_lat = min(source_lat, target_lat)
+    west_lon = min(source_lon, target_lon)
+    north_lat = max(source_lat, target_lat)
+    east_lon = max(source_lon, target_lon)
+
+    return south_lat, west_lon, north_lat, east_lon
+
+def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_lat, target_lon, map_name):
+    # calculate the bounding box
+    south_lat, west_lon, north_lat, east_lon = bbox(source_lat, source_lon, target_lat, target_lon)
+    # Read data from cs_path
+    data1 = pd.read_csv(cs_path)
+    # Read data from p_path
+    data2 = pd.read_csv(p_path)
+    # Calculate the center of the bounding box
+    center_lat = (south_lat + north_lat) / 2
+    center_lon = (west_lon + east_lon) / 2
+    # Create a map object
+    map_object = folium.Map(location=[center_lat, center_lon], zoom_start=10)
+    # Add the bounding box area to the map
+    bbox_coords = [[south_lat, west_lon], [north_lat, west_lon], [north_lat, east_lon], [south_lat, east_lon], [south_lat, west_lon]]
+    folium.Polygon(locations=bbox_coords, color='blue', fill=True, fill_color='blue', fill_opacity=0.2).add_to(map_object)
+    # Read data from cs_path and add yellow markers for data points
+    for _, row in data1.iterrows():
+        latitude, longitude = row['Latitude'], row['Longitude']
+        folium.CircleMarker(location=[latitude, longitude], radius=1, color='yellow', fill=True, fill_color='yellow').add_to(map_object)
+    # Read data from p_path and add blue markers for data points
+    for _, row in data2.iterrows():
+        latitude, longitude = row['Latitude'], row['Longitude']
+        folium.CircleMarker(location=[latitude, longitude], radius=1, color='blue', fill=True, fill_color='blue').add_to(map_object)
+    # Read data from route_path as path coordinates
+    path_data = pd.read_csv(route_path)
+    path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
+    path_infos = list(zip(path_data['Latitude'], path_data['Longitude'], path_data['Stay']))
+    for coord in path_infos:
+        latitude, longitude, stay = coord
+        folium.Marker(location=[latitude, longitude],
+                      popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins',
+                      icon=folium.Icon(color='green')).add_to(map_object)
+        # folium.CircleMarker(location=[latitude, longitude], radius=2, color='red', fill=True, fill_color='red').add_to(
+        #     map_object)
+    # Add a red line to represent the path
+    folium.PolyLine(locations=path_coords, color='red').add_to(map_object)
+    # Save the map as an HTML file and display it
+    map_object.save(map_name)
 #############################################################
 
 # Initialization of state, Q-Network, state history list
