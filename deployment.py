@@ -16,13 +16,8 @@ myway = way()
 # actions_path = "actions.csv"
 # weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth" # Linux
 
-if len(sys.argv) > 1:
-    try_number = int(sys.argv[1])
-else:
-    print("No value for try_numbers provided.")
-    sys.exit(1)
-# try_number = 43
-weights_path =f"G:\Tuning_results\weights_{try_number}.pth" # win10
+try_number = 43
+weights_path =f"G:\Tuning_results\weights_0{try_number}.pth" # win10
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
 route_path = f"G:\Tuning_results\dqn_route_{try_number}.csv"
