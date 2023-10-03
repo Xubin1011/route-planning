@@ -61,7 +61,7 @@ EPS_END = 0.1  # EPS_END is the final value of epsilon
 EPS_DECAY = 9618  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
 TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
-
+REPLAYBUFFER = 10000
 
 SGD = False
 Adam = True

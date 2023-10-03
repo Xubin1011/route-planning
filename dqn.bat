@@ -4,9 +4,9 @@ setlocal enabledelayedexpansion
 set interpreter="E:\Program Files\miniconda3\envs\rp\python.exe"
 set script="G:\OneDrive\Thesis\Code\route-planning\dqn_n_actions.py"
 set folder_path=G:\Tuning results
-set try_number=039
+set try_number=040
 
-echo Running dqn_n_actions.py...
+echo Running dqn_n_actions_%try_number%.py...
 
 for /f "tokens=1-3 delims=:" %%a in ("%TIME%") do (
     set "start_hour=%%a"
