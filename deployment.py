@@ -115,11 +115,24 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     path_data = pd.read_csv(route_path)
     path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
     path_infos = list(zip(path_data['Latitude'], path_data['Longitude'], path_data['Stay']))
+
+    sor_lat, sor_lon, sor_stay = path_infos[0]
+    tar_lat, tar_lon, tar_stay = path_infos[-1]
+
     for coord in path_infos:
         latitude, longitude, stay = coord
-        folium.Marker(location=[latitude, longitude],
-                      popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins',
-                      icon=folium.Icon(color='green')).add_to(map_object)
+        if latitude == sor_lat and longitude == sor_lon:
+            folium.Marker(location=[latitude, longitude],
+                          popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
+                          icon=folium.Icon(color='red')).add_to(map_object)
+        if stay != 0:
+            folium.Marker(location=[latitude, longitude],
+                          popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins',
+                          icon=folium.Icon(color='green')).add_to(map_object)
+        if latitude == tar_lat and longitude == tar_lon:
+            folium.Marker(location=[latitude, longitude],
+                          popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
+                          icon=folium.Icon(color='red')).add_to(map_object)
         # folium.CircleMarker(location=[latitude, longitude], radius=2, color='red', fill=True, fill_color='red').add_to(
         #     map_object)
     # Add a red line to represent the path

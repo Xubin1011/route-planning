@@ -1,12 +1,22 @@
+from deployment import visualization
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import pandas as pd
+import numpy as np
+import sys
+import folium
+from env_deploy import rp_env
+from way_noloops import way
+from global_var import initial_data_p, initial_data_ch, data_p, data_ch
 
-# 假设state是一个PyTorch张量
-state = torch.tensor([[5.0000e+00, 6.9700e+02, 0.0000e+00, 1.5533e+04, 0.0000e+00, 0.0000e+00, 1.1403e+04]], device='cuda:0')
 
-# 获取前两个值和第四个值
-first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
+env = rp_env()
+myway = way()
+try_number = 43
+cs_path = "cs_combo_bbox.csv"
+p_path = "parking_bbox.csv"
+route_path = f"G:\Tuning_results\dqn_route_43.csv"
+map_name = f"G:\Tuning_results\dqn_route_test.html"
+visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target, map_name)
 
-print(first_two_and_fourth_values)
-node, index, t_stay = list(first_two_and_fourth_values)
-print(node, index, t_stay)
-print(int(node), int(index), float(t_stay))
