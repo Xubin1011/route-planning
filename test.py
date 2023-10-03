@@ -13,4 +13,3 @@ index = 1  # 假设 index 是有效的
 latitude_value = np.float32(data.loc[index, 'Latitude'])
 print(latitude_value)
 
-

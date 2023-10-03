@@ -12,11 +12,12 @@ env = rp_env()
 myway = way()
 #########################################################
 # actions_path = "actions.csv"
-weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth"
+# weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth" # Linux
+weights_path ="G:\Tuning_results\weights_043.pth" # win10
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
-route_path = "route.csv"
-map_name = "dqn_route.html"
+route_path = "G:\Tuning_results\dqn_route.csv"
+map_name = "G:\Tuning_results\dqn_route.html"
 
 class DQN(nn.Module):
 
