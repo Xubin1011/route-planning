@@ -214,10 +214,11 @@ for i in range(0, max_steps): # loop for steps
         print("State history:\n", state_history)
         print("sorted_indices_list\n: ", sorted_indices_list)
         for state in state_history:
-            first_three_values = state[0, :3]
-            node, index, t_stay = first_three_values.tolist()
-            x, y, _, _, = geo_coord(node, int(index))
-            save_pois(x, y, t_stay)
+            #state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
+            first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
+            node, index, t_stay = list(first_two_and_fourth_values)
+            x, y, _, _, = geo_coord(int(node), int(index))
+            save_pois(x, y, float(t_stay))
         visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target, map_name)
         break
 

@@ -1,15 +1,12 @@
-import pandas as pd
-import numpy as np
+import torch
 
+# 假设state是一个PyTorch张量
+state = torch.tensor([[5.0000e+00, 6.9700e+02, 0.0000e+00, 1.5533e+04, 0.0000e+00, 0.0000e+00, 1.1403e+04]], device='cuda:0')
 
-    # 创建一个示例 DataFrame
-data = pd.read_csv("cs_combo_bbox.csv")
+# 获取前两个值和第四个值
+first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
 
-
-
-# 测试从 DataFrame 中提取 'Latitude' 列的值
-index = 1  # 假设 index 是有效的
-
-latitude_value = np.float32(data.loc[index, 'Latitude'])
-print(latitude_value)
-
+print(first_two_and_fourth_values)
+node, index, t_stay = list(first_two_and_fourth_values)
+print(node, index, t_stay)
+print(int(node), int(index), float(t_stay))
