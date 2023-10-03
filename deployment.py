@@ -3,21 +3,30 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pandas as pd
 import numpy as np
+import sys
 import folium
 from env_deploy import rp_env
 from way_noloops import way
 from global_var import initial_data_p, initial_data_ch, data_p, data_ch
+
 
 env = rp_env()
 myway = way()
 #########################################################
 # actions_path = "actions.csv"
 # weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth" # Linux
-weights_path ="G:\Tuning_results\weights_043.pth" # win10
+
+if len(sys.argv) > 1:
+    try_number = int(sys.argv[1])
+else:
+    print("No value for try_numbers provided.")
+    sys.exit(1)
+# try_number = 43
+weights_path =f"G:\Tuning_results\weights_{try_number}.pth" # win10
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
-route_path = "G:\Tuning_results\dqn_route.csv"
-map_name = "G:\Tuning_results\dqn_route.html"
+route_path = f"G:\Tuning_results\dqn_route_{try_number}.csv"
+map_name = f"G:\Tuning_results\dqn_route_{try_number}.html"
 
 class DQN(nn.Module):
 
@@ -207,8 +216,8 @@ for i in range(0, max_steps): # loop for steps
 
     if target_flag == True:
         print(f"Finding a  feasible route after {i+1} steps")
-        print("State history:", state_history)
-        print("sorted_indices_list: ", sorted_indices_list)
+        print("State history:\n", state_history)
+        print("sorted_indices_list\n: ", sorted_indices_list)
         for state in state_history:
             first_three_values = state[0, :3]
             node, index, t_stay = first_three_values.tolist()

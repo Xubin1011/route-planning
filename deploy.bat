@@ -3,10 +3,9 @@ setlocal enabledelayedexpansion
 
 set interpreter="E:\Program Files\miniconda3\envs\rp\python.exe"
 set script="G:\OneDrive\Thesis\Code\route-planning\deployment.py"
-set folder_path=G:\Tuning results
 set try_number=043
 
-echo Running deployment"%try_number%.py...
+echo Running deployment%try_number%.py...
 
 for /f "tokens=1-3 delims=:" %%a in ("%TIME%") do (
     set "start_hour=%%a"
@@ -14,7 +13,7 @@ for /f "tokens=1-3 delims=:" %%a in ("%TIME%") do (
     set "start_second=%%c"
 )
 
-%interpreter% %script% %try_number% >> "%folder_path%\deploy_weights_%try_number%.txt"
+%interpreter% %script% %try_number% >> "G:\Tuning results\deploy_weights_%try_number%.txt"
 
 for /f "tokens=1-3 delims=:" %%a in ("%TIME%") do (
     set "end_hour=%%a"
