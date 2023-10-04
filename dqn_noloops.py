@@ -61,8 +61,10 @@ REPLAYBUFFER = 10000
 # weights_path = f"weights_{try_numbers:03d}.pth"
 folder_path = r'/home/utlck/PycharmProjects/Tunning_results'
 ## Linux
-result_path = os.path.join(folder_path, f"{try_numbers:03d}.png")
-weights_path = os.path.join(folder_path, f"weights_{try_numbers:03d}.pth")
+# result_path = os.path.join(folder_path, f"{try_numbers:03d}.png")
+# weights_path = os.path.join(folder_path, f"weights_{try_numbers:03d}.pth")
+result_path = f"/home/utlck/PycharmProjects/Tunning_results/{try_numbers:03d}.png"
+weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{try_numbers:03d}.pth"
 ## windows
 # result_path = f"{folder_path}\\{try_numbers:03d}.png"
 # weights_path = f"{folder_path}\\weights_{try_numbers:03d}.pth"
