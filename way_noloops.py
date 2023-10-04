@@ -129,11 +129,16 @@ class way():
         # # Calculate the time and energy consumption between two points, the distance between next node and target
         # next_x, next_y = coordinates_dict[node_next]
         next_x, next_y, _ = nearest_n[int(node_next)]
-        print(next_x, next_y)
+        # print(next_x, next_y
+
         # Obtain the index of next poi
         if node_next in range(self.n_ch):
+            if next_x == self.x_target and next_y == self.y_target:
+                next_x, next_y = 52.4339745, 13.1918147
             index_next = initial_data_ch[(initial_data_ch["Latitude"] == next_x) & (initial_data_ch["Longitude"] == next_y)].index.values[0]
         else:
+            if next_x == self.x_target and next_y == self.y_target:
+                next_x, next_y = 52.4400242,13.181671
             index_next = initial_data_p[(initial_data_p["Latitude"] == next_x) & (initial_data_p["Longitude"] == next_y)].index.values[0]
         _, _, alti_next, power_next = self.geo_coord(node_next, index_next)
 
