@@ -67,7 +67,11 @@ class way():
         for lat, lon in zip(latitudes, longitudes):
             # Calculate the distance
             distance = haversine(x1, y1, lat, lon)
+            dis_current = haversine(x1, y1, self.x_target, self.y_target)
+            dis_next = haversine(lat, lon, self.x_target, self.y_target)
 
+            if dis_current <= dis_next: # only select pois close to the target
+                continue
             if distance < 25000:
                 continue
 
