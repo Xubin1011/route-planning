@@ -67,12 +67,12 @@ class way():
         for lat, lon in zip(latitudes, longitudes):
             # Calculate the distance
             distance = haversine(x1, y1, lat, lon)
+            if distance < 25000:
+                continue
+
             dis_current = haversine(x1, y1, self.x_target, self.y_target)
             dis_next = haversine(lat, lon, self.x_target, self.y_target)
-
             if dis_current <= dis_next: # only select pois close to the target
-                continue
-            if distance < 25000:
                 continue
 
             # negate the distance to find the farthest distance,
@@ -113,14 +113,11 @@ class way():
         n_values = [self.n_ch, self.n_p]
         for poi_file, n in zip(poi_files, n_values):
             nearest_poi = self.nearest_location(poi_file, x_current, y_current, n)
-
-
-            for i in range(n):
-
-                next_x = nearest_poi.loc[i, 'Latitude']
-                next_y = nearest_poi.loc[i, 'Longitude']
-                nearest_n.append([next_x, next_y])
-        # print("nearest n locations:", nearest_n)
+            nearest_n = nearest_poi.values.tolist()
+            if len(nearest_n) < n:
+                for _ in range(len(nearest_n), n):
+                    nearest_n.append([self.x_target, self.y_target, 0])
+        print("nearest n locations:", nearest_n)
 
         # Map the coordinates to the next location
         coordinates_dict = {}
