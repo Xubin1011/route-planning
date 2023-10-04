@@ -37,9 +37,9 @@ load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{(try_n
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 500
+    num_episodes = 1000
 else:
-    num_episodes = 500
+    num_episodes = 1000
 
 env = rp_env()
 env.w_distance = 15000  # value range -1~+1
