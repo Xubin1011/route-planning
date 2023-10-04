@@ -43,10 +43,10 @@ class way():
 
     def geo_coord(self, node, index):
         if node in range(self.n_ch):
-            Latitude, Longitude, Elevation, Power = initial_data_ch.iloc[index]
+            Latitude, Longitude, Elevation, Power = initial_data_ch.iloc[int(index)]
             return Latitude, Longitude, Elevation, Power
         else:
-            Latitude, Longitude, Altitude = initial_data_p.iloc[index]
+            Latitude, Longitude, Altitude = initial_data_p.iloc[int(index)]
             power = None
             return Latitude, Longitude, Altitude, power
 

@@ -136,7 +136,7 @@ n_observations = len(state)
 policy_net = DQN(n_observations, n_actions).to(device)
 
 checkpoint = torch.load(load_weights_path)
-print(checkpoint)
+# print(checkpoint)
 policy_net.load_state_dict(checkpoint)
 
 target_net = DQN(n_observations, n_actions).to(device)
