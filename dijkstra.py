@@ -22,13 +22,16 @@ c_d = 0.7
 a = 0
 eta_m, eta_battery = 0.8, 0.8
 
-max_edge_length = 100000 # in m
+max_edge_length = 300000 # in m
 cs_path = 'cs_combo_bbox.csv'
 p_path = 'parking_bbox.csv'
 dij_pois_path = 'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv'
-route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.csv'
-weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.csv'
-map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.html'
+# route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.csv'
+# weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.csv'
+# map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.html'
+route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_60km/h.csv'
+weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_60km/h.csv'
+map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_60km/h.html'
 stay_list = [0]
 
 # select the closest node in graph G
