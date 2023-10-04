@@ -113,20 +113,23 @@ class way():
         n_values = [self.n_ch, self.n_p]
         for poi_file, n in zip(poi_files, n_values):
             nearest_poi = self.nearest_location(poi_file, x_current, y_current, n)
-            nearest_n = nearest_poi.values.tolist()
-            if len(nearest_n) < n:
-                for _ in range(len(nearest_n), n):
+            nearest_n_tem = nearest_poi.values.tolist()
+            if len(nearest_n_tem) < n:
+                for _ in range(len(nearest_n_tem), n):
                     nearest_n.append([self.x_target, self.y_target, 0])
-        print("nearest n locations:", nearest_n)
+            nearest_n.extend(nearest_n_tem)
+        # print("nearest n locations:", nearest_n)
 
-        # Map the coordinates to the next location
-        coordinates_dict = {}
-        for i in range(self.n_pois):
-            coordinates_dict[i] = nearest_n[i]
-        # print(coordinates_dict)
-
-        # Calculate the time and energy consumption between two points, the distance between next node and target
-        next_x, next_y = coordinates_dict[node_next]
+        # # Map the coordinates to the next location
+        # coordinates_dict = {}
+        # for i in range(self.n_pois):
+        #     coordinates_dict[i] = nearest_n[i]
+        # # print(coordinates_dict)
+        #
+        # # Calculate the time and energy consumption between two points, the distance between next node and target
+        # next_x, next_y = coordinates_dict[node_next]
+        next_x, next_y, _ = nearest_n[int(node_next)]
+        print(next_x, next_y)
         # Obtain the index of next poi
         if node_next in range(self.n_ch):
             index_next = initial_data_ch[(initial_data_ch["Latitude"] == next_x) & (initial_data_ch["Longitude"] == next_y)].index.values[0]
