@@ -348,7 +348,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         node = random.randint(6, 9)
         # data = pd.read_csv('parking_bbox.csv')
         # location = data.sample(n =1, random_state=42)
-        index = random.randint(0, len(initial_data_p))
+        index = random.randint(0, (len(initial_data_p) - 1))
 
         soc = random.uniform(0.1, 0.8)
         t_stay = 0
