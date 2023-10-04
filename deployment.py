@@ -16,12 +16,12 @@ myway = way()
 
 # weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth" # Linux
 
-try_number = 43
-weights_path =f"G:\Tuning_results\weights_0{try_number}.pth" # win10
+# try_number = 47
+weights_path =f"G:\Tuning_results\weights_047_101.pth" # win10
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
-route_path = f"G:\Tuning_results\dqn_route_{try_number}.csv"
-map_name = f"G:\Tuning_results\dqn_route_{try_number}.html"
+route_path = f"G:\Tuning_results\dqn_route_047_101.csv"
+map_name = f"G:\Tuning_results\dqn_route_047_101.html"
 
 class DQN(nn.Module):
 
