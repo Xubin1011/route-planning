@@ -113,7 +113,10 @@ class way():
         n_values = [self.n_ch, self.n_p]
         for poi_file, n in zip(poi_files, n_values):
             nearest_poi = self.nearest_location(poi_file, x_current, y_current, n)
+
+
             for i in range(n):
+
                 next_x = nearest_poi.loc[i, 'Latitude']
                 next_y = nearest_poi.loc[i, 'Longitude']
                 nearest_n.append([next_x, next_y])
