@@ -12,6 +12,7 @@
 import pandas as pd
 import numpy as np
 import folium
+import random
 
 #initialization
 x_source = 49.0130 #source
@@ -29,6 +30,7 @@ eta_m = 0.82
 eta_battery = 0.82
 
 max_edge_length = 100000 # in m
+speed = 6080 # in km/h
 ####################################################################
 def bounding_box(source_lat, source_lon, target_lat, target_lon):
     # Calculate the North latitude, West longitude, South latitude, and East longitude
@@ -81,7 +83,8 @@ def calculate_alpha(x1, y1, c1, x2, y2, c2):
 # eta_battery: the efficiency of transmission, generator and in-vehicle charger
 def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery):
     sin_alpha, cos_alpha, distance_meters = calculate_alpha(x1, y1, c1, x2, y2, c2)
-    average_speed = 100 * 1000 /3600 #in m/s
+    random_speed = random.randint(60, 80)  # in km/h
+    average_speed = random_speed * 1000 / 3600  # in m/s
     typical_duration = distance_meters / average_speed # in s
 
     mgsin_alpha = m * g * sin_alpha
@@ -249,10 +252,10 @@ def dijkstra_edges(max_edge_length):
 
     # save weights
     weight_df = pd.DataFrame(weight_matrix)
-    weight_df.to_csv(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.csv", index=False, header=True)
+    weight_df.to_csv(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h.csv", index=False, header=True)
 
     # save map
-    m.save(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.html")
+    m.save(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h.html")
 
 
 # dijkstra_pois()

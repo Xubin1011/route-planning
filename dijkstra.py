@@ -26,13 +26,14 @@ max_edge_length = 100000 # in m
 cs_path = 'cs_combo_bbox.csv'
 p_path = 'parking_bbox.csv'
 dij_pois_path = 'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv'
-route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.csv'
-weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.csv'
-map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.html'
-# route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_60km_h.csv'
-# weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_60km_h.csv'
-# map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_60km_h.html'
+# route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.csv'
+# weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.csv'
+# map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.html'
+route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_6080km_h.csv'
+weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_6080km_h.csv'
+map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_6080km_h.html'
 stay_list = [0]
+distance = [0]
 
 # select the closest node in graph G
 def get_closest_node(G, latitude, longitude):
@@ -53,11 +54,12 @@ def get_closest_node(G, latitude, longitude):
 
 # cheack edges
 def check_edge(x_current, y_current,ati_current, x_next, y_next, ati_next, power_next):
-    global t_stay, t_secd_current, t_secch_current, stay_list
+    global t_stay, t_secd_current, t_secch_current, stay_list, distance
     terminated = False
     consumption, typical_duration, distance_meters = consumption_duration(x_current, y_current, ati_current, x_next, y_next, ati_next, m, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery)
     t_stay = consumption / power_next *3600 # in s
     stay_list.append(t_stay)
+    distance.append(distance_meters)
     # the time that arriving next location
     t_arrival = t_secd_current + t_secch_current + typical_duration
     # the depature time when leave next location
@@ -89,7 +91,7 @@ def check_path(path):
     path_lon = []
     path_alt = []
     path_power = []
-    global stay_list
+    global stay_list, distance
     for i in range(len(path)):
         Latitude, Longitude, Elevation, Power = pois_df.iloc[path[i]]
         path_lat.append(Latitude)
@@ -102,6 +104,7 @@ def check_path(path):
         if terminated:
             unfeasible = True
             stay_list = []
+            distance = []
             break
         else:
             unfeasible = False
@@ -133,11 +136,11 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     # Read data from route_path as path coordinates
     path_data = pd.read_csv(route_path)
     path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
-    path_infos = list(zip(path_data['Latitude'], path_data['Longitude'], path_data['Stay']))
+    path_infos = list(zip(path_data['Latitude'], path_data['Longitude'], path_data['Stay'], path_data['Distance']))
     for coord in path_infos:
-        latitude, longitude, stay = coord
+        latitude, longitude, stay, distance = coord
         folium.Marker(location=[latitude, longitude],
-                      popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins',
+                      popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins<br>Distance: {distance/1000}km',
                       icon=folium.Icon(color='green')).add_to(map_object)
         # folium.CircleMarker(location=[latitude, longitude], radius=2, color='red', fill=True, fill_color='red').add_to(
         #     map_object)
@@ -153,13 +156,13 @@ def visu(path):
         os.remove(route_path)
     path_lat = []
     path_lon = []
-    global stay_list
+    global stay_list, distance
     # print(stay_list)
     for i in range(len(path)):
         Latitude, Longitude, Elevation, Power = pois_df.iloc[path[i]]
         path_lat.append(Latitude)
         path_lon.append(Longitude)
-    geo_coord = pd.DataFrame({'Latitude': path_lat, 'Longitude': path_lon, 'Stay': stay_list})
+    geo_coord = pd.DataFrame({'Latitude': path_lat, 'Longitude': path_lon, 'Stay': stay_list, 'Distance': distance})
     geo_coord.to_csv(route_path, index=False)
     visualization(cs_path, p_path, route_path, x_source, y_source, x_target, y_target, map_name)
 
@@ -211,7 +214,7 @@ for i in range(k):
         print(f"shortest_path {shortest_path}, unfeasible is {unfeasible}")
         # randomly delete a vertex in the shortest path
         if len(shortest_path) > 2:
-            remove_node = random.choice(shortest_path[1:-1])  # 随机选择一个中间节点
+            remove_node = random.choice(shortest_path[1:-1])
             print(remove_node)
             G.remove_node(remove_node)
         if i == k - 1:
