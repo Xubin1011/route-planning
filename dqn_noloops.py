@@ -59,7 +59,7 @@ steps_max = 500
 REPLAYBUFFER = 10000
 # result_path = f"{try_numbers:03d}.png"
 # weights_path = f"weights_{try_numbers:03d}.pth"
-folder_path = r'/home/utlck/PycharmProjects/Tunning_results'
+# folder_path = r'/home/utlck/PycharmProjects/Tunning_results'
 ## Linux
 # result_path = os.path.join(folder_path, f"{try_numbers:03d}.png")
 # weights_path = os.path.join(folder_path, f"weights_{try_numbers:03d}.pth")
@@ -331,6 +331,7 @@ for i_episode in range(num_episodes):
             print(f"**************************************Episode {i_episode}done**************************************\n")
             break
 
+print("average_rewards:", average_rewards)
 # torch.save(policy_net.state_dict(), weights_path)
 plot_average_reward()
 print('Complete')
