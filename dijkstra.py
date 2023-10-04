@@ -1,3 +1,7 @@
+#Description: Find the shortest path and check whether the constraints are violated.
+# If the constraints are violated, randomly delete a vertex from the shortest path and
+# search for the shortest path again until a feasible shortest path is found.
+
 import pandas as pd
 import numpy as np
 import networkx as nx

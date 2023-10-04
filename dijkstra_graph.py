@@ -1,6 +1,14 @@
 # Date: 2023/9/24
 # Author: Xubin Zhang
-# Description: This file contains the implementation of...
+# Description:
+# def dijkstra_pois(): Divide a large bbox into 20*20 small bboxes,
+# and select the charging station with the maximum charging power closest to the center in each small bbox.
+# At last visualize it.
+# def dijkstra_edges: Calculate the weight between two vertices.
+# If one of the following conditions is met, the weight of an edge is set to infinity.
+# The driving time between two vertices is greater than 4.5 hours.
+# The energy consumption between the two vertices is greater than 588kWh.
+# The distance between two vertices is less than 25km or greater than max_edge_length.
 import pandas as pd
 import numpy as np
 import folium
