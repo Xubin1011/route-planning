@@ -249,10 +249,10 @@ def dijkstra_edges(max_edge_length):
 
     # save weights
     weight_df = pd.DataFrame(weight_matrix)
-    weight_df.to_csv(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_60km_h.csv", index=False, header=True)
+    weight_df.to_csv(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.csv", index=False, header=True)
 
     # save map
-    m.save(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_60km_h.html")
+    m.save(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.html")
 
 
 # dijkstra_pois()
