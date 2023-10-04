@@ -326,7 +326,7 @@ for i_episode in range(num_episodes):
             print("Average reward:", average_reward)
             average_rewards.append(average_reward)
             if i_episode % 100 == 0:
-                weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{try_numbers:03d}_{int(i_episode)}.pth"
+                weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{try_numbers:03d}_{int(i_episode + 1)}.pth"
                 torch.save(policy_net.state_dict(), weights_path)
             # reset data_ch, data_p
             reset_df()
