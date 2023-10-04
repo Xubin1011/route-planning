@@ -28,7 +28,7 @@ else:
 
 
 # try_numbers = 45 #test
-load_weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_044.pth"
+load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{(try_numbers - 1):03d}.pth"
 # load_weights_path ="/home/utlck/PycharmProjects/route-planning/weights_044.pth"
 
 
