@@ -65,8 +65,8 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
     # typical_duration, length_meters, average_speed = get_typical_route_here(x1, y1, x2, y2)  # s, m, m/s
 
     sin_alpha, cos_alpha, distance_meters = calculate_alpha(x1, y1, c1, x2, y2, c2)
-    # random_speed = random.randint(80, 100) # in km/h
-    random_speed = random.randint(60, 80)  # in km/h
+    random_speed = random.randint(80, 100) # in km/h
+    # random_speed = random.randint(60, 80)  # in km/h
     average_speed = random_speed * 1000 /3600 #in m/s
     typical_duration = distance_meters / average_speed # in s
 
