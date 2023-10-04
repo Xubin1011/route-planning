@@ -37,15 +37,15 @@ load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{(try_n
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 500
+    num_episodes = 1000
 else:
-    num_episodes = 500
+    num_episodes = 1000
 
 env = rp_env()
-env.w_distance = 10000  # value range -1~+1
+env.w_distance = 15000  # value range -1~+1
 env.w_energy = 1000  # -6~0.4
 env.w_driving = 5  # -100~0
-env.w_charge = 0.1  # -232~0
+env.w_charge = 1  # -232~0
 env.w_parking = 1  # -100~0
 env.w_target = 1000  # 1 or 0
 env.w_loop = 0 # 1 or -1000
@@ -59,10 +59,12 @@ steps_max = 500
 REPLAYBUFFER = 10000
 # result_path = f"{try_numbers:03d}.png"
 # weights_path = f"weights_{try_numbers:03d}.pth"
-folder_path = r'/home/utlck/PycharmProjects/Tunning_results'
+# folder_path = r'/home/utlck/PycharmProjects/Tunning_results'
 ## Linux
-result_path = os.path.join(folder_path, f"{try_numbers:03d}.png")
-weights_path = os.path.join(folder_path, f"weights_{try_numbers:03d}.pth")
+# result_path = os.path.join(folder_path, f"{try_numbers:03d}.png")
+# weights_path = os.path.join(folder_path, f"weights_{try_numbers:03d}.pth")
+result_path = f"/home/utlck/PycharmProjects/Tunning_results/{try_numbers:03d}.png"
+
 ## windows
 # result_path = f"{folder_path}\\{try_numbers:03d}.png"
 # weights_path = f"{folder_path}\\weights_{try_numbers:03d}.pth"
@@ -134,7 +136,7 @@ n_observations = len(state)
 policy_net = DQN(n_observations, n_actions).to(device)
 
 checkpoint = torch.load(load_weights_path)
-print(checkpoint)
+# print(checkpoint)
 policy_net.load_state_dict(checkpoint)
 
 target_net = DQN(n_observations, n_actions).to(device)
@@ -323,12 +325,15 @@ for i_episode in range(num_episodes):
             average_reward = sum_reward / (t+1)
             print("Average reward:", average_reward)
             average_rewards.append(average_reward)
-            torch.save(policy_net.state_dict(), weights_path)
+            if (i_episode + 1) % 100 == 0:
+                weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{try_numbers:03d}_{int(i_episode + 1)}.pth"
+                torch.save(policy_net.state_dict(), weights_path)
             # reset data_ch, data_p
             reset_df()
             print(f"**************************************Episode {i_episode}done**************************************\n")
             break
 
+print("average_rewards:", average_rewards)
 # torch.save(policy_net.state_dict(), weights_path)
 plot_average_reward()
 print('Complete')
