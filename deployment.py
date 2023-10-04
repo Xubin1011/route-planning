@@ -13,7 +13,7 @@ from global_var import initial_data_p, initial_data_ch, data_p, data_ch
 env = rp_env()
 myway = way()
 #########################################################
-# actions_path = "actions.csv"
+
 # weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth" # Linux
 
 try_number = 43

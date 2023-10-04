@@ -26,16 +26,20 @@ import os
 #     print("No value for try_numbers provided.")
 #     sys.exit(1)
 
+
 try_numbers = 44 #test
+# load_weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth"
+load_weights_path ="/home/utlck/PycharmProjects/route-planning/weights_044.pth"
+
 
 # original_stdout = sys.stdout
 # with open(f"output_{try_numbers:03d}.txt", 'w') as file:
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 500
+    num_episodes = 100
 else:
-    num_episodes = 500
+    num_episodes = 100
 
 env = rp_env()
 env.w_distance = 10000  # value range -1~+1
@@ -128,6 +132,11 @@ state, info = env.reset()
 n_observations = len(state)
 
 policy_net = DQN(n_observations, n_actions).to(device)
+
+checkpoint = torch.load(load_weights_path)
+print(checkpoint)
+policy_net.load_state_dict(checkpoint)
+
 target_net = DQN(n_observations, n_actions).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
