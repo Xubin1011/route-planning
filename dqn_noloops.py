@@ -37,7 +37,7 @@ load_weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_044.pth"
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 100
+    num_episodes = 500
 else:
     num_episodes = 500
 
