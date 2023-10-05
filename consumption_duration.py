@@ -34,9 +34,15 @@ def calculate_alpha(x1, y1, c1, x2, y2, c2):
     # print("Haversine Distance:", distance_meters, "m")
     # Calculate sinalpha based on c2-c1
     elevation_difference = c2 - c1
-    slope = np.arctan(elevation_difference / distance_meters)  # (slope in radians) slope belongs to -pi/2 to pi/2
-    sin_alpha = np.sin(slope)
-    cos_alpha = np.cos(slope)
+    sin_alpha = elevation_difference / distance_meters
+    cos_alpha = np.sqrt(1 - sin_alpha**2)
+
+    # if distance_meters == 0:
+    #     slope = 0
+    # else:
+    #     slope = np.arctan(elevation_difference / distance_meters)  # (slope in radians) slope belongs to -pi/2 to pi/2
+    # sin_alpha = np.sin(slope)
+    # cos_alpha = np.cos(slope)
 
     return sin_alpha, cos_alpha, distance_meters
 

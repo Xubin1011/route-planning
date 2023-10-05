@@ -29,7 +29,7 @@ import os
 
 try_numbers = 48 #test
 # load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{(try_numbers - 1):03d}.pth"
-load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_047_901.pth"
+# load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_047_901.pth"
 # load_weights_path ="/home/utlck/PycharmProjects/route-planning/weights_044.pth"
 
 
@@ -136,9 +136,9 @@ n_observations = len(state)
 
 policy_net = DQN(n_observations, n_actions).to(device)
 
-checkpoint = torch.load(load_weights_path)
-# print(checkpoint)
-policy_net.load_state_dict(checkpoint)
+# checkpoint = torch.load(load_weights_path)
+# # print(checkpoint)
+# policy_net.load_state_dict(checkpoint)
 
 target_net = DQN(n_observations, n_actions).to(device)
 target_net.load_state_dict(policy_net.state_dict())
