@@ -13,15 +13,19 @@ from global_var import initial_data_p, initial_data_ch, data_p, data_ch
 env = rp_env()
 myway = way()
 #########################################################
-
-# weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth" # Linux
-
 # try_number = 47
-weights_path =f"G:\Tuning_results\weights_047_101.pth" # win10
+##############Linux##################
+weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth"
+route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_047_101.csv"
+map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_047_101.html"
+
+##############Win10#################################
+# weights_path =f"G:\Tuning_results\weights_047_101.pth"
+# route_path = f"G:\Tuning_results\dqn_route_047_101.csv"
+# map_name = f"G:\Tuning_results\dqn_route_047_101.html"
+
 cs_path = "cs_combo_bbox.csv"
 p_path = "parking_bbox.csv"
-route_path = f"G:\Tuning_results\dqn_route_047_101.csv"
-map_name = f"G:\Tuning_results\dqn_route_047_101.html"
 
 class DQN(nn.Module):
 
