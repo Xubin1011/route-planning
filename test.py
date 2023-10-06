@@ -1,62 +1,49 @@
 import pandas as pd
-import heapq
-from consumption_duration import haversine
-# Sample data
-latitudes = [40.7128, 34.0522, 51.5074, 48.8566, 37.7749]
-longitudes = [-74.0060, -118.2437, -0.1278, 2.3522, -122.4194]
-x_target, y_target = 40.7128, -74.0060  # Example target coordinates
-n = 8  # Number of nearest locations to find
+import numpy as np
 
-# Initialize closest_locations heap
-closest_locations = []
+# 目标坐标
+x_target = 52.5253
+y_target = 13.3694
 
-# Iterate through all the locations
-for lat, lon in zip(latitudes, longitudes):
-    # Calculate the distance
-    distance = haversine(x_target, y_target, lat, lon)
-    # if distance < 25000:
-    #     continue
+# 数据框示例
+data = {
+    'Latitude': [x1, x2, x3, ...],  # 填充实际数据
+    'Longitude': [y1, y2, y3, ...],  # 填充实际数据
+    'Elevation': [e1, e2, e3, ...],  # 填充实际数据
+    'Power': [p1, p2, p3, ...]  # 填充实际数据
+}
 
-    # dis_current = haversine(x_target, y_target, x_target, y_target)
-    # dis_next = haversine(lat, lon, x_target, y_target)
-    # if dis_current <= dis_next:  # only select pois close to the target
-    #     continue
+initial_data_ch = pd.DataFrame(data)
 
-    # negate the distance to find the farthest distance,
-    # closest_locations[0] is the farthest location now
-    neg_distance = -distance
 
-    # If the number of locations in the queue is less than n,
-    # insert the current location
-    if len(closest_locations) < n:
-        heapq.heappush(closest_locations, (neg_distance, lat, lon))
-    else:
-        # find the farthest location in the current queue
-        min_neg_distance, _, _ = closest_locations[0]
+# 计算每个数据点与目标坐标之间的Haversine距离
+def haversine(x1, y1, x2, y2):
+    # 将经纬度从度数转换为弧度
+    x1, y1, x2, y2 = np.radians([x1, y1, x2, y2])
 
-        # If the current location is closer, replace the farthest location
-        if neg_distance > min_neg_distance:
-            heapq.heappop(closest_locations)  # pop the farthest location
-            heapq.heappush(closest_locations, (neg_distance, lat, lon))  # insert the closer location
+    # Haversine距离计算
+    dlon = y2 - y1
+    dlat = x2 - x1
+    a = np.sin(dlat / 2) ** 2 + np.cos(x1) * np.cos(x2) * np.sin(dlon / 2) ** 2
+    c = 2 * np.arcsin(np.sqrt(a))
+    r = 6371  # 地球的平均半径，单位：千米
+    distance = c * r
 
-# convert the distance back to positive values
-closest_locations = pd.DataFrame(closest_locations, columns=["Neg_Distance", "Latitude", "Longitude"])
-closest_locations["Distance"] = -closest_locations["Neg_Distance"]
-closest_locations.drop(columns=["Neg_Distance"], inplace=True)
+    return distance
 
-# Sort by distance in ascending order
-closest_locations.sort_values(by="Distance", inplace=True)
 
-# Extract information of the n nearest locations
-nearest_locations = closest_locations.head(n).reset_index(drop=True)
+# 初始化最小距离和最近点的索引
+min_distance = None
+closest_index = None
 
-# Print the result
-print(nearest_locations)
-print(len(nearest_locations))
-nearest_locations_list = nearest_locations.values.tolist()
-print(nearest_locations_list)
+# 查找距离最近的点
+for index, row in initial_data_ch.iterrows():
+    distance = haversine(x_target, y_target, row['Latitude'], row['Longitude'])
+    if min_distance is None or distance < min_distance:
+        min_distance = distance
+        closest_index = index
 
-if len(nearest_locations_list) < n:
-    for i in range(len(nearest_locations), n):
-        nearest_locations_list.append ([1, 1, 1])
-print(nearest_locations_list)
+# 获取距离最近的点的数据
+closest_point = initial_data_ch.loc[closest_index]
+
+print(closest_point)

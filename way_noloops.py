@@ -18,6 +18,8 @@ def reset_df():
     data_p = initial_data_p.copy()
     # print(len(data_ch), len(data_p))
 
+
+
 class way():
     def __init__(self):
         # initialization
@@ -40,6 +42,26 @@ class way():
         self.a = 0
         self.eta_m = 0.82
         self.eta_battery = 0.82
+
+    # upadate coordinats of target
+        for index, row in initial_data_ch.iterrows():
+            distance = haversine(row['Latitude'], row['Longitude'], self.x_target, self.y_target)
+            if min_dis is None or distance < min_dis:
+                min_dis = distance
+                self.closest_index_ch = index
+            closest_point_ch = initial_data_ch.loc[self.closest_index_ch]
+            self.x_target_ch = closest_point_ch['Latitude']
+            self.y_target.ch = closest_point_ch['Latitude']
+        for index, row in initial_data_p.iterrows():
+            distance = haversine(row['Latitude'], row['Longitude'], self.x_target, self.y_target)
+            if min_dis is None or distance < min_dis:
+                min_dis = distance
+                self.closest_index_p = index
+            closest_point_p = initial_data_ch.loc[self.closest_index_p]
+            self.x_target_p = closest_point_p['Latitude']
+            self.y_target.p = closest_point_p['Latitude']
+
+
 
     def geo_coord(self, node, index):
         if node in range(self.n_ch):
@@ -131,14 +153,14 @@ class way():
         next_x, next_y, _ = nearest_n[int(node_next)]
         # print(next_x, next_y
 
+        if next_x == self.x_target and next_y == self.y_target:
+
+            # return (index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
+
         # Obtain the index of next poi
         if node_next in range(self.n_ch):
-            if next_x == self.x_target and next_y == self.y_target:
-                next_x, next_y = 52.4339745, 13.1918147
             index_next = initial_data_ch[(initial_data_ch["Latitude"] == next_x) & (initial_data_ch["Longitude"] == next_y)].index.values[0]
         else:
-            if next_x == self.x_target and next_y == self.y_target:
-                next_x, next_y = 52.4400242,13.181671
             index_next = initial_data_p[(initial_data_p["Latitude"] == next_x) & (initial_data_p["Longitude"] == next_y)].index.values[0]
         _, _, alti_next, power_next = self.geo_coord(node_next, index_next)
 
