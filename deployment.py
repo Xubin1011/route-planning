@@ -15,9 +15,9 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth"
-route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_047_101.csv"
-map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_047_101.html"
+weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_048_100.pth"
+route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_048_100.csv"
+map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_048_100.html"
 
 ##############Win10#################################
 # weights_path =f"G:\Tuning_results\weights_047_101.pth"
@@ -50,13 +50,13 @@ def geo_coord(node, index):
         power = None
         return Latitude, Longitude, Altitude, power
 
-def save_pois(x, y, t_stay):
+def save_pois(node, x, y, t_stay):
     try:
         df = pd.read_csv(route_path)
     except FileNotFoundError:
         df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay"])
     # save new location
-    new_row = {"Latitude": x, "Longitude": y, "Stay": t_stay}
+    new_row = {"Node": node, "Latitude": x, "Longitude": y, "Stay": t_stay}
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv(route_path, index=False)
 #########################################################
@@ -118,7 +118,7 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     # Read data from route_path as path coordinates
     path_data = pd.read_csv(route_path)
     path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
-    path_infos = list(zip(path_data['Latitude'], path_data['Longitude'], path_data['Stay']))
+    path_infos = list(zip(path_data['Node'],path_data['Latitude'], path_data['Longitude'], path_data['Stay']))
 
     sor_lat, sor_lon, sor_stay = path_infos[0]
     tar_lat, tar_lon, tar_stay = path_infos[-1]
@@ -235,7 +235,7 @@ for i in range(0, max_steps): # loop for steps
             first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
             node, index, t_stay = list(first_two_and_fourth_values)
             x, y, _, _, = geo_coord(int(node), int(index))
-            save_pois(x, y, float(t_stay))
+            save_pois(node, x, y, float(t_stay))
         visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target, map_name)
         break
 
