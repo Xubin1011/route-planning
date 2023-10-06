@@ -120,23 +120,53 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
     path_infos = list(zip(path_data['Node'],path_data['Latitude'], path_data['Longitude'], path_data['Stay']))
 
-    sor_lat, sor_lon, sor_stay = path_infos[0]
-    tar_lat, tar_lon, tar_stay = path_infos[-1]
+    node, sor_lat, sor_lon, sor_stay = path_infos[0]  #souce
+    node, tar_lat, tar_lon, tar_stay = path_infos[-1] #target
 
+    html_icon = folium.DivIcon(
+        html=f'<div style="font-size: 16px; color: blue;">P</div>'
+    )
+    # folium.Marker(
+    #     location=[latitude, longitude],
+    #     popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay} mins',
+    #     icon=html_icon
+    # ).add_to(map_object)
+
+    cs_html_icon = folium.DivIcon(html=f'<div style="font-size: 16px; color: yellow;">CS</div>')
+    cs_html_icon_source = folium.DivIcon(html=f'<div style="font-size: 16px; color: red;">CS_S</div>')
+    cs_html_icon_target = folium.DivIcon(html=f'<div style="font-size: 16px; color: red;">CS_T</div>')
+    p_html_icon = folium.DivIcon(html=f'<div style="font-size: 16px; color: blue;">P</div>')
+    p_html_icon_source = folium.DivIcon(html=f'<div style="font-size: 16px; color: red;">P_S</div>')
+    p_html_icon_target = folium.DivIcon(html=f'<div style="font-size: 16px; color: red;">P_T</div>')
     for coord in path_infos:
-        latitude, longitude, stay = coord
-        if latitude == sor_lat and longitude == sor_lon:
-            folium.Marker(location=[latitude, longitude],
-                          popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
-                          icon=folium.Icon(color='red')).add_to(map_object)
-        if stay != 0:
-            folium.Marker(location=[latitude, longitude],
-                          popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins',
-                          icon=folium.Icon(color='green')).add_to(map_object)
-        if latitude == tar_lat and longitude == tar_lon:
-            folium.Marker(location=[latitude, longitude],
-                          popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
-                          icon=folium.Icon(color='red')).add_to(map_object)
+        node, latitude, longitude, stay = coord
+        if node in range(0, 6): # CS
+            if latitude == sor_lat and longitude == sor_lon:
+                folium.Marker(location=[latitude, longitude],
+                              popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
+                              icon=cs_html_icon_source).add_to(map_object)
+            if stay != 0:
+                folium.Marker(location=[latitude, longitude],
+                              popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins',
+                              icon=cs_html_icon).add_to(map_object)
+            if latitude == tar_lat and longitude == tar_lon:
+                folium.Marker(location=[latitude, longitude],
+                              popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
+                              icon=cs_html_icon_target).add_to(map_object)
+        else: #P
+            if latitude == sor_lat and longitude == sor_lon:
+                folium.Marker(location=[latitude, longitude],
+                              popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
+                              icon=p_html_icon_source).add_to(map_object)
+            if stay != 0:
+                folium.Marker(location=[latitude, longitude],
+                              popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins',
+                              icon=p_html_icon).add_to(map_object)
+            if latitude == tar_lat and longitude == tar_lon:
+                folium.Marker(location=[latitude, longitude],
+                              popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
+                              icon=p_html_icon_target).add_to(map_object)
+
         # folium.CircleMarker(location=[latitude, longitude], radius=2, color='red', fill=True, fill_color='red').add_to(
         #     map_object)
     # Add a red line to represent the path
