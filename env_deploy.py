@@ -85,6 +85,14 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
         # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current) #test
         x_current, y_current, alti_current, power = self.myway.geo_coord(node_current, index_current)
+        ### arrival target
+        if x_current == self.myway.x_target_ch and y_current == self.myway.x_target_ch:
+            print("Terminated: Arrival target")
+            return (self.state, True, node_current)
+        if x_current == self.myway.x_target_p and y_current == self.myway.y_target_p:
+            print("Terminated: Arrival target")
+            return (self.state, True, node_current)
+
 
         # Obtain selected action
         # index_cpu = action.cpu()
@@ -95,7 +103,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, x_current, y_current, alti_current, node_next)
 
         print("next_x, next_y, d_next, power_next, consumption, typical_duration=", next_x, next_y, d_next, power_next, consumption, typical_duration)
-        print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
+        # print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
     ##################################################################
         # the distance from current location to target
         d_current = haversine(x_current, y_current, self.myway.x_target, self.myway.y_target)

@@ -198,8 +198,7 @@ policy_net = DQN(n_observations, n_actions).to(device)
 
 # Load weigths
 checkpoint = torch.load(weights_path)
-print(checkpoint)
-# policy_net.load_state_dict(checkpoint['model_state_dict'])
+# print(checkpoint)
 policy_net.load_state_dict(checkpoint)
 # print("policy_net:", policy_net)
 policy_net.eval()
