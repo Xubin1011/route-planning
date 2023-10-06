@@ -43,7 +43,7 @@ class way():
         self.eta_m = 0.82
         self.eta_battery = 0.82
 
-    # upadate coordinats of target
+    # update coordinates of target, select the closest CH or P as target
         for index, row in initial_data_ch.iterrows():
             distance = haversine(row['Latitude'], row['Longitude'], self.x_target, self.y_target)
             if min_dis is None or distance < min_dis:
@@ -51,7 +51,7 @@ class way():
                 self.closest_index_ch = index
             closest_point_ch = initial_data_ch.loc[self.closest_index_ch]
             self.x_target_ch = closest_point_ch['Latitude']
-            self.y_target.ch = closest_point_ch['Latitude']
+            self.y_target_ch = closest_point_ch['Latitude']
         for index, row in initial_data_p.iterrows():
             distance = haversine(row['Latitude'], row['Longitude'], self.x_target, self.y_target)
             if min_dis is None or distance < min_dis:
@@ -59,7 +59,7 @@ class way():
                 self.closest_index_p = index
             closest_point_p = initial_data_ch.loc[self.closest_index_p]
             self.x_target_p = closest_point_p['Latitude']
-            self.y_target.p = closest_point_p['Latitude']
+            self.y_target_p = closest_point_p['Latitude']
 
 
 
@@ -138,7 +138,10 @@ class way():
             nearest_n_tem = nearest_poi.values.tolist()
             if len(nearest_n_tem) < n:
                 for _ in range(len(nearest_n_tem), n):
-                    nearest_n.append([self.x_target, self.y_target, 0])
+                    if poi_file == file_path_ch:
+                        nearest_n.append([self.x_target_ch, self.y_target_ch, 0])
+                    else:
+                        nearest_n.append([self.x_target_p, self.y_target_p, 0])
             nearest_n.extend(nearest_n_tem)
         # print("nearest n locations:", nearest_n)
 
@@ -151,11 +154,7 @@ class way():
         # # Calculate the time and energy consumption between two points, the distance between next node and target
         # next_x, next_y = coordinates_dict[node_next]
         next_x, next_y, _ = nearest_n[int(node_next)]
-        # print(next_x, next_y
-
-        if next_x == self.x_target and next_y == self.y_target:
-
-            # return (index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
+        # print(next_x, next_y)
 
         # Obtain the index of next poi
         if node_next in range(self.n_ch):
