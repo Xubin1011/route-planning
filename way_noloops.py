@@ -44,22 +44,24 @@ class way():
         self.eta_battery = 0.82
 
     # update coordinates of target, select the closest CH or P as target
+        min_dis = None
         for index, row in initial_data_ch.iterrows():
             distance = haversine(row['Latitude'], row['Longitude'], self.x_target, self.y_target)
             if min_dis is None or distance < min_dis:
                 min_dis = distance
                 self.closest_index_ch = index
-            closest_point_ch = initial_data_ch.loc[self.closest_index_ch]
-            self.x_target_ch = closest_point_ch['Latitude']
-            self.y_target_ch = closest_point_ch['Latitude']
+        closest_point_ch = initial_data_ch.loc[self.closest_index_ch]
+        self.x_target_ch = closest_point_ch['Latitude']
+        self.y_target_ch = closest_point_ch['Longitude']
+        min_dis = None
         for index, row in initial_data_p.iterrows():
             distance = haversine(row['Latitude'], row['Longitude'], self.x_target, self.y_target)
             if min_dis is None or distance < min_dis:
                 min_dis = distance
                 self.closest_index_p = index
-            closest_point_p = initial_data_ch.loc[self.closest_index_p]
-            self.x_target_p = closest_point_p['Latitude']
-            self.y_target_p = closest_point_p['Latitude']
+        closest_point_p = initial_data_p.loc[self.closest_index_p]
+        self.x_target_p = closest_point_p['Latitude']
+        self.y_target_p = closest_point_p['Longitude']
 
 
 
