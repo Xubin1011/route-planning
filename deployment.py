@@ -120,12 +120,12 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
     path_infos = list(zip(path_data['Node'],path_data['Latitude'], path_data['Longitude'], path_data['Stay']))
 
-    node, sor_lat, sor_lon, sor_stay = path_infos[0]  #souce
-    node, tar_lat, tar_lon, tar_stay = path_infos[-1] #target
+    node_sor, sor_lat, sor_lon, sor_stay = path_infos[0]  #souce
+    node_target, tar_lat, tar_lon, tar_stay = path_infos[-1] #target
 
-    html_icon = folium.DivIcon(
-        html=f'<div style="font-size: 16px; color: blue;">P</div>'
-    )
+    # html_icon = folium.DivIcon(
+    #     html=f'<div style="font-size: 16px; color: blue;">P</div>'
+    # )
     # folium.Marker(
     #     location=[latitude, longitude],
     #     popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay} mins',
@@ -140,7 +140,7 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     p_html_icon_target = folium.DivIcon(html=f'<div style="font-size: 16px; color: red;">P_T</div>')
     for coord in path_infos:
         node, latitude, longitude, stay = coord
-        if node in range(0, 6): # CS
+        if int(node) in range(0, 6): # CS
             if latitude == sor_lat and longitude == sor_lon:
                 folium.Marker(location=[latitude, longitude],
                               popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
@@ -264,7 +264,7 @@ for i in range(0, max_steps): # loop for steps
             first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
             node, index, t_stay = list(first_two_and_fourth_values)
             x, y, _, _, = geo_coord(int(node), int(index))
-            save_pois(node, x, y, float(t_stay))
+            save_pois(int(node), x, y, float(t_stay))
         visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target, map_name)
         break
 
