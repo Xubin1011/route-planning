@@ -47,7 +47,7 @@ env.w_distance = 1000  # value range -1~+1
 env.w_energy = 1000  # -6~0.4
 env.w_driving = 5  # -100~0
 env.w_charge = 1  # -232~0
-env.w_parking = 1  # -100~0
+env.w_parking = 4  # -100~0
 env.w_target = 0  # 1 or 0
 env.w_loop = 0 # 1 or -1000
 
