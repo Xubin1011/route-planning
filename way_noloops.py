@@ -53,7 +53,7 @@ class way():
         closest_point_ch = initial_data_ch.loc[self.closest_index_ch]
         self.x_target_ch = closest_point_ch['Latitude']
         self.y_target_ch = closest_point_ch['Longitude']
-        print("target_ch:", self.x_target_ch, self.y_target_ch)
+        print("target_ch:", self.x_target_ch, self.y_target_ch, self.closest_index_ch)
         min_dis = None
         for index, row in initial_data_p.iterrows():
             distance = haversine(row['Latitude'], row['Longitude'], self.x_target, self.y_target)
@@ -63,7 +63,7 @@ class way():
         closest_point_p = initial_data_p.loc[self.closest_index_p]
         self.x_target_p = closest_point_p['Latitude']
         self.y_target_p = closest_point_p['Longitude']
-        print("target_p :", self.y_target_p, self.y_target_p)
+        print("target_p :", self.y_target_p, self.y_target_p, self.closest_index_p)
 
 
 

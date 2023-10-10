@@ -19,15 +19,15 @@ import torch.optim as optim
 import torch.nn.functional as F
 import sys
 import os
+#
+# if len(sys.argv) > 1:
+#     try_numbers = int(sys.argv[1])
+# else:
+#     print("No value for try_numbers provided.")
+#     sys.exit(1)
 
-if len(sys.argv) > 1:
-    try_numbers = int(sys.argv[1])
-else:
-    print("No value for try_numbers provided.")
-    sys.exit(1)
 
-
-# try_numbers = 48 #test
+try_numbers = 49 #test
 # load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{(try_numbers - 1):03d}.pth"
 # load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_047_901.pth"
 # load_weights_path ="/home/utlck/PycharmProjects/route-planning/weights_044.pth"
@@ -38,9 +38,9 @@ else:
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 2000
+    num_episodes = 200
 else:
-    num_episodes = 2000
+    num_episodes = 200
 
 env = rp_env()
 env.w_distance = 10000  # value range -1~+1
@@ -290,7 +290,7 @@ for i_episode in range(num_episodes):
 
         # in current step arrival target
         node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
-        if index_current == theway.closest_index_ch or index_current == theway.closest_index_p:
+        if int(index_current) == theway.closest_index_ch or int(index_current) == theway.closest_index_p:
             terminated = True
 
         if terminated:
