@@ -211,6 +211,7 @@ policy_net.eval()
 
 num_step = 0
 max_steps = 1000
+length = 0
 # step_flag = False  # no terminated, "True": Violate constrains,terminated
 target_flag = False # not arrival target
 step_back = False
@@ -232,8 +233,9 @@ for i in range(0, max_steps): # loop for steps
         if action == None:
             continue
         else:
-            observation, terminated, d_next = env.step(action)
+            observation, terminated, d_next, length_meters = env.step(action)
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
+            length += length_meters
 
             if terminated == False: #accept action
                 print(f"******The action {action} in step {num_step} is selected\n")
@@ -277,7 +279,7 @@ for i in range(0, max_steps): # loop for steps
     if num_step < 0:
         print(f"No feasible route from initial state {initial_state}")
         break
-
+print("length=", length)
 print("done")
 
 

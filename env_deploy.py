@@ -208,7 +208,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:
             self.state = (node_next, index_next, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
         
-        return np.array(self.state, dtype=np.float32), terminated, d_next
+        return np.array(self.state, dtype=np.float32), terminated, d_next, length_meters
 
     # def reset(self):
     #
