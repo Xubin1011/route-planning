@@ -20,14 +20,14 @@ import torch.nn.functional as F
 import sys
 import os
 #
-# if len(sys.argv) > 1:
-#     try_numbers = int(sys.argv[1])
-# else:
-#     print("No value for try_numbers provided.")
-#     sys.exit(1)
+if len(sys.argv) > 1:
+    try_numbers = int(sys.argv[1])
+else:
+    print("No value for try_numbers provided.")
+    sys.exit(1)
 
 
-try_numbers = 49 #test
+# try_numbers = 49 #test
 # load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{(try_numbers - 1):03d}.pth"
 # load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_047_901.pth"
 # load_weights_path ="/home/utlck/PycharmProjects/route-planning/weights_044.pth"
@@ -38,9 +38,9 @@ try_numbers = 49 #test
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 200
+    num_episodes = 3000
 else:
-    num_episodes = 200
+    num_episodes = 3000
 
 env = rp_env()
 env.w_distance = 10000  # value range -1~+1
