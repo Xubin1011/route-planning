@@ -38,9 +38,9 @@ else:
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 100
+    num_episodes = 2000
 else:
-    num_episodes = 100
+    num_episodes = 2000
 
 env = rp_env()
 env.w_distance = 10000  # value range -1~+1
@@ -51,7 +51,7 @@ env.w_parking = 1  # -100~0
 env.w_target = 0  # 1 or 0
 env.w_loop = 0 # 1 or -1000
 
-# theway = way()
+theway = way()
 # theway.n_ch = 6  # Number of nearest charging station
 # theway.n_p = 4  # Number of nearest parking lots
 # theway.n_pois = 10
@@ -284,10 +284,14 @@ for i_episode in range(num_episodes):
         action = select_action(state, i_episode)
         observation, reward, terminated = env.step(action) # observation is next state
         # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
-
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)
-        done = terminated
+        # done = terminated
+
+        # in current step arrival target
+        node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
+        if index_current == theway.closest_index_ch or index_current == theway.closest_index_p:
+            terminated = True
 
         if terminated:
             next_state = None # Stop Episode
@@ -315,10 +319,10 @@ for i_episode in range(num_episodes):
         print(f"###Episode {i_episode} step {t} done ###")
 
         if t == steps_max - 1:
-            done = True
+            terminated = True
             print(f"Terminated: Can not arrival target after {steps_max} steps, stop the episode\n")
 
-        if done: ## episode done
+        if terminated: ## episode done
             # episode_durations.append(t + 1)
             # plot_durations()
             print("Number of steps in an episode:", t+1)
@@ -329,6 +333,7 @@ for i_episode in range(num_episodes):
             if (i_episode + 1) % 100 == 0:
                 weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{try_numbers:03d}_{int(i_episode + 1)}epis.pth"
                 torch.save(policy_net.state_dict(), weights_path)
+                plot_average_reward()
             # reset data_ch, data_p
             reset_df()
             print(f"**************************************Episode {i_episode}done**************************************\n")
