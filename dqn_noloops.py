@@ -38,7 +38,7 @@ else:
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 500
+    num_episodes = 2000
 else:
     num_episodes = 100
 
