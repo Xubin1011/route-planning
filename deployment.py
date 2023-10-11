@@ -15,9 +15,9 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_052_1000epis.pth"
-route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_052_1000epis.csv"
-map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_052_1000epis.html"
+weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_053_1000epis.pth"
+route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_053_1000epis.csv"
+map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_053_1000epis.html"
 
 ##############Win10#################################
 # weights_path =f"G:\Tuning_results\weights_047_101.pth"

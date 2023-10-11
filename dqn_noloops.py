@@ -47,7 +47,7 @@ env.w_distance = 1000  # value range -1~+1
 env.w_energy = 1000  # -6~0.4
 env.w_driving = 5  # -100~0
 env.w_charge = 10  # -232~0
-env.w_parking = 0  # -100~0
+env.w_parking = 1  # -100~0
 env.w_target = 0  # 1 or 0
 env.w_loop = 0 # 1 or -1000
 w_num_charges = -10  # number of charges
@@ -80,8 +80,8 @@ TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
 
 
-SGD = False
-Adam = True
+SGD = True
+Adam = False
 AdamW = False
 
 SmoothL1Loss = True
