@@ -294,6 +294,7 @@ for i_episode in range(num_episodes):
         if 0 <= node_current < 6 and t_stay != 0:
             r_num_charges += 1
         reward = reward + (r_num_charges * w_num_charges)
+        print(f"r_num_charges = {r_num_charges * w_num_charges}")
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)
         # done = terminated
