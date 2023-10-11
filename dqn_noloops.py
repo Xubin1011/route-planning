@@ -292,7 +292,8 @@ for i_episode in range(num_episodes):
             terminated = True
         # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
         if node_current in range(0, 6):
-            r_num_charges += 1
+            if t_stay!= 0:
+                r_num_charges += 1
         reward = reward + (r_num_charges * w_num_charges)
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)
