@@ -114,12 +114,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # the driving time when arrive next location
         t_secd_current = t_secd_current + typical_duration
         ##################################################################
-        # check target
-        if d_next <= 25000 and soc_after_driving >= 0.1:
-            # r_distance = self.target
-            terminated = True
-            print("Terminated: Arrival target")
-        ###################################################################
         # check soc constraint
         if soc_after_driving < 0:  # Trapped
             terminated = True
@@ -132,6 +126,12 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     print(f"Terminated: Violated soc {self.max_trapped} times")
             else:
                 terminated = False  # No trapped
+        ###################################################################
+        # check target
+        if d_next <= 25000 and soc_after_driving >= 0:
+            # r_distance = self.target
+            terminated = True
+            print("Terminated: Arrival target")
         ##################################################################
         # check rest, driving time constraint
         if t_arrival >= self.section:  # A new section begin before arrival next state, only consider the reward of last section

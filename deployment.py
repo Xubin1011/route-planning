@@ -15,9 +15,9 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_051_1000epis.pth"
-route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_051_1000epis.csv"
-map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_051_1000epis.html"
+weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_052_1000epis.pth"
+route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_052_1000epis.csv"
+map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_052_1000epis.html"
 
 ##############Win10#################################
 # weights_path =f"G:\Tuning_results\weights_047_101.pth"
@@ -175,6 +175,7 @@ policy_net.eval()
 num_step = 0
 max_steps = 1000
 length = 0
+travling_time = 0
 # step_flag = False  # no terminated, "True": Violate constrains,terminated
 target_flag = False # not arrival target
 step_back = False
@@ -199,34 +200,38 @@ for i in range(0, max_steps): # loop for steps
             observation, terminated, d_next, length_meters = env.step(action)
             current_node, index_current, soc, _, _, _, _ = observation
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
-            length += length_meters
+
 
             if terminated == False: #accept action
                 print(f"******The action {action} in step {num_step} is selected\n")
                 num_step += 1
                 state = next_state
                 state_history.append(next_state)
+                length += length_meters
                 break
             else:
+
                 if d_next <= 25000 and soc >= 0: # Arrival target
                     state_history.append(next_state)
                     target_flag = True
+                    length += length_meters
                     print("******Arrival target\n")
                     break
+
                 if d_next <= 25000 and soc < 0: # Arrival target
-                    state_history.append(next_state)
-                    target_flag = True
+                    # state_history.append(next_state)
+                    # target_flag = True
+
                     print("******Arrival target, but trapped \n")
 
-                else:
-                    # violate contraints
-                    if t == n_actions - 1: # all q-values have been checked, disable last state,
-                        del sorted_indices_list[num_step] #  state values are deleted from list
-                        num_step -= 1
-                        step_back = True
-                        del state_history[num_step] # delete last state
-                        print(f"******no feasible action found in step {num_step}, take a step back\n")
-                        break
+                # violate contraints
+                if t == n_actions - 1: # all q-values have been checked, disable last state,
+                    del sorted_indices_list[num_step] #  state values are deleted from list
+                    num_step -= 1
+                    step_back = True
+                    del state_history[num_step] # delete last state
+                    print(f"******no feasible action found in step {num_step}, take a step back\n")
+                    break
 
     if i == max_steps - 1 and not target_flag:
         print(f"After {max_steps} steps no feasible route")
@@ -240,6 +245,7 @@ for i in range(0, max_steps): # loop for steps
             #state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
             first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
             node, index, t_stay = list(first_two_and_fourth_values)
+            travling_time += t_stay
             x, y, _, power, = geo_coord(int(node), int(index))
             save_pois(int(node), x, y, float(t_stay), power)
         visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target, map_name)
@@ -248,7 +254,8 @@ for i in range(0, max_steps): # loop for steps
     if num_step < 0:
         print(f"No feasible route from initial state {initial_state}")
         break
-print("length=", length)
+print(f"length={length/1000}km")
+print(f"travling time = {travling_time/3600}h")
 print("done")
 
 

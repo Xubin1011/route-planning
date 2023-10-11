@@ -50,6 +50,7 @@ env.w_charge = 10  # -232~0
 env.w_parking = 0  # -100~0
 env.w_target = 0  # 1 or 0
 env.w_loop = 0 # 1 or -1000
+w_num_charges = -10  # number of charges
 
 theway = way()
 # theway.n_ch = 6  # Number of nearest charging station
@@ -271,6 +272,8 @@ def optimize_model():
 
 ## Main Training Loop
 for i_episode in range(num_episodes):
+    # Initialize the reward for the number of chanrging
+    r_num_charges = 0
     # Initialize the sum_reward in an episode
     sum_reward = 0
     # Initialize the environment and get it's state
@@ -283,15 +286,17 @@ for i_episode in range(num_episodes):
     for t in range(steps_max):
         action = select_action(state, i_episode)
         observation, reward, terminated = env.step(action) # observation is next state
-        # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
-        sum_reward = sum_reward + reward
-        reward = torch.tensor([reward], device=device)
-        # done = terminated
-
         # in current step arrival target
         node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = observation
         if int(index_current) == theway.closest_index_ch or int(index_current) == theway.closest_index_p:
             terminated = True
+        # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
+        if node_current in range(0, 6):
+            r_num_charges += 1
+        reward = reward + (r_num_charges * w_num_charges)
+        sum_reward = sum_reward + reward
+        reward = torch.tensor([reward], device=device)
+        # done = terminated
 
         if terminated:
             next_state = None # Stop Episode
