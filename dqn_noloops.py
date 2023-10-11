@@ -46,8 +46,8 @@ env = rp_env()
 env.w_distance = 1000  # value range -1~+1
 env.w_energy = 1000  # -6~0.4
 env.w_driving = 5  # -100~0
-env.w_charge = 1  # -232~0
-env.w_parking = 4  # -100~0
+env.w_charge = 10  # -232~0
+env.w_parking = 0  # -100~0
 env.w_target = 0  # 1 or 0
 env.w_loop = 0 # 1 or -1000
 
@@ -330,7 +330,7 @@ for i_episode in range(num_episodes):
             average_reward = sum_reward / (t+1)
             print("Average reward:", average_reward)
             average_rewards.append(average_reward)
-            if (i_episode + 1) % 100 == 0:
+            if (i_episode + 1) % 50 == 0:
                 weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{try_numbers:03d}_{int(i_episode + 1)}epis.pth"
                 torch.save(policy_net.state_dict(), weights_path)
                 plot_average_reward()

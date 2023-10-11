@@ -217,7 +217,7 @@ for i in range(0, max_steps): # loop for steps
                     state_history.append(next_state)
                     target_flag = True
                     print("******Arrival target, but trapped \n")
-                    break
+
                 else:
                     # violate contraints
                     if t == n_actions - 1: # all q-values have been checked, disable last state,
