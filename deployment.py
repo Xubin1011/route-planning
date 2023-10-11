@@ -138,43 +138,6 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
                           popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins<br>Power: {power}kWh',
                           icon=folium.Icon(color='red')).add_to(map_object)
 
-    # cs_html_icon = folium.DivIcon(html=f'<div style="font-size: 16px; color: yellow;">CS</div>')
-    # cs_html_icon_source = folium.DivIcon(html=f'<div style="font-size: 16px; color: red;">CS_S</div>')
-    # cs_html_icon_target = folium.DivIcon(html=f'<div style="font-size: 16px; color: red;">CS_T</div>')
-    # p_html_icon = folium.DivIcon(html=f'<div style="font-size: 16px; color: blue;">P</div>')
-    # p_html_icon_source = folium.DivIcon(html=f'<div style="font-size: 16px; color: red;">P_S</div>')
-    # p_html_icon_target = folium.DivIcon(html=f'<div style="font-size: 16px; color: red;">P_T</div>')
-    # for coord in path_infos:
-    #     node_attr, latitude, longitude, stay = coord
-    #     if int(node_attr) in range(0, 6): # CS
-    #         if latitude == sor_lat and longitude == sor_lon:
-    #             folium.Marker(location=[latitude, longitude],
-    #                           popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
-    #                           icon=cs_html_icon_source).add_to(map_object)
-    #         if stay != 0:
-    #             folium.Marker(location=[latitude, longitude],
-    #                           popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins',
-    #                           icon=cs_html_icon).add_to(map_object)
-    #         if latitude == tar_lat and longitude == tar_lon:
-    #             folium.Marker(location=[latitude, longitude],
-    #                           popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
-    #                           icon=cs_html_icon_target).add_to(map_object)
-    #     else: #P
-    #         if latitude == sor_lat and longitude == sor_lon:
-    #             folium.Marker(location=[latitude, longitude],
-    #                           popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
-    #                           icon=p_html_icon_source).add_to(map_object)
-    #         if stay != 0:
-    #             folium.Marker(location=[latitude, longitude],
-    #                           popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins',
-    #                           icon=p_html_icon).add_to(map_object)
-    #         if latitude == tar_lat and longitude == tar_lon:
-    #             folium.Marker(location=[latitude, longitude],
-    #                           popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
-    #                           icon=p_html_icon_target).add_to(map_object)
-
-        # folium.CircleMarker(location=[latitude, longitude], radius=2, color='red', fill=True, fill_color='red').add_to(
-        #     map_object)
     # Add a red line to represent the path
     folium.PolyLine(locations=path_coords, color='red').add_to(map_object)
     # Save the map as an HTML file and display it
@@ -234,6 +197,7 @@ for i in range(0, max_steps): # loop for steps
             continue
         else:
             observation, terminated, d_next, length_meters = env.step(action)
+            current_node, index_current, soc, _, _, _, _ = observation
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
             length += length_meters
 
@@ -244,10 +208,15 @@ for i in range(0, max_steps): # loop for steps
                 state_history.append(next_state)
                 break
             else:
-                if d_next <= 25000: # Arrival target
+                if d_next <= 25000 and soc >= 0: # Arrival target
                     state_history.append(next_state)
                     target_flag = True
                     print("******Arrival target\n")
+                    break
+                if d_next <= 25000 and soc < 0: # Arrival target
+                    state_history.append(next_state)
+                    target_flag = True
+                    print("******Arrival target, but trapped \n")
                     break
                 else:
                     # violate contraints

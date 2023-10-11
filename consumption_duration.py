@@ -20,7 +20,7 @@ def haversine(x1, y1, x2, y2):
     distance = radius * c
 
     # Convert the distance to meters
-    distance_meters = distance * 1000 * 3
+    distance_meters = distance * 1000
 
     return distance_meters
 
