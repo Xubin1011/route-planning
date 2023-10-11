@@ -291,9 +291,8 @@ for i_episode in range(num_episodes):
         if int(index_current) == theway.closest_index_ch or int(index_current) == theway.closest_index_p:
             terminated = True
         # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
-        if node_current in range(0, 6):
-            if t_stay!= 0:
-                r_num_charges += 1
+        if 0 <= node_current < 6 and t_stay != 0:
+            r_num_charges += 1
         reward = reward + (r_num_charges * w_num_charges)
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)
