@@ -50,7 +50,7 @@ env.w_charge = 10  # -232~0
 env.w_parking = 1  # -100~0
 env.w_target = 0  # 1 or 0
 env.w_loop = 0 # 1 or -1000
-w_num_charges = -100  # number of charges
+w_num_charges = -1000  # number of charges
 
 theway = way()
 # theway.n_ch = 6  # Number of nearest charging station
