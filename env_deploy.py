@@ -243,7 +243,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         t_secd = 0
         t_secr = 0
         t_secch = 0
-        self.state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
+        self.state = (node, index, 0.8, t_stay, t_secd, t_secr, t_secch)
 
         self.state = (0, 202, 0.8, 0, 0, 0, 0) # charging station near the source
         # self.state = (6, 177 , 0.8, 0, 0, 0, 0)# parking lot near the source
