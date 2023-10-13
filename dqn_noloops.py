@@ -80,8 +80,8 @@ TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
 
 
-SGD = False
-Adam = True
+SGD = True
+Adam = False
 AdamW = False
 
 SmoothL1Loss = True
