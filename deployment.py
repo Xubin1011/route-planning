@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import sys
@@ -15,9 +16,13 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_056_1950epis.pth"
-route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_056_1950epis.csv"
-map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_056_1950epis.html"
+key_number = "063_500epis"
+key_randomly = "01"
+weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
+route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.csv"
+map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.html"
+aver_speed_path = f"/home/utlck/PycharmProjects/Tunning_results/aver_apeed_{key_number}_{key_randomly}.png"
+consumption_path = f"/home/utlck/PycharmProjects/Tunning_results/consumpution_{key_number}_{key_randomly}.png"
 
 ##############Win10#################################
 # weights_path =f"G:\Tuning_results\weights_047_101.pth"
@@ -127,15 +132,15 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
         node_attr, latitude, longitude, stay, power = coord
         if latitude == sor_lat and longitude == sor_lon:
             folium.Marker(location=[latitude, longitude],
-                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins<br>Power: {power}kWh',
+                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
                           icon=folium.Icon(color='red')).add_to(map_object)
         if stay != 0:
             folium.Marker(location=[latitude, longitude],
-                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins<br>Power: {power}kWh',
+                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
                           icon=folium.Icon(color='green')).add_to(map_object)
         if latitude == tar_lat and longitude == tar_lon:
             folium.Marker(location=[latitude, longitude],
-                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins<br>Power: {power}kWh',
+                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
                           icon=folium.Icon(color='red')).add_to(map_object)
 
     # Add a red line to represent the path
@@ -143,6 +148,15 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     # Save the map as an HTML file and display it
     map_object.save(map_name)
 #############################################################
+##visualiz consumption and speed
+def visu_list(list, x_name, y_name, png_path):
+    plt.plot(range(len(list)), list, marker='o', linestyle='-')
+    plt.xlabel(x_name)
+    plt.ylabel(y_name)
+    # plt.title(table_name)
+    plt.grid(True)
+    plt.savefig(png_path)
+####################################################
 
 # Initialization of state, Q-Network, state history list
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -179,6 +193,8 @@ travling_time = 0
 # step_flag = False  # no terminated, "True": Violate constrains,terminated
 target_flag = False # not arrival target
 step_back = False
+consumption_list = []
+aver_speed_list = []
 ##################################################
 # main loop
 for i in range(0, max_steps): # loop for steps
@@ -197,7 +213,7 @@ for i in range(0, max_steps): # loop for steps
         if action == None:
             continue
         else:
-            observation, terminated, d_next, length_meters = env.step(action)
+            observation, terminated, d_next, length_meters, aver_speed, aver_consumption = env.step(action)
             current_node, index_current, soc, _, _, _, _ = observation
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
 
@@ -207,12 +223,16 @@ for i in range(0, max_steps): # loop for steps
                 num_step += 1
                 state = next_state
                 state_history.append(next_state)
+                consumption_list.append(aver_consumption)
+                aver_speed_list.append(aver_speed)
                 length += length_meters
                 break
             else:
 
                 if d_next <= 25000 and soc >= 0: # Arrival target
                     state_history.append(next_state)
+                    consumption_list.append(aver_consumption)
+                    aver_speed_list.append(aver_speed)
                     target_flag = True
                     length += length_meters
                     print("******Arrival target\n")
@@ -241,14 +261,18 @@ for i in range(0, max_steps): # loop for steps
         print(f"Finding a  feasible route after {i+1} steps")
         print("State history:\n", state_history)
         print("sorted_indices_list\n: ", sorted_indices_list)
+        print("consumption:", consumption_list)
+        print("average speed:", aver_speed_list)
         for state in state_history:
             #state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
             first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
             node, index, t_stay = list(first_two_and_fourth_values)
             travling_time += t_stay
             x, y, _, power, = geo_coord(int(node), int(index))
-            save_pois(int(node), x, y, float(t_stay), power)
+            save_pois(int(node), x, y, float(t_stay/60), power)
         visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target, map_name)
+        visu_list(aver_speed_list, "step", "Average speed per step (in km/h)", aver_speed_path)
+        visu_list(consumption_list, "step", "Average consumption per step (in kWh/100km)", consumption_path)
         break
 
     if num_step < 0:

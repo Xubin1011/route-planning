@@ -4,12 +4,79 @@
 # Input: current location, current node, next node
 # Output: Distance between next node and target, time and energy consumption between two points, location of next node, power if next node is a CS
 # from nearest_location import nearest_location
-from consumption_duration import consumption_duration
-from consumption_duration import haversine
+# from consumption_duration import consumption_duration
+# from consumption_duration import haversine
 import pandas as pd
 import heapq
+import random
 import numpy as np
 from global_var import initial_data_p, initial_data_ch, data_p, data_ch, file_path_p, file_path_ch
+
+def haversine(x1, y1, x2, y2):
+    # Convert latitude and longitude from degrees to radians
+    lat1_rad, lon1_rad, lat2_rad, lon2_rad = np.radians([x1, y1, x2, y2])
+
+    # Haversine formula
+    delta_lat = lat2_rad - lat1_rad
+    delta_lon = lon2_rad - lon1_rad
+    a = np.sin(delta_lat/2)**2 + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(delta_lon/2)**2
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
+    # Earth's mean radius in kilometers
+    radius = 6371.0
+    distance = radius * c
+
+    # Convert the distance to meters
+    distance_meters = distance * 1000
+
+    return distance_meters
+
+
+#Description: alpha is the slope
+
+def calculate_alpha(x1, y1, c1, x2, y2, c2):
+    # Calculate the haversine distance
+    distance_meters = haversine(x1, y1, x2, y2)
+
+    # print("Haversine Distance:", distance_meters, "m")
+    # Calculate sinalpha based on c2-c1
+    elevation_difference = c2 - c1
+    if distance_meters != 0:
+        sin_alpha = elevation_difference / distance_meters
+    else:
+        sin_alpha = 0
+    cos_alpha = np.sqrt(1 - sin_alpha**2)
+
+    return sin_alpha, cos_alpha, distance_meters
+
+def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery):
+
+    # typical_duration, length_meters, average_speed = get_typical_route_here(x1, y1, x2, y2)  # s, m, m/s
+
+    sin_alpha, cos_alpha, distance_meters = calculate_alpha(x1, y1, c1, x2, y2, c2)
+    # random_speed = random.randint(80, 100) # in km/h
+    random_speed = random.randint(60, 80)  # in km/h
+    # random_speed = 80
+    average_speed = random_speed * 1000 /3600 #in m/s
+    typical_duration = distance_meters / average_speed # in s
+
+    mgsin_alpha = m * g * sin_alpha
+    mgCr_cos_alpha = m * g * c_r * cos_alpha
+    air_resistance = 0.5 * rho * (average_speed ** 2) * A_front * c_d
+    ma = m * a
+
+    power = average_speed * (mgsin_alpha + mgCr_cos_alpha + air_resistance + ma) / eta_m
+
+    # Recuperated energy
+    if power < 0:
+        if average_speed < 4.17: # 4.17m/s = 15km/h
+            power = 0
+        else:
+            power = power * eta_battery
+            if power < -150000:  # 150kW
+                power = -150000
+
+    consumption = power * typical_duration / 3600 / 1000  #(in kWh)
+    return consumption, typical_duration, distance_meters #(in kWh, s, m)
 
 def reset_df():
     global data_ch, data_p
@@ -17,7 +84,6 @@ def reset_df():
     data_ch = initial_data_ch.copy()
     data_p = initial_data_p.copy()
     # print(len(data_ch), len(data_p))
-
 
 
 class way():
@@ -149,12 +215,7 @@ class way():
             nearest_n.extend(nearest_n_tem)
         # print("nearest n locations:", nearest_n)
 
-        # # Map the coordinates to the next location
-        # coordinates_dict = {}
-        # for i in range(self.n_pois):
-        #     coordinates_dict[i] = nearest_n[i]
-        # # print(coordinates_dict)
-        #
+
         # # Calculate the time and energy consumption between two points, the distance between next node and target
         # next_x, next_y = coordinates_dict[node_next]
         next_x, next_y, _ = nearest_n[int(node_next)]

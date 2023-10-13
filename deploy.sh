@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#try_number=056
+#try_number=057
 
 interpreter="/home/utlck/.conda/envs/rp/bin/python"
 script="/home/utlck/PycharmProjects/route-planning/deployment.py"
 #log_name="deploy_${try_number}.txt"
-log_name="deploy_056_1950epis.txt"
+log_name="deploy_063_500epis_01.txt"
 $interpreter $script > /home/utlck/PycharmProjects/Tunning_results/"$log_name" 2>&1 &
 
 python_pid=$!

@@ -38,7 +38,7 @@ else:
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 1000
+    num_episodes = 5000
 else:
     num_episodes = 100
 
@@ -80,8 +80,8 @@ TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
 
 
-SGD = True
-Adam = False
+SGD = False
+Adam = True
 AdamW = False
 
 SmoothL1Loss = True

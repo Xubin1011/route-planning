@@ -7,7 +7,7 @@ import sys
 from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
-from way_noloops import way
+from way_deploy import way
 from global_var import initial_data_p, initial_data_ch, data_p, data_ch
 
 import math
@@ -101,7 +101,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         print('node_next, charge, rest = ', node_next, charge, rest)
 
         index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, x_current, y_current, alti_current, node_next)
-
+        aver_speed = length_meters/typical_duration * 3.6
+        aver_consumption = consumption / length_meters * 100000 # in kWh/100km"
         print("next_x, next_y, d_next, power_next, consumption, typical_duration=", next_x, next_y, d_next, power_next, consumption, typical_duration)
         # print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
     ##################################################################
@@ -208,7 +209,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:
             self.state = (node_next, index_next, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
         
-        return np.array(self.state, dtype=np.float32), terminated, d_next, length_meters
+        return np.array(self.state, dtype=np.float32), terminated, d_next, length_meters, aver_speed, aver_consumption# in km, m,kwh,km/h,kwh/100km
 
     # def reset(self):
     #
@@ -245,8 +246,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         t_secch = 0
         self.state = (node, index, 0.8, t_stay, t_secd, t_secr, t_secch)
 
-        self.state = (0, 202, 0.8, 0, 0, 0, 0) # charging station near the source
-        # self.state = (6, 177 , 0.8, 0, 0, 0, 0)# parking lot near the source
+        self.state = (0, 202, 0.8, 0, 0, 0, 0) # charging station near the source  01
+        # self.state = (6, 177, 0.8, 0, 0, 0, 0)# parking lot near the source  00
 
         # if self.render_mode == "human":
         #     self.render()
