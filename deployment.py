@@ -135,10 +135,14 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
             folium.Marker(location=[latitude, longitude],
                           popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
                           icon=folium.Icon(color='red')).add_to(map_object)
-        if stay != 0:
-            folium.Marker(location=[latitude, longitude],
-                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
-                          icon=folium.Icon(color='green')).add_to(map_object)
+
+        folium.Marker(location=[latitude, longitude],
+                      popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
+                      icon=folium.Icon(color='green')).add_to(map_object)
+        # if stay != 0:
+        #     folium.Marker(location=[latitude, longitude],
+        #                   popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
+        #                   icon=folium.Icon(color='green')).add_to(map_object)
         if latitude == tar_lat and longitude == tar_lon:
             folium.Marker(location=[latitude, longitude],
                           popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
