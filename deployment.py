@@ -17,7 +17,7 @@ myway = way()
 # try_number = 47
 ##############Linux##################
 key_number = "055_500epis"
-key_randomly = "01"
+key_randomly = "03"
 weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
 route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.csv"
 map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.html"
