@@ -358,7 +358,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         t_secd = 0
         t_secr = 0
         t_secch = 0
-        self.state = (node, index, 0.8, t_stay, t_secd, t_secr, t_secch)
+        self.state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
 
         # if self.render_mode == "human":
         #     self.render()
