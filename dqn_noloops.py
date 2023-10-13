@@ -38,12 +38,12 @@ else:
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 5000
+    num_episodes = 500
 else:
     num_episodes = 100
 
 env = rp_env()
-env.w_distance = 1000  # value range -1~+1
+env.w_distance = 1125  # value range -1~+1
 env.w_energy = 1000  # -6~0.4
 env.w_driving = 5  # -100~0
 env.w_charge = 10  # -232~0
