@@ -8,7 +8,7 @@ from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
 from way_noloops import way
-from global_var import initial_data_p
+from global_var import initial_data_p, initial_data_ch
 
 import math
 from typing import Optional
@@ -348,17 +348,17 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
     def reset(self):
 
         # s := (current_node, x1, y1, soc, t_stay, t_secd, t_secr, t_secch)
-        node = random.randint(6, 9)
+        node = random.randint(0, 6)
         # data = pd.read_csv('parking_bbox.csv')
         # location = data.sample(n =1, random_state=42)
-        index = random.randint(0, (len(initial_data_p) - 1))
+        index = random.randint(0, (len(initial_data_ch) - 1))
 
         soc = random.uniform(0.1, 0.8)
         t_stay = 0
         t_secd = 0
         t_secr = 0
         t_secch = 0
-        self.state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
+        self.state = (node, index, 0.8, t_stay, t_secd, t_secr, t_secch)
 
         # if self.render_mode == "human":
         #     self.render()

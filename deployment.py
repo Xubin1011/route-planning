@@ -21,8 +21,9 @@ key_randomly = "01"
 weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
 route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.csv"
 map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.html"
-aver_speed_path = f"/home/utlck/PycharmProjects/Tunning_results/aver_apeed_{key_number}_{key_randomly}.png"
-consumption_path = f"/home/utlck/PycharmProjects/Tunning_results/consumpution_{key_number}_{key_randomly}.png"
+# aver_speed_path = f"/home/utlck/PycharmProjects/Tunning_results/aver_apeed_{key_number}_{key_randomly}.png"
+# consumption_path = f"/home/utlck/PycharmProjects/Tunning_results/consumpution_{key_number}_{key_randomly}.png"
+speed_comsum_png_path = f"/home/utlck/PycharmProjects/Tunning_results/s_c_{key_number}_{key_randomly}.png"
 
 ##############Win10#################################
 # weights_path =f"G:\Tuning_results\weights_047_101.pth"
@@ -55,13 +56,13 @@ def geo_coord(node, index):
         power = None
         return Latitude, Longitude, Altitude, power
 
-def save_pois(node, x, y, t_stay, power):
+def save_pois(node, x, y, alti, t_stay, power):
     try:
         df = pd.read_csv(route_path)
     except FileNotFoundError:
         df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay", "Power"])
     # save new location
-    new_row = {"Node": node, "Latitude": x, "Longitude": y, "Stay": t_stay, "Power": power}
+    new_row = {"Node": node, "Latitude": x, "Longitude": y, "Altitude": alti, "Stay": t_stay, "Power": power}
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv(route_path, index=False)
 #########################################################
@@ -69,8 +70,8 @@ def clear_route():
     try:
         df = pd.read_csv(route_path)
     except FileNotFoundError:
-        df = pd.DataFrame(columns=["Node", "Latitude", "Longitude", "Stay", "Power"])
-    df = pd.DataFrame(columns=["Node", "Latitude", "Longitude", "Stay", "Power"])
+        df = pd.DataFrame(columns=["Node", "Latitude", "Longitude", "Altitude", "Stay", "Power"])
+    df = pd.DataFrame(columns=["Node", "Latitude", "Longitude", "Altitude", "Stay", "Power"])
     df.to_csv(route_path, index=False)
 
 #########################################################
@@ -123,24 +124,24 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     # Read data from route_path as path coordinates
     path_data = pd.read_csv(route_path)
     path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
-    path_infos = list(zip(path_data['Node'],path_data['Latitude'], path_data['Longitude'], path_data['Stay'], path_data['Power']))
+    path_infos = list(zip(path_data['Node'],path_data['Latitude'], path_data['Longitude'], path_data['Altitude'], path_data['Stay'], path_data['Power']))
 
-    node_sor, sor_lat, sor_lon, sor_stay, power_sor = path_infos[0]  #souce
-    node_target, tar_lat, tar_lon, tar_stay, power_target = path_infos[-1] #target
+    node_sor, sor_lat, sor_lon, sor_alti, sor_stay, power_sor = path_infos[0]  #souce
+    node_target, tar_lat, tar_lon, tar_alti, tar_stay, power_target = path_infos[-1] #target
 
     for coord in path_infos:
-        node_attr, latitude, longitude, stay, power = coord
+        node_attr, latitude, longitude, altitude, stay, power = coord
         if latitude == sor_lat and longitude == sor_lon:
             folium.Marker(location=[latitude, longitude],
-                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
+                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
                           icon=folium.Icon(color='red')).add_to(map_object)
         if stay != 0:
             folium.Marker(location=[latitude, longitude],
-                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
+                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
                           icon=folium.Icon(color='green')).add_to(map_object)
         if latitude == tar_lat and longitude == tar_lon:
             folium.Marker(location=[latitude, longitude],
-                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
+                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
                           icon=folium.Icon(color='red')).add_to(map_object)
 
     # Add a red line to represent the path
@@ -149,13 +150,26 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     map_object.save(map_name)
 #############################################################
 ##visualiz consumption and speed
-def visu_list(list, x_name, y_name, png_path):
-    plt.plot(range(len(list)), list, marker='o', linestyle='-')
-    plt.xlabel(x_name)
-    plt.ylabel(y_name)
+def visu_list(aver_speed_list, aver_consum_list, length_list, speed_comsum_png_path):
+    x_value = range(len(aver_speed_list))
+    plt.plot(x_value, aver_speed_list, marker='o', linestyle='-', label='Average speed per step (in km/h)')
+    plt.plot(x_value, aver_consum_list, marker='o', linestyle='-', label='Average consumption per step (in kWh/100km)')
+    plt.plot(x_value, length_list, marker='o', linestyle='-', label='Travel distance per step (in km)')
+    plt.xlabel('step')
+    plt.ylabel('value')
     # plt.title(table_name)
+    for i, v in enumerate(aver_speed_list):
+        plt.text(x_value[i], v, f'{int(v)}', ha='right', va='bottom')
+
+    for i, v in enumerate(aver_consum_list):
+        plt.text(x_value[i], v, f'{int(v)}', ha='right', va='top')
+
+    for i, v in enumerate(length_list):
+        plt.text(x_value[i], v, f'{int(v)}', ha='right', va='top')
+
     plt.grid(True)
-    plt.savefig(png_path)
+    plt.legend(loc='upper right', fontsize='small')
+    plt.savefig(speed_comsum_png_path)
 ####################################################
 
 # Initialization of state, Q-Network, state history list
@@ -195,6 +209,7 @@ target_flag = False # not arrival target
 step_back = False
 consumption_list = []
 aver_speed_list = []
+length_list = []
 ##################################################
 # main loop
 for i in range(0, max_steps): # loop for steps
@@ -225,6 +240,7 @@ for i in range(0, max_steps): # loop for steps
                 state_history.append(next_state)
                 consumption_list.append(aver_consumption)
                 aver_speed_list.append(aver_speed)
+                length_list.append(length_meters/1000)
                 length += length_meters
                 break
             else:
@@ -233,6 +249,7 @@ for i in range(0, max_steps): # loop for steps
                     state_history.append(next_state)
                     consumption_list.append(aver_consumption)
                     aver_speed_list.append(aver_speed)
+                    length_list.append(length_meters / 1000)
                     target_flag = True
                     length += length_meters
                     print("******Arrival target\n")
@@ -263,16 +280,16 @@ for i in range(0, max_steps): # loop for steps
         print("sorted_indices_list\n: ", sorted_indices_list)
         print("consumption:", consumption_list)
         print("average speed:", aver_speed_list)
+        print("length:", length_list)
         for state in state_history:
             #state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
             first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
             node, index, t_stay = list(first_two_and_fourth_values)
             travling_time += t_stay
-            x, y, _, power, = geo_coord(int(node), int(index))
-            save_pois(int(node), x, y, float(t_stay/60), power)
+            x, y, alti, power, = geo_coord(int(node), int(index))
+            save_pois(int(node), x, y, alti, float(t_stay/60), power)
         visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target, map_name)
-        visu_list(aver_speed_list, "step", "Average speed per step (in km/h)", aver_speed_path)
-        visu_list(consumption_list, "step", "Average consumption per step (in kWh/100km)", consumption_path)
+        visu_list(aver_speed_list, consumption_list, length_list, speed_comsum_png_path)
         break
 
     if num_step < 0:
