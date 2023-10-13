@@ -204,6 +204,7 @@ num_step = 0
 max_steps = 1000
 length = 0
 travling_time = 0
+total_consumption = 0
 # step_flag = False  # no terminated, "True": Violate constrains,terminated
 target_flag = False # not arrival target
 step_back = False
@@ -228,7 +229,7 @@ for i in range(0, max_steps): # loop for steps
         if action == None:
             continue
         else:
-            observation, terminated, d_next, length_meters, aver_speed, aver_consumption = env.step(action)
+            observation, terminated, d_next, length_meters, aver_speed, aver_consumption, consumption = env.step(action)
             current_node, index_current, soc, _, _, _, _ = observation
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
 
@@ -242,6 +243,7 @@ for i in range(0, max_steps): # loop for steps
                 aver_speed_list.append(aver_speed)
                 length_list.append(length_meters/1000)
                 length += length_meters
+                total_consumption += consumption
                 break
             else:
 
@@ -252,6 +254,7 @@ for i in range(0, max_steps): # loop for steps
                     length_list.append(length_meters / 1000)
                     target_flag = True
                     length += length_meters
+                    total_consumption += consumption
                     print("******Arrival target\n")
                     break
 
@@ -278,9 +281,9 @@ for i in range(0, max_steps): # loop for steps
         print(f"Finding a  feasible route after {i+1} steps")
         print("State history:\n", state_history)
         print("sorted_indices_list\n: ", sorted_indices_list)
-        print("consumption:", consumption_list)
-        print("average speed:", aver_speed_list)
-        print("length:", length_list)
+        print("consumption list:", consumption_list)
+        print("average speed list:", aver_speed_list)
+        print("length list:", length_list)
         for state in state_history:
             #state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
             first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
@@ -297,6 +300,7 @@ for i in range(0, max_steps): # loop for steps
         break
 print(f"length={length/1000}km")
 print(f"travling time = {travling_time/3600}h")
+print(f"total consuption = {total_consumption}kWh")
 print("done")
 
 
