@@ -25,13 +25,19 @@ eta_m, eta_battery = 0.8, 0.8
 max_edge_length = 100000 # in m
 cs_path = 'cs_combo_bbox.csv'
 p_path = 'parking_bbox.csv'
-dij_pois_path = 'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv'
-# route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.csv'
-# weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.csv'
-# map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.html'
-route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_6080km_h.csv'
-weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_6080km_h.csv'
-map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_6080km_h.html'
+# dij_pois_path = 'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv'
+# # route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.csv'
+# # weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}.csv'
+# # map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.html'
+# route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_6080km_h.csv'
+# weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_6080km_h.csv'
+# map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_6080km_h.html'
+##########Linux
+dij_pois_path = '/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv'
+route_path = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_60km_h.csv'
+weights_path = f'/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length/1000)}_60km_h.csv'
+map_name = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_60km_h.html'
+
 stay_list = [0]
 distance = [0]
 
@@ -156,13 +162,17 @@ def visu(path):
         os.remove(route_path)
     path_lat = []
     path_lon = []
+    path_power = []
+    path_alti = []
     global stay_list, distance
     # print(stay_list)
     for i in range(len(path)):
         Latitude, Longitude, Elevation, Power = pois_df.iloc[path[i]]
         path_lat.append(Latitude)
         path_lon.append(Longitude)
-    geo_coord = pd.DataFrame({'Latitude': path_lat, 'Longitude': path_lon, 'Stay': stay_list, 'Distance': distance})
+        path_alti.append(Elevation)
+        path_power.append(Power)
+    geo_coord = pd.DataFrame({'Latitude': path_lat, 'Longitude': path_lon, 'Altitude': path_alti, 'Power': path_power, 'Stay': stay_list, 'Distance': distance})
     geo_coord.to_csv(route_path, index=False)
     visualization(cs_path, p_path, route_path, x_source, y_source, x_target, y_target, map_name)
 
@@ -221,8 +231,14 @@ for i in range(k):
             print(f"can not find a feasible path in {k}-shortest paths")
         continue
     total_cost = sum(G[shortest_path[i]][shortest_path[i + 1]]['weight'] for i in range(len(shortest_path) - 1))
-    print(total_cost)
+    total_time = total_cost / 3600
+    print(f"travling time = {total_time}h")
     break
+total_distance =  sum(distance) / 1000
+print(f"diatance = {total_distance}km")
+totoal_driving = total_distance / 60 # in h
+print(f"driving time = {totoal_driving}h")
+print(f"charging time = {total_time - totoal_driving}h")
 visu(shortest_path)
 
 
