@@ -2,12 +2,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import pandas as pd
+import matplotlib.pyplot as plt
 import numpy as np
 import sys
 import folium
 from env_deploy_cs import rp_env
 from way_noloops import way
-from global_var import initial_data_p, initial_data_ch, data_p, data_ch
+from global_var_dij import initial_data_p, initial_data_ch, data_p, data_ch
 
 
 env = rp_env()
@@ -15,13 +16,27 @@ myway = way()
 #########################################################
 # actions_path = "actions.csv"
 # weights_path ="/home/utlck/PycharmProjects/Tunning_results/weights_043.pth" # Linux
+################win10
+# try_number = 43
+# weights_path =f"G:\Tuning_results\weights_0{try_number}.pth" # win10
+# cs_path = "cs_combo_bbox.csv"
+# p_path = "parking_bbox.csv"
+# route_path = f"G:\Tuning_results\dqn_route_{try_number}.csv"
+# map_name = f"G:\Tuning_results\dqn_route_{try_number}.html"
 
-try_number = 43
-weights_path =f"G:\Tuning_results\weights_0{try_number}.pth" # win10
-cs_path = "cs_combo_bbox.csv"
-p_path = "parking_bbox.csv"
-route_path = f"G:\Tuning_results\dqn_route_{try_number}.csv"
-map_name = f"G:\Tuning_results\dqn_route_{try_number}.html"
+
+###########linux############
+key_number = "068_500epis"
+key_randomly = "01"
+weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
+route_path = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}.csv"
+map_name = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}.html"
+# aver_speed_path = f"/home/utlck/PycharmProjects/Tunning_results/aver_apeed_{key_number}_{key_randomly}.png"
+# consumption_path = f"/home/utlck/PycharmProjects/Tunning_results/consumpution_{key_number}_{key_randomly}.png"
+speed_comsum_png_path = f"/home/utlck/PycharmProjects/Dij_results/s_c_{key_number}_{key_randomly}.png"
+
+cs_path = "/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv"
+# p_path = "parking_bbox.csv"
 
 class DQN(nn.Module):
 
@@ -46,13 +61,13 @@ def geo_coord(node, index):
         power = None
         return Latitude, Longitude, Altitude, power
 
-def save_pois(x, y, t_stay):
+def save_pois(node, x, y, alti, t_stay, power):
     try:
         df = pd.read_csv(route_path)
     except FileNotFoundError:
-        df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay"])
+        df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay", "Power"])
     # save new location
-    new_row = {"Latitude": x, "Longitude": y, "Stay": t_stay}
+    new_row = {"Node": node, "Latitude": x, "Longitude": y, "Altitude": alti, "Stay": t_stay, "Power": power}
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv(route_path, index=False)
 #########################################################
@@ -60,8 +75,8 @@ def clear_route():
     try:
         df = pd.read_csv(route_path)
     except FileNotFoundError:
-        df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay"])
-    df = pd.DataFrame(columns=["Latitude", "Longitude", "Stay"])
+        df = pd.DataFrame(columns=["Node", "Latitude", "Longitude", "Altitude", "Stay", "Power"])
+    df = pd.DataFrame(columns=["Node", "Latitude", "Longitude", "Altitude", "Stay", "Power"])
     df.to_csv(route_path, index=False)
 
 #########################################################
@@ -88,13 +103,13 @@ def bbox(source_lat, source_lon, target_lat, target_lon):
 
     return south_lat, west_lon, north_lat, east_lon
 
-def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_lat, target_lon, map_name):
+def visualization(cs_path, route_path, source_lat, source_lon, target_lat, target_lon, map_name):
     # calculate the bounding box
     south_lat, west_lon, north_lat, east_lon = bbox(source_lat, source_lon, target_lat, target_lon)
     # Read data from cs_path
     data1 = pd.read_csv(cs_path)
-    # Read data from p_path
-    data2 = pd.read_csv(p_path)
+    # # Read data from p_path
+    # data2 = pd.read_csv(p_path)
     # Calculate the center of the bounding box
     center_lat = (south_lat + north_lat) / 2
     center_lon = (west_lon + east_lon) / 2
@@ -107,39 +122,64 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     for _, row in data1.iterrows():
         latitude, longitude = row['Latitude'], row['Longitude']
         folium.CircleMarker(location=[latitude, longitude], radius=1, color='yellow', fill=True, fill_color='yellow').add_to(map_object)
-    # Read data from p_path and add blue markers for data points
-    for _, row in data2.iterrows():
-        latitude, longitude = row['Latitude'], row['Longitude']
-        folium.CircleMarker(location=[latitude, longitude], radius=1, color='blue', fill=True, fill_color='blue').add_to(map_object)
+    # # Read data from p_path and add blue markers for data points
+    # for _, row in data2.iterrows():
+    #     latitude, longitude = row['Latitude'], row['Longitude']
+    #     folium.CircleMarker(location=[latitude, longitude], radius=1, color='blue', fill=True, fill_color='blue').add_to(map_object)
     # Read data from route_path as path coordinates
     path_data = pd.read_csv(route_path)
     path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
-    path_infos = list(zip(path_data['Latitude'], path_data['Longitude'], path_data['Stay']))
+    path_infos = list(zip(path_data['Node'],path_data['Latitude'], path_data['Longitude'], path_data['Altitude'], path_data['Stay'], path_data['Power']))
 
-    sor_lat, sor_lon, sor_stay = path_infos[0]
-    tar_lat, tar_lon, tar_stay = path_infos[-1]
+    node_sor, sor_lat, sor_lon, sor_alti, sor_stay, power_sor = path_infos[0]  #souce
+    node_target, tar_lat, tar_lon, tar_alti, tar_stay, power_target = path_infos[-1] #target
 
     for coord in path_infos:
-        latitude, longitude, stay = coord
+        node_attr, latitude, longitude, altitude, stay, power = coord
         if latitude == sor_lat and longitude == sor_lon:
             folium.Marker(location=[latitude, longitude],
-                          popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
+                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
                           icon=folium.Icon(color='red')).add_to(map_object)
-        if stay != 0:
-            folium.Marker(location=[latitude, longitude],
-                          popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay/60}mins',
-                          icon=folium.Icon(color='green')).add_to(map_object)
+
+        folium.Marker(location=[latitude, longitude],
+                      popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
+                      icon=folium.Icon(color='green')).add_to(map_object)
+        # if stay != 0:
+        #     folium.Marker(location=[latitude, longitude],
+        #                   popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
+        #                   icon=folium.Icon(color='green')).add_to(map_object)
         if latitude == tar_lat and longitude == tar_lon:
             folium.Marker(location=[latitude, longitude],
-                          popup=f'Latitude: {latitude}<br>Longitude: {longitude}<br>Stay: {stay / 60}mins',
+                          popup=f'Node: {node_attr}<br>Latitude: {latitude}<br>Longitude: {longitude}<br>Altitude:{altitude}<br>Stay: {stay}mins<br>Power: {power}kWh',
                           icon=folium.Icon(color='red')).add_to(map_object)
-        # folium.CircleMarker(location=[latitude, longitude], radius=2, color='red', fill=True, fill_color='red').add_to(
-        #     map_object)
+
     # Add a red line to represent the path
     folium.PolyLine(locations=path_coords, color='red').add_to(map_object)
     # Save the map as an HTML file and display it
     map_object.save(map_name)
 #############################################################
+##visualiz consumption and speed
+def visu_list(aver_speed_list, aver_consum_list, length_list, speed_comsum_png_path):
+    x_value = range(len(aver_speed_list))
+    plt.plot(x_value, aver_speed_list, marker='o', linestyle='-', label='Average speed per step (in km/h)')
+    plt.plot(x_value, aver_consum_list, marker='o', linestyle='-', label='Average consumption per step (in kWh/100km)')
+    plt.plot(x_value, length_list, marker='o', linestyle='-', label='Travel distance per step (in km)')
+    plt.xlabel('step')
+    plt.ylabel('value')
+    # plt.title(table_name)
+    for i, v in enumerate(aver_speed_list):
+        plt.text(x_value[i], v, f'{int(v)}', ha='right', va='bottom')
+
+    for i, v in enumerate(aver_consum_list):
+        plt.text(x_value[i], v, f'{int(v)}', ha='right', va='top')
+
+    for i, v in enumerate(length_list):
+        plt.text(x_value[i], v, f'{int(v)}', ha='right', va='top')
+
+    plt.grid(True)
+    plt.legend(loc='upper right', fontsize='small')
+    plt.savefig(speed_comsum_png_path)
+####################################################
 
 # Initialization of state, Q-Network, state history list
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -164,17 +204,23 @@ policy_net = DQN(n_observations, n_actions).to(device)
 
 # Load weigths
 checkpoint = torch.load(weights_path)
-print(checkpoint)
-# policy_net.load_state_dict(checkpoint['model_state_dict'])
+# print(checkpoint)
 policy_net.load_state_dict(checkpoint)
 # print("policy_net:", policy_net)
 policy_net.eval()
 
 num_step = 0
 max_steps = 1000
+length = 0
+charge_rest_time = 0
+total_consumption = 0
+driving_time = 0
 # step_flag = False  # no terminated, "True": Violate constrains,terminated
 target_flag = False # not arrival target
 step_back = False
+consumption_list = []
+aver_speed_list = []
+length_list = []
 ##################################################
 # main loop
 for i in range(0, max_steps): # loop for steps
@@ -193,30 +239,51 @@ for i in range(0, max_steps): # loop for steps
         if action == None:
             continue
         else:
-            observation, terminated, d_next = env.step(action)
+            observation, terminated, d_next, length_meters, aver_speed, aver_consumption, consumption, typical_duration = env.step(action)
+            current_node, index_current, soc, _, _, _, _ = observation
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
+
 
             if terminated == False: #accept action
                 print(f"******The action {action} in step {num_step} is selected\n")
                 num_step += 1
                 state = next_state
                 state_history.append(next_state)
+                consumption_list.append(aver_consumption)
+                aver_speed_list.append(aver_speed)
+                length_list.append(length_meters/1000)
+                length += length_meters
+                driving_time += typical_duration
+                total_consumption += consumption
                 break
             else:
-                if d_next <= 25000: # Arrival target
+
+                if d_next <= 25000 and soc >= 0: # Arrival target
                     state_history.append(next_state)
+                    consumption_list.append(aver_consumption)
+                    aver_speed_list.append(aver_speed)
+                    length_list.append(length_meters / 1000)
                     target_flag = True
+                    length += length_meters
+                    driving_time += typical_duration
+                    total_consumption += consumption
                     print("******Arrival target\n")
                     break
-                else:
-                    # violate contraints
-                    if t == n_actions - 1: # all q-values have been checked, disable last state,
-                        del sorted_indices_list[num_step] #  state values are deleted from list
-                        num_step -= 1
-                        step_back = True
-                        del state_history[num_step] # delete last state
-                        print(f"******no feasible action found in step {num_step}, take a step back\n")
-                        break
+
+                if d_next <= 25000 and soc < 0: # Arrival target
+                    # state_history.append(next_state)
+                    # target_flag = True
+
+                    print("******Arrival target, but trapped \n")
+
+                # violate contraints
+                if t == n_actions - 1: # all q-values have been checked, disable last state,
+                    del sorted_indices_list[num_step] #  state values are deleted from list
+                    num_step -= 1
+                    step_back = True
+                    del state_history[num_step] # delete last state
+                    print(f"******no feasible action found in step {num_step}, take a step back\n")
+                    break
 
     if i == max_steps - 1 and not target_flag:
         print(f"After {max_steps} steps no feasible route")
@@ -226,19 +293,28 @@ for i in range(0, max_steps): # loop for steps
         print(f"Finding a  feasible route after {i+1} steps")
         print("State history:\n", state_history)
         print("sorted_indices_list\n: ", sorted_indices_list)
+        print("consumption list:", consumption_list)
+        print("average speed list:", aver_speed_list)
+        print("length list:", length_list)
         for state in state_history:
             #state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
             first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
             node, index, t_stay = list(first_two_and_fourth_values)
-            x, y, _, _, = geo_coord(int(node), int(index))
-            save_pois(x, y, float(t_stay))
-        visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target, map_name)
+            charge_rest_time += t_stay
+            x, y, alti, power, = geo_coord(int(node), int(index))
+            save_pois(int(node), x, y, alti, float(t_stay/60), power)
+        visualization(cs_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target, map_name)
+        visu_list(aver_speed_list, consumption_list, length_list, speed_comsum_png_path)
         break
 
     if num_step < 0:
         print(f"No feasible route from initial state {initial_state}")
         break
-
+print(f"length={length/1000}km")
+print(f"driving time = {driving_time/3600}h")
+print(f"charge_rest_time = {charge_rest_time/3600}h")
+print(f"travling time = {charge_rest_time/3600} + {driving_time/3600}h")
+print(f"total consuption = {total_consumption}kWh")
 print("done")
 
 

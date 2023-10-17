@@ -7,8 +7,8 @@ import sys
 from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
-from way_noloops import way
-from global_var import initial_data_p, initial_data_ch, data_p, data_ch
+from way_deploy import way
+from global_var_dij import initial_data_ch, data_ch
 
 import math
 from typing import Optional
@@ -66,7 +66,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.df_actions = pd.read_csv("actions.csv")
         self.action_space = spaces.Discrete(self.df_actions.shape[0])
         self.state = None
-        
+
         self.myway = way()
 
     def step(self, action):
@@ -85,6 +85,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         node_current, index_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
         # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current) #test
         x_current, y_current, alti_current, power = self.myway.geo_coord(node_current, index_current)
+        ### arrival target
+        if x_current == self.myway.x_target_ch and y_current == self.myway.x_target_ch:
+            print("Terminated: already arrival target_ch")
+            return (self.state, True, node_current, 0)
+        if x_current == self.myway.x_target_p and y_current == self.myway.y_target_p:
+            print("Terminated: already Arrival target_p")
+            return (self.state, True, node_current, 0)
 
         # Obtain selected action
         # index_cpu = action.cpu()
@@ -92,11 +99,14 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         node_next, charge, rest = self.df_actions.iloc[action]
         print('node_next, charge, rest = ', node_next, charge, rest)
 
-        index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, x_current, y_current, alti_current, node_next)
-
-        print("next_x, next_y, d_next, power_next, consumption, typical_duration=", next_x, next_y, d_next, power_next, consumption, typical_duration)
-        print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
-    ##################################################################
+        index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(
+            node_current, x_current, y_current, alti_current, node_next)
+        aver_speed = length_meters / typical_duration * 3.6
+        aver_consumption = consumption / length_meters * 100000  # in kWh/100km"
+        print("next_x, next_y, d_next, power_next, consumption, typical_duration=", next_x, next_y, d_next, power_next,
+              consumption, typical_duration)
+        # print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
+        ##################################################################
         # the distance from current location to target
         d_current = haversine(x_current, y_current, self.myway.x_target, self.myway.y_target)
         # soc after driving
@@ -106,12 +116,6 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # the driving time when arrive next location
         t_secd_current = t_secd_current + typical_duration
         ##################################################################
-        # check target
-        if d_next <= 25000 and soc_after_driving >= 0.1:
-            # r_distance = self.target
-            terminated = True
-            print("Terminated: Arrival target")
-        ###################################################################
         # check soc constraint
         if soc_after_driving < 0:  # Trapped
             terminated = True
@@ -124,6 +128,12 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     print(f"Terminated: Violated soc {self.max_trapped} times")
             else:
                 terminated = False  # No trapped
+        ###################################################################
+        # check target
+        if d_next <= 25000 and soc_after_driving >= 0:
+            # r_distance = self.target
+            terminated = True
+            print("Terminated: Arrival target")
         ##################################################################
         # check rest, driving time constraint
         if t_arrival >= self.section:  # A new section begin before arrival next state, only consider the reward of last section
@@ -157,7 +167,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                         t_secd_current = 0
                     else:  # still in current section
                         t_secch_current = t_stay + t_secch_current
-            else: # No need to charge
+            else:  # No need to charge
                 charge = soc_after_driving
                 t_stay = 0
                 if t_arrival >= self.section:  # A new section begins before arrival next state
@@ -174,7 +184,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 if t_arrival >= self.section:  # A new section begin before arrival next state
                     t_secp_current = 0
                     t_secch_current = 0
-            else:# t_stay > 0
+            else:  # t_stay > 0
                 t_departure = t_arrival + t_stay
                 if t_arrival >= self.section:  # A new section begin before arrival next state
                     t_secp_current = t_stay
@@ -194,13 +204,15 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # # update state
         # node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current = self.state
         # next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(
-            # node_current, x_current, y_current, node_next)
+        # node_current, x_current, y_current, node_next)
         if node_next in range(self.myway.n_ch):
             self.state = (node_next, index_next, charge, t_stay, t_secd_current, t_secp_current, t_secch_current)
         else:
-            self.state = (node_next, index_next, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
-        
-        return np.array(self.state, dtype=np.float32), terminated, d_next
+            self.state = (
+            node_next, index_next, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
+
+        return np.array(self.state,
+                        dtype=np.float32), terminated, d_next, length_meters, aver_speed, aver_consumption, consumption, typical_duration  # in km, m,kwh,km/h,kwh/100km, kwh
 
     # def reset(self):
     #
@@ -225,20 +237,24 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
     def reset(self):
 
         # s := (current_node, index, soc, t_stay, t_secd, t_secr, t_secch)
-        node = random.randint(6, 9)
+        node = random.randint(0, 6)
         # data = pd.read_csv('parking_bbox.csv')
         # location = data.sample(n =1, random_state=42)
-        index = random.randint(0, len(initial_data_p))
+        index = random.randint(0, len(initial_data_ch))
 
         soc = random.uniform(0.1, 0.8)
         t_stay = 0
         t_secd = 0
         t_secr = 0
         t_secch = 0
-        self.state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
+        # self.state = (node, index, 0.8, t_stay, t_secd, t_secr, t_secch) #02
+
+        self.state = (0, 202, 0.8, 0, 0, 0, 0)  # charging station near the source  01
+        # self.state = (6, 177, 0.8, 0, 0, 0, 0)# parking lot near the source  00
 
         # if self.render_mode == "human":
         #     self.render()
+
         return np.array(self.state, dtype=np.float32), {}
 
 
