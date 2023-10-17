@@ -30,7 +30,7 @@ eta_m = 0.82
 eta_battery = 0.82
 
 max_edge_length = 100000 # in m
-speed = 6080 # in km/h
+speed = 60 # in km/h
 ####################################################################
 def bounding_box(source_lat, source_lon, target_lat, target_lon):
     # Calculate the North latitude, West longitude, South latitude, and East longitude
@@ -54,7 +54,7 @@ def haversine(x1, y1, x2, y2):
     distance = radius * c
 
     # Convert the distance to meters
-    distance_meters = distance * 1000
+    distance_meters = distance * 1000 * 1.5
 
     return distance_meters
 ################################################################
@@ -83,8 +83,9 @@ def calculate_alpha(x1, y1, c1, x2, y2, c2):
 # eta_battery: the efficiency of transmission, generator and in-vehicle charger
 def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery):
     sin_alpha, cos_alpha, distance_meters = calculate_alpha(x1, y1, c1, x2, y2, c2)
-    random_speed = random.randint(60, 80)  # in km/h
-    average_speed = random_speed * 1000 / 3600  # in m/s
+    # random_speed = random.randint(60, 80)  # in km/h
+    # average_speed = random_speed * 1000 / 3600  # in m/s
+    average_speed = 60 * 1000 / 3600
     typical_duration = distance_meters / average_speed # in s
 
     mgsin_alpha = m * g * sin_alpha
@@ -179,17 +180,21 @@ def dijkstra_pois():
                       icon=folium.Icon(color='green')).add_to(m)
 
     # Save the map as HTML file named dijkstra_pois.html
-    m.save('G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.html')
+    # m.save('G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.html')
+    #/ home / utlck / PycharmProjects / Dij_results
+    m.save('/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.html')
 
     # Save the selected points to a CSV file named dijkstra_pois.csv
     dijkstra_df = pd.DataFrame(dijkstra_pois, columns=['Latitude', 'Longitude', 'Elevation', 'Power'])
-    dijkstra_df.to_csv('G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv', index=False)
+    # dijkstra_df.to_csv('G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv', index=False)
+    dijkstra_df.to_csv('/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv', index=False)
 
 
 #################################################################
 
 def dijkstra_edges(max_edge_length):
-    data = pd.read_csv("G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv")
+    # data = pd.read_csv("G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv")
+    data = pd.read_csv("/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv")
 
     # Obtain Latitude、Longitude、Elevation、Power
     latitude = data["Latitude"].values
@@ -252,10 +257,14 @@ def dijkstra_edges(max_edge_length):
 
     # save weights
     weight_df = pd.DataFrame(weight_matrix)
-    weight_df.to_csv(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h.csv", index=False, header=True)
+    # weight_df.to_csv(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h.csv", index=False, header=True)
+    weight_df.to_csv(
+        f"/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length / 1000)}_{speed}km_h.csv",
+        index=False, header=True)
 
     # save map
-    m.save(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h.html")
+    # m.save(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h.html")
+    m.save(f"/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length / 1000)}_{speed}km_h.html")
 
 
 # dijkstra_pois()
