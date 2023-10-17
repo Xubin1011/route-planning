@@ -8,7 +8,7 @@ import sys
 import folium
 from env_deploy_cs import rp_env
 from way_noloops import way
-from global_var_dij import initial_data_p, initial_data_ch, data_p, data_ch
+from global_var_dij import initial_data_ch
 
 
 env = rp_env()
@@ -56,10 +56,10 @@ def geo_coord(node, index):
     if node in range(myway.n_ch):
         Latitude, Longitude, Elevation, Power = initial_data_ch.iloc[index]
         return Latitude, Longitude, Elevation, Power
-    else:
-        Latitude, Longitude, Altitude = initial_data_p.iloc[index]
-        power = None
-        return Latitude, Longitude, Altitude, power
+    # else:
+    #     Latitude, Longitude, Altitude = initial_data_p.iloc[index]
+    #     power = None
+    #     return Latitude, Longitude, Altitude, power
 
 def save_pois(node, x, y, alti, t_stay, power):
     try:

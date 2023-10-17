@@ -7,7 +7,7 @@ import sys
 from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
-from way_deploy import way
+from way_noloops import way
 from global_var import initial_data_p, initial_data_ch, data_p, data_ch
 
 import math
