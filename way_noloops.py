@@ -94,7 +94,7 @@ class way():
             # Calculate the distance
             distance = haversine(x1, y1, lat, lon)
             # if distance < 25000: # min. driving distance 25km
-            if distance < 50000: # min. driving distance 50km
+            if distance < 30000: # min. driving distance 50km
                 continue
 
             dis_current = haversine(x1, y1, self.x_target_ch, self.y_target_ch)
