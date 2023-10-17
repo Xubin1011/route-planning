@@ -209,7 +209,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         else:
             self.state = (node_next, index_next, soc_after_driving, t_stay, t_secd_current, t_secp_current, t_secch_current)
         
-        return np.array(self.state, dtype=np.float32), terminated, d_next, length_meters, aver_speed, aver_consumption, consumption# in km, m,kwh,km/h,kwh/100km, kwh
+        return np.array(self.state, dtype=np.float32), terminated, d_next, length_meters, aver_speed, aver_consumption, consumption, typical_duration# in km, m,kwh,km/h,kwh/100km, kwh
 
     # def reset(self):
     #
@@ -244,9 +244,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         t_secd = 0
         t_secr = 0
         t_secch = 0
-        self.state = (node, index, 0.8, t_stay, t_secd, t_secr, t_secch) #02
+        # self.state = (node, index, 0.8, t_stay, t_secd, t_secr, t_secch) #02
 
-        # self.state = (0, 202, 0.8, 0, 0, 0, 0) # charging station near the source  01
+        self.state = (0, 202, 0.8, 0, 0, 0, 0) # charging station near the source  01
         # self.state = (6, 177, 0.8, 0, 0, 0, 0)# parking lot near the source  00
 
         # if self.render_mode == "human":
