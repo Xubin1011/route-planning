@@ -29,7 +29,7 @@ a = 0
 eta_m = 0.82
 eta_battery = 0.82
 
-max_edge_length = 50000 # in m
+max_edge_length = 100000 # in m
 speed = 60 # in km/h
 ####################################################################
 def bounding_box(source_lat, source_lon, target_lat, target_lon):
@@ -54,7 +54,7 @@ def haversine(x1, y1, x2, y2):
     distance = radius * c
 
     # Convert the distance to meters
-    distance_meters = distance * 1000 * 1.5
+    distance_meters = distance * 1000
 
     return distance_meters
 ################################################################

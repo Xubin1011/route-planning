@@ -6,30 +6,30 @@ import pandas as pd
 import numpy as np
 import sys
 import folium
-from env_deploy import rp_env
-from way_noloops import way
-from global_var import initial_data_p, initial_data_ch, data_p, data_ch
+from env_deploy_cs import rp_env
+from way_deploy_cs import way
+from global_var_dij import initial_data_p, initial_data_ch, data_p, data_ch
 
 env = rp_env()
 myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-key_number = "069_1500epis"
+key_number = "071_500epis"
 key_randomly = "01"
 weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
-route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.csv"
-map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.html"
+route_path = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs_random.csv"
+map_name = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs_random.html"
 # aver_speed_path = f"/home/utlck/PycharmProjects/Tunning_results/aver_apeed_{key_number}_{key_randomly}.png"
 # consumption_path = f"/home/utlck/PycharmProjects/Tunning_results/consumpution_{key_number}_{key_randomly}.png"
-speed_comsum_png_path = f"/home/utlck/PycharmProjects/Tunning_results/s_c_{key_number}_{key_randomly}.png"
+speed_comsum_png_path = f"/home/utlck/PycharmProjects/Dij_results/s_c_{key_number}_{key_randomly}_random.png"
 
 ##############Win10#################################
 # weights_path =f"G:\Tuning_results\weights_047_101.pth"
 # route_path = f"G:\Tuning_results\dqn_route_047_101.csv"
 # map_name = f"G:\Tuning_results\dqn_route_047_101.html"
 
-cs_path = "cs_combo_bbox.csv"
+cs_path = "/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv"
 p_path = "parking_bbox.csv"
 
 
