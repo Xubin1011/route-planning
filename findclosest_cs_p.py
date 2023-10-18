@@ -1,5 +1,5 @@
 import torch
-from global_var_dij import initial_data_p, initial_data_ch
+from global_var_150 import initial_data_p, initial_data_ch
 from consumption_duration import haversine
 
 x_source = 49.0130  # source

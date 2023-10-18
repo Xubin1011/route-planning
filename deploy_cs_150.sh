@@ -3,10 +3,10 @@
 #try_number=057
 
 interpreter="/home/utlck/.conda/envs/rp/bin/python"
-script="/home/utlck/PycharmProjects/route-planning/deployment.py"
+script="/home/utlck/PycharmProjects/route-planning/deployment_cs_150.py"
 #log_name="deploy_${try_number}.txt"
-log_name="deploy_071_500epis_01.txt"
-$interpreter $script > /home/utlck/PycharmProjects/Tunning_results/"$log_name" 2>&1 &
+log_name="deploy_071_500epis_01_cs_150.txt"
+$interpreter $script > /home/utlck/PycharmProjects/Dij_results/"$log_name" 2>&1 &
 
 python_pid=$!
 start_time=$(date +%s)
