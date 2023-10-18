@@ -76,6 +76,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.w_parking = 10 # -100~0
         self.w_target = 1000 # 1 or 0
         self.w_loop = 1 # 1 or -10000
+        self.w_power = 100 # 1 or 0
 
         self.num_trapped = 0  # The number that trapped on the road
         self.max_trapped = 10
@@ -115,6 +116,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # Run one timestep of the environment’s dynamics using the agent actions.
         # Calculate reward, update state
         # At the end of an episode, call reset() to reset this environment’s state for the next episode.
+        r_power = 0 # only charging with 150 kwh, set to 1
 
         terminated = False
         # Check if the action is valid
@@ -223,6 +225,14 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             r_parking = -2 * (np.exp(5 * t_secp_current / 3600) - 1)
             # Calculate reward for suitable charging time in next node
             if charge > soc_after_driving:  # must be charged at next node
+
+                if power_next == 150:
+                    r_power = 1
+                if 100 <= power_next < 150:
+                    r_power = 0.5
+                if 50 <= power_next < 100:
+                    r_power = 0.1
+
                 t_stay = (charge - soc_after_driving) * self.battery_capacity / power_next * 3600  # in s
                 t_departure = t_arrival + t_stay
                 if t_arrival >= self.section:  # A new section begin before arrival next state,only consider the reward of last section
@@ -328,10 +338,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         r_parking_w = r_parking * self.w_parking
         r_terminated_w = r_end * self.w_target
         r_loop_w = r_loop * self.w_loop
+        r_power_w = r_power * self.w_power
 
-        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w + r_loop_w
-        print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end, r_loop = ", r_distance_w, r_energy_w, r_charge_w,
-              r_driving_w, r_parking_w, r_terminated_w, r_loop_w)
+        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w + r_loop_w + r_power_w
+        print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end, r_loop, r_power = ", r_distance_w, r_energy_w, r_charge_w,
+              r_driving_w, r_parking_w, r_terminated_w, r_loop_w, r_power_w)
         print("reward = ", reward, "\n")
         ##################################################################
         # # update state
@@ -348,7 +359,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
     def reset(self):
 
         # s := (current_node, x1, y1, soc, t_stay, t_secd, t_secr, t_secch)
-        node = random.randint(6, 10)
+        node = random.randint(6, 9)
         # data = pd.read_csv('parking_bbox.csv')
         # location = data.sample(n =1, random_state=42)
         index = random.randint(0, (len(initial_data_p) - 1))
@@ -358,7 +369,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         t_secd = 0
         t_secr = 0
         t_secch = 0
-        self.state = (node, index, random, t_stay, t_secd, t_secr, t_secch)
+        self.state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
 
         # if self.render_mode == "human":
         #     self.render()

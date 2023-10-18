@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from way_calculation import way
+from way_noloops import way
 
 class ActionGenerator:
     def __init__(self):

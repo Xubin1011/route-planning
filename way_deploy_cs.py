@@ -24,8 +24,8 @@ class way():
     def __init__(self):
         # initialization
         self.n_ch = 6  # Number of the nearest charging stations
-        self.n_p = 0  # Number of the nearest parking lots
-        self.n_pois = 6
+        self.n_p = 4  # Number of the nearest parking lots
+        self.n_pois = 10
 
         self.x_source = 49.0130  # source
         self.y_source = 8.4093
@@ -54,16 +54,16 @@ class way():
         self.x_target_ch = closest_point_ch['Latitude']
         self.y_target_ch = closest_point_ch['Longitude']
         print("target_ch:", self.x_target_ch, self.y_target_ch, self.closest_index_ch)
-        # min_dis = None
-        # for index, row in initial_data_p.iterrows():
-        #     distance = haversine(row['Latitude'], row['Longitude'], self.x_target, self.y_target)
-        #     if min_dis is None or distance < min_dis:
-        #         min_dis = distance
-        #         self.closest_index_p = index
-        # closest_point_p = initial_data_p.loc[self.closest_index_p]
-        # self.x_target_p = closest_point_p['Latitude']
-        # self.y_target_p = closest_point_p['Longitude']
-        # print("target_p :", self.y_target_p, self.y_target_p, self.closest_index_p)
+        min_dis = None
+        for index, row in initial_data_p.iterrows():
+            distance = haversine(row['Latitude'], row['Longitude'], self.x_target, self.y_target)
+            if min_dis is None or distance < min_dis:
+                min_dis = distance
+                self.closest_index_p = index
+        closest_point_p = initial_data_p.loc[self.closest_index_p]
+        self.x_target_p = closest_point_p['Latitude']
+        self.y_target_p = closest_point_p['Longitude']
+        print("target_p :", self.y_target_p, self.y_target_p, self.closest_index_p)
 
 
 

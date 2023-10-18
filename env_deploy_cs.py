@@ -8,7 +8,7 @@ from nearest_location import nearest_location
 from consumption_duration import consumption_duration
 from consumption_duration import haversine
 from way_deploy_cs import way
-from global_var_dij import initial_data_ch, data_ch
+from global_var_dij import initial_data_p, initial_data_ch, data_p, data_ch
 
 import math
 from typing import Optional
@@ -89,9 +89,9 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         if x_current == self.myway.x_target_ch and y_current == self.myway.x_target_ch:
             print("Terminated: already arrival target_ch")
             return (self.state, True, node_current, 0)
-        # if x_current == self.myway.x_target_p and y_current == self.myway.y_target_p:
-        #     print("Terminated: already Arrival target_p")
-        #     return (self.state, True, node_current, 0)
+        if x_current == self.myway.x_target_p and y_current == self.myway.y_target_p:
+            print("Terminated: already Arrival target_p")
+            return (self.state, True, node_current, 0)
 
         # Obtain selected action
         # index_cpu = action.cpu()
@@ -256,28 +256,3 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         #     self.render()
 
         return np.array(self.state, dtype=np.float32), {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -19,7 +19,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 import sys
 import os
-#
+
 if len(sys.argv) > 1:
     try_numbers = int(sys.argv[1])
 else:
@@ -27,7 +27,7 @@ else:
     sys.exit(1)
 
 
-# try_numbers = 49 #test
+# try_numbers = 74 #test
 # load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{(try_numbers - 1):03d}.pth"
 # load_weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_047_901.pth"
 # load_weights_path ="/home/utlck/PycharmProjects/route-planning/weights_044.pth"
@@ -38,7 +38,7 @@ else:
 #     sys.stdout = file
 
 if torch.cuda.is_available():
-    num_episodes = 1500
+    num_episodes = 500
 else:
     num_episodes = 100
 
@@ -50,6 +50,7 @@ env.w_charge = 10  # -232~0
 env.w_parking = 1  # -100~0
 env.w_target = 0  # 1 or 0
 env.w_loop = 0 # 1 or -1000
+env.w_power = 500 # 1 or 0
 w_num_charges = -100  # number of charges
 
 theway = way()
@@ -74,8 +75,10 @@ result_path = f"/home/utlck/PycharmProjects/Tunning_results/{try_numbers:03d}.pn
 BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
 GAMMA = 0.99  # GAMMA is the discount factor as mentioned in the previous section
 EPS_START = 0.9  # EPS_START is the starting value of epsilon
-EPS_END = 0.1  # EPS_END is the final value of epsilon
-EPS_DECAY = 9618  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
+# EPS_END = 0.1  # EPS_END is the final value of epsilon
+# EPS_DECAY = 9618  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
+EPS_END = 0.05  # EPS_END is the final value of epsilon
+EPS_DECAY = 2000  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
 TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
 

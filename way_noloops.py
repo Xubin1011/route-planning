@@ -27,6 +27,10 @@ class way():
         self.n_p = 4  # Number of the nearest parking lots
         self.n_pois = 10
 
+        # self.n_ch = 10  # Number of the nearest charging stations
+        # self.n_p = 5  # Number of the nearest parking lots
+        # self.n_pois = 15
+
         self.x_source = 49.0130  # source
         self.y_source = 8.4093
         # self.c_source = 47
@@ -93,8 +97,8 @@ class way():
         for lat, lon in zip(latitudes, longitudes):
             # Calculate the distance
             distance = haversine(x1, y1, lat, lon)
-            # if distance < 25000: # min. driving distance 25km
-            if distance < 50000: # min. driving distance 50km
+            if distance < 25000: # min. driving distance 25km
+            # if distance < 30000: # min. driving distance 50km
                 continue
 
             dis_current = haversine(x1, y1, self.x_target_ch, self.y_target_ch)
