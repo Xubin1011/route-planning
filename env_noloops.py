@@ -284,14 +284,14 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         ##################################################################
         # next node is a parking lot
         else:
-            # # no charge at a parking lot, using total charge to calculate reward
-            # if t_secch_current < self.min_rest:  # A new section begins before arrival or departure next state or still in current section
-            #     r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
-            # else:
-            #     r_charge = -32 * t_secch_current / 3600 + 24
+            # no charge at a parking lot, using total charge to calculate reward
+            if t_secch_current < self.min_rest:  # A new section begins before arrival or departure next state or still in current section
+                r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
+            else:
+                r_charge = -32 * t_secch_current / 3600 + 24
 
-            # do not select charging staiton, most punishment for charging time
-            r_charge = 0
+            # # do not select charging staiton, most punishment for charging time
+            # r_charge = 0
 
             # Calculate reward for suitable rest time in next node
             remain_rest = self.min_rest - t_secch_current - t_secp_current
