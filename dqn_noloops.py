@@ -67,7 +67,7 @@ REPLAYBUFFER = 10000
 # result_path = os.path.join(folder_path, f"{try_numbers:03d}.png")
 # weights_path = os.path.join(folder_path, f"weights_{try_numbers:03d}.pth")
 result_path = f"/home/utlck/PycharmProjects/Tunning_results/{try_numbers:03d}.png"
-
+result_path_step = f"/home/utlck/PycharmProjects/Tunning_results/{try_numbers:03d}_step.png"
 ## windows
 # result_path = f"{folder_path}\\{try_numbers:03d}.png"
 # weights_path = f"{folder_path}\\weights_{try_numbers:03d}.pth"
@@ -75,10 +75,10 @@ result_path = f"/home/utlck/PycharmProjects/Tunning_results/{try_numbers:03d}.pn
 BATCH_SIZE = 128  # BATCH_SIZE is the number of transitions sampled from the replay buffer
 GAMMA = 0.99  # GAMMA is the discount factor as mentioned in the previous section
 EPS_START = 0.9  # EPS_START is the starting value of epsilon
-# EPS_END = 0.1  # EPS_END is the final value of epsilon
-# EPS_DECAY = 9618  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
-EPS_END = 0.05  # EPS_END is the final value of epsilon
-EPS_DECAY = 5000  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
+EPS_END = 0.1  # EPS_END is the final value of epsilon
+EPS_DECAY = 9618  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
+# EPS_END = 0.05  # EPS_END is the final value of epsilon
+# EPS_DECAY = 10000  # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
 TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
 
@@ -113,9 +113,9 @@ class DQN(nn.Module):
     #Q-Network with 2 hidden layers, 128 neurons
     def __init__(self, n_observations, n_actions):
         super(DQN, self).__init__()
-        self.layer1 = nn.Linear(n_observations, 128)
-        self.layer2 = nn.Linear(128, 128)
-        self.layer3 = nn.Linear(128, n_actions)
+        self.layer1 = nn.Linear(n_observations, BATCH_SIZE)
+        self.layer2 = nn.Linear(BATCH_SIZE, BATCH_SIZE)
+        self.layer3 = nn.Linear(BATCH_SIZE, n_actions)
 
     # Forward propagation with ReLU
     def forward(self, x):
@@ -209,6 +209,17 @@ def plot_average_reward():
     plt.savefig(result_path)
     plt.close()
 
+step_reward = []
+def plot_step_reward():
+    plt.figure(figsize=(10, 6))
+    plt.xlabel('Step')
+    plt.ylabel('Reward')
+    plt.plot(range(len(step_reward)), step_reward, linestyle='-')
+
+    plt.grid()
+    plt.savefig(result_path_step)
+    plt.close()
+
 # A single step of the optimization
 def optimize_model():
     #Determine whether resampling is required
@@ -298,6 +309,7 @@ for i_episode in range(num_episodes):
             r_num_charges += 1
         reward = reward + (r_num_charges * w_num_charges)
         print(f"r_num_charges = {r_num_charges * w_num_charges}")
+        step_reward.append(reward)
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)
         # done = terminated
@@ -343,6 +355,7 @@ for i_episode in range(num_episodes):
                 weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{try_numbers:03d}_{int(i_episode + 1)}epis.pth"
                 torch.save(policy_net.state_dict(), weights_path)
                 plot_average_reward()
+                plot_step_reward()
             # reset data_ch, data_p
             reset_df()
             print(f"**************************************Episode {i_episode}done**************************************\n")
@@ -351,6 +364,7 @@ for i_episode in range(num_episodes):
 print("average_rewards:", average_rewards)
 # torch.save(policy_net.state_dict(), weights_path)
 plot_average_reward()
+plot_step_reward()
 print('Complete')
 
 # sys.stdout = original_stdout

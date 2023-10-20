@@ -57,7 +57,7 @@ import math
 ##episolon greedy
 x = np.linspace(0, 40000, 5000)
 # y = np.where(x<0, 0 ,np.where(x <= 0.75, np.exp(5 * x) - np.exp(3.75), - 10 * (np.exp(1.5 * x) - np.exp(1.125))))
-y = 0.05 + (0.9-0.05) * np.exp(-1 * x / 2000)
+y = 0.05 + (0.9-0.05) * np.exp(-1 * x / 10000)
 plt.plot(x, y)
 plt.xlabel('step')
 plt.ylabel('eps_threshold')

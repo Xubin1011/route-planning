@@ -275,7 +275,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 # else:
                 #     r_charge = -32 * t_secch_current / 3600 + 24
 
-                r_charge = -232
+                # r_charge = -232
+                r_charge = 0
 
                 if t_arrival >= self.section:  # A new section begins before arrival next state
                     t_secp_current = 0
@@ -290,7 +291,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             #     r_charge = -32 * t_secch_current / 3600 + 24
 
             # do not select charging staiton, most punishment for charging time
-            r_charge = -232
+            r_charge = 0
 
             # Calculate reward for suitable rest time in next node
             remain_rest = self.min_rest - t_secch_current - t_secp_current
