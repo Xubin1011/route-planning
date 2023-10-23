@@ -137,7 +137,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         print('node_next, charge, rest = ', node_next, charge, rest)
 
         index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters = self.myway.info_way(node_current, x_current, y_current, alti_current, node_next)
-
+        # consumption = consumption * 1.5
         print("index_next, next_x, next_y, d_next, power_next, consumption, typical_duration=", index_next, next_x, next_y, d_next, power_next, consumption, typical_duration)
         print("Length, average speed, average consumption", length_meters / 1000, "km", length_meters / typical_duration * 3.6, "km/h", consumption / length_meters * 100000, "kWh/100km\n")
     ##################################################################
@@ -232,6 +232,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     r_power = 0.5
                 if 50 <= power_next < 100:
                     r_power = 0.1
+                if power_next < 50:
+                    r_power = -1
 
                 t_stay = (charge - soc_after_driving) * self.battery_capacity / power_next * 3600  # in s
                 t_departure = t_arrival + t_stay
@@ -240,7 +242,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                         r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                     else:
                         # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
-                        r_charge = -32 * t_secch_current / 3600 + 24
+                        # r_charge = -32 * t_secch_current / 3600 + 24
+                        r_charge = -64 * t_secch_current / 3600 + 48
                     t_secp_current = 0
                     t_secch_current = t_stay
                 else:
@@ -253,7 +256,8 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                             r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                         else:
                             # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
-                            r_charge = -32 * t_secch_current / 3600 + 24
+                            # r_charge = -32 * t_secch_current / 3600 + 24
+                            r_charge = -64 * t_secch_current / 3600 + 48
                         t_secch_current = t_departure % self.section
                         t_secp_current = 0
                         t_secd_current = 0
@@ -263,9 +267,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                             r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                         else:
                             # r_charge = -10 * (np.exp(1.5 * t_secch_current / 3600) - np.exp(1.125))
-                            r_charge = -32 * t_secch_current / 3600 + 24
-                # if r_charge <= -175:
-                #     r_charge = -200
+                            # r_charge = -32 * t_secch_current / 3600 + 24
+                            r_charge = -64 * t_secch_current / 3600 + 48
+
+                # charing time more than 1h, minimum reward
+                if t_stay > 3600:
+                    r_charge = -250
+
             else: # No need to charge
                 charge = soc_after_driving
                 t_stay = 0
@@ -284,14 +292,15 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         ##################################################################
         # next node is a parking lot
         else:
-            # no charge at a parking lot, using total charge to calculate reward
+            #no charge at a parking lot, using total charge to calculate reward
             if t_secch_current < self.min_rest:  # A new section begins before arrival or departure next state or still in current section
                 r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
             else:
-                r_charge = -32 * t_secch_current / 3600 + 24
+                # r_charge = -32 * t_secch_current / 3600 + 24
+                r_charge = -64 * t_secch_current / 3600 + 48
 
             # # do not select charging staiton, most punishment for charging time
-            # r_charge = 0
+            # r_charge = -232
 
             # Calculate reward for suitable rest time in next node
             remain_rest = self.min_rest - t_secch_current - t_secp_current

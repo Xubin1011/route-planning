@@ -43,14 +43,14 @@ else:
     num_episodes = 100
 
 env = rp_env()
-env.w_distance = 1000  # value range -1~+1
+env.w_distance = 0  # value range -1~+1
 env.w_energy = 1000  # -6~0.4
 env.w_driving = 5  # -100~0
-env.w_charge = 10  # -232~0
+env.w_charge = 20  # -140~0
 env.w_parking = 1  # -100~0
 env.w_target = 0  # 1 or 0
 env.w_loop = 0 # 1 or -1000
-env.w_power = 0 # 1 or 0
+env.w_power = 0 # 1 0.5 0.1 -1
 w_num_charges = -100  # number of charges
 
 theway = way()
@@ -59,6 +59,7 @@ theway = way()
 # theway.n_pois = 10
 
 steps_max = 500
+# REPLAYBUFFER = 10000
 REPLAYBUFFER = 10000
 # result_path = f"{try_numbers:03d}.png"
 # weights_path = f"weights_{try_numbers:03d}.pth"
@@ -83,8 +84,8 @@ TAU = 0.005  # TAU is the update rate of the target network
 LR = 1e-4  # LR is the learning rate of the ``AdamW`` optimizer
 
 
-SGD = True
-Adam = False
+SGD = False
+Adam = True
 AdamW = False
 
 SmoothL1Loss = True
