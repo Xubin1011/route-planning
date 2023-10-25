@@ -34,9 +34,9 @@ p_path = 'parking_bbox.csv'
 # map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_6080km_h.html'
 ##########Linux
 dij_pois_path = '/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv'
-route_path = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_80km_h_1_5.csv'
-weights_path = f'/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length/1000)}_80km_h_1_5.csv'
-map_name = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_80km_h_1_5.html'
+route_path = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_60km_h_ucsp.csv'
+weights_path = f'/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length/1000)}_60km_h_ucsp.csv'
+map_name = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_60km_h_ucsp.html'
 
 stay_list = [0]
 distance = [0]
@@ -214,7 +214,20 @@ for i in range(len(pois_df)):
         if weight != np.inf:
             G.add_edge(i, j, weight=weight)
 
+
 # find the shortest_path and check it
+#
+# shortest_path = nx.shortest_path(G, source=source, target=target, weight='weight', method="dijkstra")
+# total_cost = sum(G[shortest_path[i]][shortest_path[i + 1]]['weight'] for i in range(len(shortest_path) - 1))
+# total_time = total_cost / 3600
+# print(f"travling time = {total_time}h")
+# total_distance =  sum(distance) / 1000
+# print(f"diatance = {total_distance}km")
+# totoal_driving = total_distance / 60 # in h
+# print(f"driving time = {totoal_driving}h")
+# print(f"charging time = {total_time - totoal_driving}h")
+# visu(shortest_path)
+
 k = 100
 for i in range(k):
     shortest_path = nx.shortest_path(G, source=source, target=target, weight='weight', method="dijkstra")

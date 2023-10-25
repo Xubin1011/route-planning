@@ -306,10 +306,12 @@ for i_episode in range(num_episodes):
         if int(index_current) == theway.closest_index_ch or int(index_current) == theway.closest_index_p:
             terminated = True
         # print("observation, reward, terminated = ", observation, reward, terminated, "\n")
+
         if 0 <= node_current < 6 and t_stay != 0:
             r_num_charges += 1
         reward = reward + (r_num_charges * w_num_charges)
         print(f"r_num_charges = {r_num_charges * w_num_charges}")
+
         step_reward.append(reward)
         sum_reward = sum_reward + reward
         reward = torch.tensor([reward], device=device)

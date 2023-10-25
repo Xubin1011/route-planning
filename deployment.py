@@ -8,7 +8,7 @@ import sys
 import folium
 from env_deploy import rp_env
 from way_noloops import way, reset_df
-from global_var import initial_data_p, initial_data_ch, data_p, data_ch
+from global_var import initial_data_p, initial_data_ch, data_p, data_ch, num_sucesse, num_max_q, total_num_select
 
 
 env = rp_env()
@@ -17,13 +17,13 @@ myway = way()
 # try_number = 47
 ##############Linux##################
 key_number = "109_500epis"
-key_randomly = "01"
+key_randomly = "random"
 weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
-route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.csv"
-map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.html"
+route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}_100.csv"
+map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}_100.html"
 # aver_speed_path = f"/home/utlck/PycharmProjects/Tunning_results/aver_apeed_{key_number}_{key_randomly}.png"
 # consumption_path = f"/home/utlck/PycharmProjects/Tunning_results/consumpution_{key_number}_{key_randomly}.png"
-speed_comsum_png_path = f"/home/utlck/PycharmProjects/Tunning_results/s_c_{key_number}_{key_randomly}.png"
+speed_comsum_png_path = f"/home/utlck/PycharmProjects/Tunning_results/s_c_{key_number}_{key_randomly}_100.png"
 
 ##############Win10#################################
 # weights_path =f"G:\Tuning_results\weights_047_101.pth"
@@ -217,10 +217,11 @@ consumption_list = []
 aver_speed_list = []
 length_list = []
 
+
 ##################################################
 # main loop
 for i in range(0, max_steps): # loop for steps
-
+    global num_sucesse, num_max_q, total_num_select
     if step_back == False: # new output from Q network
         sorted_indices_list = save_q(state)
 
@@ -239,6 +240,7 @@ for i in range(0, max_steps): # loop for steps
             current_node, index_current, soc, t_stay, _, _, _ = observation
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
 
+            total_num_select +=1
 
             if terminated == False: #accept action
                 print(f"******The action {action} in step {num_step} is selected\n")
@@ -251,6 +253,10 @@ for i in range(0, max_steps): # loop for steps
                 length += length_meters
                 driving_time += typical_duration
                 total_consumption += consumption
+
+                if t == 0:
+                    num_max_q += 1
+
                 break
             else:
 
@@ -297,6 +303,7 @@ for i in range(0, max_steps): # loop for steps
         print("consumption list:", consumption_list)
         print("average speed list:", aver_speed_list)
         print("length list:", length_list)
+        num_sucesse += 1
         for state in state_history:
             #state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
             first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
@@ -319,7 +326,10 @@ print(f"total consuption = {total_consumption}kWh")
 print("done")
 reset_df()
 
-
+print(f"sucesse times:{num_sucesse}")
+print(f"num_max_q:{num_max_q}")
+print(f"total_num_select:{total_num_select}")
+print(f"credbility = {num_max_q / total_num_select}")
         
         
             

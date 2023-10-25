@@ -7,7 +7,7 @@ import numpy as np
 import sys
 import folium
 from env_deploy_cs_150 import rp_env
-from way_deploy_cs_150 import way
+from way_deploy_cs_150 import way, reset_df
 from global_var_150 import initial_data_p, initial_data_ch, data_p, data_ch
 
 env = rp_env()
@@ -15,8 +15,8 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-key_number = "071_500epis"
-key_randomly = "01"
+key_number = "109_500epis"
+key_randomly = "02"
 weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
 route_path = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs_150.csv"
 map_name = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs_150.html"
@@ -175,7 +175,7 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
 def visu_list(aver_speed_list, aver_consum_list, length_list, speed_comsum_png_path):
     x_value = range(len(aver_speed_list))
     plt.plot(x_value, aver_speed_list, marker='o', linestyle='-', label='Average speed per step (in km/h)')
-    plt.plot(x_value, aver_consum_list, marker='o', linestyle='-', label='Average consumption per step (in kWh/100km)')
+    plt.plot(x_value, aver_consum_list, marker='o', linestyle='-', label='Consumption per step (in kWh)')
     plt.plot(x_value, length_list, marker='o', linestyle='-', label='Travel distance per step (in km)')
     plt.xlabel('step')
     plt.ylabel('value')
@@ -264,7 +264,7 @@ for i in range(0, max_steps):  # loop for steps
                 num_step += 1
                 state = next_state
                 state_history.append(next_state)
-                consumption_list.append(aver_consumption)
+                consumption_list.append(consumption)
                 aver_speed_list.append(aver_speed)
                 length_list.append(length_meters / 1000)
                 length += length_meters
@@ -275,7 +275,7 @@ for i in range(0, max_steps):  # loop for steps
 
                 if d_next <= 25000 and soc >= 0:  # Arrival target
                     state_history.append(next_state)
-                    consumption_list.append(aver_consumption)
+                    consumption_list.append(consumption)
                     aver_speed_list.append(aver_speed)
                     length_list.append(length_meters / 1000)
                     target_flag = True
@@ -326,6 +326,8 @@ for i in range(0, max_steps):  # loop for steps
     if num_step < 0:
         print(f"No feasible route from initial state {initial_state}")
         break
+
+reset_df()
 print(f"length={length / 1000}km")
 print(f"driving time = {driving_time / 3600}h")
 print(f"charge_rest_time = {charge_rest_time / 3600}h")

@@ -78,7 +78,7 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
             power = power * eta_battery
             if power < -150000:  # 150kW
                 power = -150000
-    consumption = power * typical_duration / 3600 / 1000  #(in kWh)
+    consumption = power * typical_duration / 3600 / 1000 *1.5  #(in kWh)
     return consumption, typical_duration, distance_meters #(in kWh, s, m)
 
 class way():
