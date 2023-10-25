@@ -86,12 +86,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         # print(node_current, x_current, y_current, soc, t_stay, t_secd_current, t_secp_current, t_secch_current) #test
         x_current, y_current, alti_current, power = self.myway.geo_coord(node_current, index_current)
         ### arrival target
-        if x_current == self.myway.x_target_ch and y_current == self.myway.x_target_ch:
-            print("Terminated: already arrival target_ch")
-            return (self.state, True, node_current, 0)
-        if x_current == self.myway.x_target_p and y_current == self.myway.y_target_p:
-            print("Terminated: already Arrival target_p")
-            return (self.state, True, node_current, 0)
+        # if x_current == self.myway.x_target_ch and y_current == self.myway.x_target_ch:
+        #     print("Terminated: already arrival target_ch")
+        #     # return np.array(self.state,dtype=np.float32), terminated, d_next, length_meters, aver_speed, aver_consumption, consumption, typical_duration
+        #     return (self.state, True, 0, 0, 0, 0, 0, 0)
+        # if x_current == self.myway.x_target_p and y_current == self.myway.y_target_p:
+        #     print("Terminated: already Arrival target_p")
+        #     return (self.state, True, 0, 0, 0, 0, 0, 0)
 
 
         # Obtain selected action

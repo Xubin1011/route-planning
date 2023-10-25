@@ -44,14 +44,14 @@ else:
 
 env = rp_env()
 env.w_distance = 0  # value range -1~+1
-env.w_energy = 1000  # -6~0.4
-env.w_driving = 5  # -100~0
-env.w_charge = 10  # -140~0
-env.w_parking = 1  # -100~0
+env.w_energy = 1000  # -6~1
+env.w_driving = 20  # -100~0 , 1
+env.w_charge = 1  # -250~0 , 1
+env.w_parking = 10  # -100~0
 env.w_target = 0  # 1 or 0
-env.w_loop = 0 # 1 or -1000
+# env.w_loop = 0 # 1 or -1000
 env.w_power = 0 # 1 0.5 0.1 -1
-w_num_charges = -100  # number of charges
+w_num_charges = 0  # number of charges
 
 theway = way()
 # theway.n_ch = 6  # Number of nearest charging station
@@ -295,8 +295,8 @@ for i_episode in range(num_episodes):
     state, info = env.reset()
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
     print("state_reset = ", state, "\n")
-    # clear loop_pois.csv
-    env.clear_loop_file()
+    # # clear loop_pois.csv
+    # env.clear_loop_file()
 
     for t in range(steps_max):
         action = select_action(state, i_episode)

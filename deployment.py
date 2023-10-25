@@ -7,7 +7,7 @@ import numpy as np
 import sys
 import folium
 from env_deploy import rp_env
-from way_noloops import way
+from way_noloops import way, reset_df
 from global_var import initial_data_p, initial_data_ch, data_p, data_ch
 
 
@@ -16,7 +16,7 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-key_number = "094_500epis"
+key_number = "109_500epis"
 key_randomly = "01"
 weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
 route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.csv"
@@ -157,7 +157,7 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
 def visu_list(aver_speed_list, aver_consum_list, length_list, speed_comsum_png_path):
     x_value = range(len(aver_speed_list))
     plt.plot(x_value, aver_speed_list, marker='o', linestyle='-', label='Average speed per step (in km/h)')
-    plt.plot(x_value, aver_consum_list, marker='o', linestyle='-', label='Average consumption per step (in kWh/100km)')
+    plt.plot(x_value, aver_consum_list, marker='o', linestyle='-', label='Consumption per step (in kWh)')
     plt.plot(x_value, length_list, marker='o', linestyle='-', label='Travel distance per step (in km)')
     plt.xlabel('step')
     plt.ylabel('value')
@@ -216,6 +216,7 @@ step_back = False
 consumption_list = []
 aver_speed_list = []
 length_list = []
+
 ##################################################
 # main loop
 for i in range(0, max_steps): # loop for steps
@@ -235,7 +236,7 @@ for i in range(0, max_steps): # loop for steps
             continue
         else:
             observation, terminated, d_next, length_meters, aver_speed, aver_consumption, consumption, typical_duration = env.step(action)
-            current_node, index_current, soc, _, _, _, _ = observation
+            current_node, index_current, soc, t_stay, _, _, _ = observation
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
 
 
@@ -244,7 +245,7 @@ for i in range(0, max_steps): # loop for steps
                 num_step += 1
                 state = next_state
                 state_history.append(next_state)
-                consumption_list.append(aver_consumption)
+                consumption_list.append(consumption)
                 aver_speed_list.append(aver_speed)
                 length_list.append(length_meters/1000)
                 length += length_meters
@@ -253,9 +254,14 @@ for i in range(0, max_steps): # loop for steps
                 break
             else:
 
+                ##calculate the soc before recharge
+                if current_node in range(0, myway.n_ch):
+                    Latitude, Longitude, Altitude, power = geo_coord(current_node, int(index_current))
+                    soc = soc - (t_stay / 3600 * power) / env.battery_capacity
+
                 if d_next <= 25000 and soc >= 0: # Arrival target
                     state_history.append(next_state)
-                    consumption_list.append(aver_consumption)
+                    consumption_list.append(consumption)
                     aver_speed_list.append(aver_speed)
                     length_list.append(length_meters / 1000)
                     target_flag = True
@@ -311,6 +317,7 @@ print(f"charge_rest_time = {charge_rest_time/3600}h")
 print(f"travling time = {charge_rest_time/3600} + {driving_time/3600}h")
 print(f"total consuption = {total_consumption}kWh")
 print("done")
+reset_df()
 
 
         

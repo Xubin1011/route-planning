@@ -51,8 +51,8 @@ def visualization(file1, file2, file3, source_lat, source_lon, target_lat, targe
         folium.Marker(location=[latitude, longitude],
                       popup=f'Latitude: {latitude}<br>Longitude: {longitude}',
                       icon=folium.Icon(color='green')).add_to(map_object)
-        # folium.CircleMarker(location=[latitude, longitude], radius=2, color='red', fill=True, fill_color='red').add_to(
-        #     map_object)
+        folium.CircleMarker(location=[latitude, longitude], radius=2, color='red', fill=True, fill_color='red').add_to(
+            map_object)
 
     # Add a red line to represent the path
     folium.PolyLine(locations=path_coords, color='red').add_to(map_object)
@@ -64,8 +64,9 @@ def visualization(file1, file2, file3, source_lat, source_lon, target_lat, targe
 # file1 = 'cs_combo_bbox.csv'
 # file2 = 'parking_bbox.csv'
 # file3 = 'path_coords.csv'
+# map_name = "no_route.html"
 # source_lat, source_lon, target_lat, target_lon = 49.01302968199333, 8.409265137665193, 52.52533075184041, 13.369384859383123
-# visualization(file1, file2, file3, source_lat, source_lon, target_lat, target_lon)
+# visualization(file1, file2, file3, source_lat, source_lon, target_lat, target_lon, map_name)
 
 
 

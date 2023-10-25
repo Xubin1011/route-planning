@@ -88,26 +88,26 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         
         self.myway = way()
 
-    def check_loop(self, x, y):
-        loop_file = "loop_pois.csv"
-        try:
-            df = pd.read_csv(loop_file)
-        except FileNotFoundError:
-            df = pd.DataFrame(columns=["Latitude", "Longitude"])
-        # there is a same location, so there is a loop
-        if ((df["Latitude"] == x) & (df["Longitude"] == y)).any():
-            return True
-        else:
-            # there is no loop
-            new_row = {"Latitude": x, "Longitude": y}
-            df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-            df.to_csv(loop_file, index=False)
-            return False
-
-    def clear_loop_file(self):
-        file_path = "loop_pois.csv"
-        df = pd.DataFrame(columns=['Latitude', 'Longitude'])
-        df.to_csv(file_path, index=False)
+    # def check_loop(self, x, y):
+    #     loop_file = "loop_pois.csv"
+    #     try:
+    #         df = pd.read_csv(loop_file)
+    #     except FileNotFoundError:
+    #         df = pd.DataFrame(columns=["Latitude", "Longitude"])
+    #     # there is a same location, so there is a loop
+    #     if ((df["Latitude"] == x) & (df["Longitude"] == y)).any():
+    #         return True
+    #     else:
+    #         # there is no loop
+    #         new_row = {"Latitude": x, "Longitude": y}
+    #         df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    #         df.to_csv(loop_file, index=False)
+    #         return False
+    #
+    # def clear_loop_file(self):
+    #     file_path = "loop_pois.csv"
+    #     df = pd.DataFrame(columns=['Latitude', 'Longitude'])
+    #     df.to_csv(file_path, index=False)
 
 
 
@@ -163,13 +163,13 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         #     # r_distance = np.exp * ((d_current - d_next) / 25000) - 1
         #     r_distance = (d_current - d_next) / 25000
         ##################################################################
-        # Reward for no loop
-        loop = self.check_loop(next_x, next_y)
-        if loop:
-            r_loop = -1000
-            print(f"A loop {next_x}, {next_y}")
-        else:
-            r_loop = 1
+        # # Reward for no loop
+        # loop = self.check_loop(next_x, next_y)
+        # if loop:
+        #     r_loop = -1000
+        #     print(f"A loop {next_x}, {next_y}")
+        # else:
+        #     r_loop = 1
         ##################################################################
         # Reward for battery
         # If there is recuperated energy, the soc can be charged up to 0.8
@@ -191,7 +191,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                     terminated = True  # Violate the self.max_trapped times, stop current episode
                     print(f"Terminated: Violated soc {self.max_trapped} times,should be reseted")
             else:
-                r_energy = 0.4  # No trapped
+                r_energy = 1  # No trapped
         ##################################################################
         # Calculate reward for suitable driving time when arriving next node
         # update t_secd_current
@@ -270,21 +270,21 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                             # r_charge = -32 * t_secch_current / 3600 + 24
                             r_charge = -64 * t_secch_current / 3600 + 48
 
-                # charing time more than 1h, minimum reward
-                if t_stay > 3600:
-                    r_charge = -250
+                # # charing time more than 1h, minimum reward
+                # if t_stay > 7200:
+                #     r_charge = -250
 
-            else: # No need to charge
+            else: # No need to charge, but select recharge, min. reward
                 charge = soc_after_driving
                 t_stay = 0
 
                 # if t_secch_current < self.min_rest: # A new section begins before arrival next state or still in current section
                 #     r_charge = np.exp(5 * t_secch_current / 3600) - np.exp(3.75)
                 # else:
-                #     r_charge = -32 * t_secch_current / 3600 + 24
+                #     r_charge = -64 * t_secch_current / 3600 + 48
 
-                # r_charge = -232
-                r_charge = 0
+                r_charge = -250
+                # r_charge = 0
 
                 if t_arrival >= self.section:  # A new section begins before arrival next state
                     t_secp_current = 0
@@ -300,17 +300,17 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
                 r_charge = -64 * t_secch_current / 3600 + 48
 
             # # do not select charging staiton, most punishment for charging time
-            # r_charge = -232
+            # r_charge = -250
 
             # Calculate reward for suitable rest time in next node
             remain_rest = self.min_rest - t_secch_current - t_secp_current
             t_stay = remain_rest * rest
             if t_stay <= 0:  # Get enough rest before arriving next parking loy
                 t_stay = 0
-                if rest == 0: # through the patking lot
+                if rest == 0: # through the patking lot, correct select
                     r_parking = 0
                 else:
-                    r_parking = -100
+                    r_parking = -100 # wrong select
                 if t_arrival >= self.section:  # A new section begin before arrival next state
                     t_secp_current = 0
                     t_secch_current = 0
@@ -347,12 +347,16 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         r_charge_w = r_charge * self.w_charge
         r_parking_w = r_parking * self.w_parking
         r_terminated_w = r_end * self.w_target
-        r_loop_w = r_loop * self.w_loop
+        # r_loop_w = r_loop * self.w_loop
         r_power_w = r_power * self.w_power
 
-        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w + r_loop_w + r_power_w
-        print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end, r_loop, r_power = ", r_distance_w, r_energy_w, r_charge_w,
-              r_driving_w, r_parking_w, r_terminated_w, r_loop_w, r_power_w)
+        # reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w + r_loop_w + r_power_w
+        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w + r_power_w
+        # print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end, r_loop, r_power = ", r_distance_w, r_energy_w, r_charge_w,
+        #       r_driving_w, r_parking_w, r_terminated_w, r_loop_w, r_power_w)
+        print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end, r_power = ", r_distance_w,
+              r_energy_w, r_charge_w,
+              r_driving_w, r_parking_w, r_terminated_w, r_power_w)
         print("reward = ", reward, "\n")
         ##################################################################
         # # update state
