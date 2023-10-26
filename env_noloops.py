@@ -77,6 +77,7 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         self.w_target = 1000 # 1 or 0
         self.w_loop = 1 # 1 or -10000
         self.w_power = 100 # 1 or 0
+        self.w_end_soc = 100 # -soc
 
         self.num_trapped = 0  # The number that trapped on the road
         self.max_trapped = 10
@@ -156,9 +157,11 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
             # r_distance = self.target
             terminated = True
             r_end = 1
+            r_end_soc = 1 / soc_after_driving
             print("Terminated: Arrival target")
         else:
             r_end = 0
+            r_end_soc = 0
         # else:
         #     # r_distance = np.exp * ((d_current - d_next) / 25000) - 1
         #     r_distance = (d_current - d_next) / 25000
@@ -349,14 +352,15 @@ class rp_env(gym.Env[np.ndarray, np.ndarray]):
         r_terminated_w = r_end * self.w_target
         # r_loop_w = r_loop * self.w_loop
         r_power_w = r_power * self.w_power
+        r_end_soc_w = r_end_soc * self.w_end_soc
 
         # reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w + r_loop_w + r_power_w
-        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w + r_power_w
+        reward = r_distance_w + r_energy_w + r_charge_w + r_driving_w + r_parking_w + r_terminated_w + r_power_w + r_end_soc_w
         # print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end, r_loop, r_power = ", r_distance_w, r_energy_w, r_charge_w,
         #       r_driving_w, r_parking_w, r_terminated_w, r_loop_w, r_power_w)
-        print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end, r_power = ", r_distance_w,
+        print("r_distance, r_energy, r_charge, r_driving, r_parking_p, r_end, r_power, r_end_soc = ", r_distance_w,
               r_energy_w, r_charge_w,
-              r_driving_w, r_parking_w, r_terminated_w, r_power_w)
+              r_driving_w, r_parking_w, r_terminated_w, r_power_w, r_end_soc_w)
         print("reward = ", reward, "\n")
         ##################################################################
         # # update state

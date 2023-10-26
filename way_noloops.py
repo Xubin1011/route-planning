@@ -57,6 +57,7 @@ class way():
         closest_point_ch = initial_data_ch.loc[self.closest_index_ch]
         self.x_target_ch = closest_point_ch['Latitude']
         self.y_target_ch = closest_point_ch['Longitude']
+        # self.power_target_ch = closest_point_ch['Power']
         print("target_ch:", self.x_target_ch, self.y_target_ch, self.closest_index_ch)
         min_dis = None
         for index, row in initial_data_p.iterrows():
@@ -195,6 +196,28 @@ class way():
                 index_current = data_p[
                     (data_p["Latitude"] == x_current) & (data_p["Longitude"] == y_current) & (data_p["Altitude"] == alti_current)].index.values[0]
                 data_p = data_p.drop(index_current)
+
+        # delete all selected nearest node
+        for poi_file, n in zip(poi_files, n_values):
+            if poi_file == file_path_ch:
+                for t in range(0, n):
+                    select_x, select_y,_ = nearest_n[t]
+                    if select_x == self.x_target_ch and select_y == self.y_target_ch:
+                        continue
+                    else:
+                        match = data_ch[(data_ch['Latitude'] == select_x) & (data_ch['Longitude'] == select_y)]
+                        if not match.empty:
+                            data_ch = data_ch.drop(match.index)
+            else:
+                for t in range(self.n_ch, self.n_pois):
+                    select_x, select_y,_ = nearest_n[t]
+                    if select_x == self.x_target_p and select_y == self.y_target_p:
+                        continue
+                    else:
+                        match = data_p[(data_p['Latitude'] == select_x) & (data_p['Longitude'] == select_y)]
+                        if not match.empty:
+                            data_p = data_p.drop(match.index)
+
 
         return (index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)
 
