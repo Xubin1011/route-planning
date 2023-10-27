@@ -16,14 +16,14 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-key_number = "109_500epis"
-key_randomly = "random"
+key_number = "115_500epis"
+key_randomly = "01"
 weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
-route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}_100.csv"
-map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}_100.html"
+route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.csv"
+map_name = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.html"
 # aver_speed_path = f"/home/utlck/PycharmProjects/Tunning_results/aver_apeed_{key_number}_{key_randomly}.png"
 # consumption_path = f"/home/utlck/PycharmProjects/Tunning_results/consumpution_{key_number}_{key_randomly}.png"
-speed_comsum_png_path = f"/home/utlck/PycharmProjects/Tunning_results/s_c_{key_number}_{key_randomly}_100.png"
+speed_comsum_png_path = f"/home/utlck/PycharmProjects/Tunning_results/s_c_{key_number}_{key_randomly}.png"
 
 ##############Win10#################################
 # weights_path =f"G:\Tuning_results\weights_047_101.pth"

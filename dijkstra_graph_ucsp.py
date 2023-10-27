@@ -29,8 +29,8 @@ a = 0
 eta_m = 0.82
 eta_battery = 0.82
 
-max_edge_length = 100000 # in m
-speed = 60 # in km/h
+max_edge_length = 50000 # in m
+speed = 80 # in km/h
 ####################################################################
 def bounding_box(source_lat, source_lon, target_lat, target_lon):
     # Calculate the North latitude, West longitude, South latitude, and East longitude
@@ -85,7 +85,7 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
     sin_alpha, cos_alpha, distance_meters = calculate_alpha(x1, y1, c1, x2, y2, c2)
     # random_speed = random.randint(60, 80)  # in km/h
     # average_speed = random_speed * 1000 / 3600  # in m/s
-    average_speed = 60 * 1000 / 3600
+    average_speed = speed * 1000 / 3600
     typical_duration = distance_meters / average_speed # in s
 
     mgsin_alpha = m * g * sin_alpha
@@ -103,7 +103,7 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
             power = power * eta_battery
             if power < -150000:  # 150kW
                 power = -150000
-    consumption = power * typical_duration / 3600 / 1000  #(in kWh)
+    consumption = power * typical_duration / 3600 / 1000 *1.5 #(in kWh)
     return consumption, typical_duration, distance_meters #(in kWh, s, m)
 ###############################################################################
 
@@ -241,13 +241,13 @@ def dijkstra_edges(max_edge_length):
                     # weight_matrix[i][j] = typical_duration + t_stay[i][j]
                     weight_matrix[i][j] = typical_duration# unconstrained
 
-                    # # if consumption is greater than battery capacity, delete this edge
-                    # if consumption > 588: # 588kWh
-                    #     weight_matrix[i][j] = np.inf
-                    #
-                    # # if driving time is greater than 4.5h, then delete this edge
-                    # if typical_duration > 4.5 * 3600:
-                    #     weight_matrix[i][j] = np.inf
+                    # if consumption is greater than battery capacity, delete this edge
+                    if consumption > 588: # 588kWh
+                        weight_matrix[i][j] = np.inf
+
+                    # if driving time is greater than 4.5h, then delete this edge
+                    if typical_duration > 4.5 * 3600:
+                        weight_matrix[i][j] = np.inf
 
                     if distance_meters < 25000 or distance_meters > max_edge_length:
                         weight_matrix[i][j] = np.inf
@@ -260,12 +260,12 @@ def dijkstra_edges(max_edge_length):
     weight_df = pd.DataFrame(weight_matrix)
     # weight_df.to_csv(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h.csv", index=False, header=True)
     weight_df.to_csv(
-        f"/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length / 1000)}_{speed}km_h_ucsp.csv",
+        f"/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length / 1000)}_{speed}km_h_1_5_ucsp.csv",
         index=False, header=True)
 
     # save map
     # m.save(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h.html")
-    m.save(f"/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length / 1000)}_{speed}km_h_ucsp.html")
+    m.save(f"/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length / 1000)}_{speed}km_h_1_5_ucsp.html")
 
 
 # dijkstra_pois()

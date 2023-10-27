@@ -15,7 +15,7 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-key_number = "109_500epis"
+key_number = "115_500epis"
 key_randomly = "01"
 weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
 route_path = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs.csv"
@@ -272,6 +272,11 @@ for i in range(0, max_steps):  # loop for steps
                 total_consumption += consumption
                 break
             else:
+
+                ##calculate the soc before recharge
+                if current_node in range(0, myway.n_ch):
+                    Latitude, Longitude, Altitude, power = geo_coord(current_node, int(index_current))
+                    soc = soc - (t_stay / 3600 * power) / env.battery_capacity
 
                 if d_next <= 25000 and soc >= 0:  # Arrival target
                     state_history.append(next_state)

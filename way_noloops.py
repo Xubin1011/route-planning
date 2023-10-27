@@ -187,18 +187,26 @@ class way():
             global data_ch
             #indices of the same point in initial_data_ch or data_ch are different
             if x_current != next_x:
-                index_current = data_ch[
-                    (data_ch["Latitude"] == x_current) & (data_ch["Longitude"] == y_current) & (data_ch["Elevation"] == alti_current)].index.values[0]
-                data_ch = data_ch.drop(index_current)
+                match = data_ch[(data_ch["Latitude"] == x_current) & (data_ch["Longitude"] == y_current) & (data_ch["Elevation"] == alti_current)]
+                if not match.empty:
+                    data_ch = data_ch.drop(match.index)
+                # index_current = data_ch[
+                #     (data_ch["Latitude"] == x_current) & (data_ch["Longitude"] == y_current) & (data_ch["Elevation"] == alti_current)].index.values[0]
+                # data_ch = data_ch.drop(index_current)
         else:
             global data_p
             if x_current != next_x:
-                index_current = data_p[
-                    (data_p["Latitude"] == x_current) & (data_p["Longitude"] == y_current) & (data_p["Altitude"] == alti_current)].index.values[0]
-                data_p = data_p.drop(index_current)
+                match = data_p[(data_p["Latitude"] == x_current) & (data_p["Longitude"] == y_current) & (
+                            data_p["Altitude"] == alti_current)]
+                if not match.empty:
+                    data_p = data_p.drop(match.index)
+                # index_current = data_p[
+                #     (data_p["Latitude"] == x_current) & (data_p["Longitude"] == y_current) & (data_p["Altitude"] == alti_current)].index.values[0]
+                # data_p = data_p.drop(index_current)
 
         # delete all selected nearest node
         for poi_file, n in zip(poi_files, n_values):
+            # global data_ch, data_p
             if poi_file == file_path_ch:
                 for t in range(0, n):
                     select_x, select_y,_ = nearest_n[t]

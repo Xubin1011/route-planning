@@ -8,8 +8,8 @@ import networkx as nx
 import os
 import random
 
-from dijkstra_graph import haversine, x_source, y_source, x_target, y_target
-from consumption_duration import consumption_duration
+from dijkstra_graph import haversine, x_source, y_source, x_target, y_target, consumption_duration
+
 import folium
 from bounding_box import bbox
 
@@ -23,7 +23,8 @@ a = 0
 eta_m, eta_battery = 0.8, 0.8
 
 max_edge_length = 100000 # in m
-cs_path = 'cs_combo_bbox.csv'
+speed = 80
+cs_path = '/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv'
 p_path = 'parking_bbox.csv'
 # dij_pois_path = 'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv'
 # # route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.csv'
@@ -34,12 +35,13 @@ p_path = 'parking_bbox.csv'
 # map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_6080km_h.html'
 ##########Linux
 dij_pois_path = '/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv'
-route_path = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_80km_h_1_5.csv'
-weights_path = f'/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length/1000)}_80km_h_1_5.csv'
-map_name = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_80km_h_1_5.html'
+route_path = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_{speed}km_h_1_5.csv'
+weights_path = f'/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h_1_5.csv'
+map_name = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_{speed}km_h_1_5.html'
 
 stay_list = [0]
 distance = [0]
+consumption_list = [0]
 
 # select the closest node in graph G
 def get_closest_node(G, latitude, longitude):
@@ -63,9 +65,10 @@ def check_edge(x_current, y_current,ati_current, x_next, y_next, ati_next, power
     global t_stay, t_secd_current, t_secch_current, stay_list, distance
     terminated = False
     consumption, typical_duration, distance_meters = consumption_duration(x_current, y_current, ati_current, x_next, y_next, ati_next, m, g, c_r, rho, A_front, c_d, a, eta_m, eta_battery)
-    t_stay = consumption / power_next *3600 # in s
+    t_stay = consumption / power_next * 3600 # in s
     stay_list.append(t_stay)
     distance.append(distance_meters)
+    consumption_list.append(consumption)
     # the time that arriving next location
     t_arrival = t_secd_current + t_secch_current + typical_duration
     # the depature time when leave next location
@@ -135,10 +138,10 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
     for _, row in data1.iterrows():
         latitude, longitude = row['Latitude'], row['Longitude']
         folium.CircleMarker(location=[latitude, longitude], radius=1, color='yellow', fill=True, fill_color='yellow').add_to(map_object)
-    # Read data from p_path and add blue markers for data points
-    for _, row in data2.iterrows():
-        latitude, longitude = row['Latitude'], row['Longitude']
-        folium.CircleMarker(location=[latitude, longitude], radius=1, color='blue', fill=True, fill_color='blue').add_to(map_object)
+    # # Read data from p_path and add blue markers for data points
+    # for _, row in data2.iterrows():
+    #     latitude, longitude = row['Latitude'], row['Longitude']
+    #     folium.CircleMarker(location=[latitude, longitude], radius=1, color='blue', fill=True, fill_color='blue').add_to(map_object)
     # Read data from route_path as path coordinates
     path_data = pd.read_csv(route_path)
     path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
@@ -164,7 +167,7 @@ def visu(path):
     path_lon = []
     path_power = []
     path_alti = []
-    global stay_list, distance
+    global stay_list, distance, consumption_list
     # print(stay_list)
     for i in range(len(path)):
         Latitude, Longitude, Elevation, Power = pois_df.iloc[path[i]]
@@ -172,9 +175,36 @@ def visu(path):
         path_lon.append(Longitude)
         path_alti.append(Elevation)
         path_power.append(Power)
-    geo_coord = pd.DataFrame({'Latitude': path_lat, 'Longitude': path_lon, 'Altitude': path_alti, 'Power': path_power, 'Stay': stay_list, 'Distance': distance})
+    geo_coord = pd.DataFrame({'Latitude': path_lat, 'Longitude': path_lon, 'Altitude': path_alti, 'Power': path_power, 'Stay': stay_list, 'Distance': distance, 'Consumption (in kWh)': consumption_list})
     geo_coord.to_csv(route_path, index=False)
+
+    total_distance = sum(distance) / 1000
+    print(f"diatance = {total_distance}km")
+    totoal_driving = total_distance / speed  # in h
+    print(f"driving time = {totoal_driving}h")
+    total_cs = sum(stay_list) / 3600 # in h
+    print(f"charging time = {total_cs}h")
+    total_cs_notarget = (sum(stay_list) - stay_list[-1]) / 3600
+    print(f"charging time without target = {total_cs_notarget}h")
+    total_consumption = sum(consumption_list)
+    print(f"total consumption = {total_consumption} kWh")
+
     visualization(cs_path, p_path, route_path, x_source, y_source, x_target, y_target, map_name)
+
+    geo_coord['Stay (in min)'] = geo_coord['Stay'] / 60
+    geo_coord['Distance (in km)'] = geo_coord['Distance'] / 1000
+    geo_coord.to_csv(route_path, index=False)
+
+
+    output_data = {
+        'Metric': ['Total Distance (km)', 'Total Driving Time (h)', 'Total Charging Time (h)',
+                   'Charging Time Without Target (h)', 'Total Consumption (kWh)'],
+        'Value': [total_distance, totoal_driving, total_cs, total_cs_notarget, total_consumption]
+    }
+    output_df = pd.DataFrame(output_data)
+    merged_df = pd.concat([geo_coord, output_df], ignore_index=True)
+    merged_df.to_csv(route_path, index=False)
+
 
 ###########################################
 
@@ -234,11 +264,7 @@ for i in range(k):
     total_time = total_cost / 3600
     print(f"travling time = {total_time}h")
     break
-total_distance =  sum(distance) / 1000
-print(f"diatance = {total_distance}km")
-totoal_driving = total_distance / 60 # in h
-print(f"driving time = {totoal_driving}h")
-print(f"charging time = {total_time - totoal_driving}h")
+
 visu(shortest_path)
 
 
