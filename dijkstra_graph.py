@@ -110,7 +110,7 @@ def consumption_duration(x1, y1, c1, x2, y2, c2, m, g, c_r, rho, A_front, c_d, a
 # Obtain the location of charging stations in 100 small bbox
 def dijkstra_pois():
     # Read the CSV file
-    df = pd.read_csv('cs_combo_bbox.csv')
+    df = pd.read_csv('cs_combo_150_bbox.csv')
 
     # Create an empty list to store the information of charging stations with the maximum power
     dijkstra_pois = []
@@ -182,19 +182,19 @@ def dijkstra_pois():
     # Save the map as HTML file named dijkstra_pois.html
     # m.save('G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.html')
     #/ home / utlck / PycharmProjects / Dij_results
-    m.save('/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.html')
+    m.save('/home/utlck/PycharmProjects/Dij_results/dijkstra_pois_150.html')
 
     # Save the selected points to a CSV file named dijkstra_pois.csv
     dijkstra_df = pd.DataFrame(dijkstra_pois, columns=['Latitude', 'Longitude', 'Elevation', 'Power'])
     # dijkstra_df.to_csv('G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv', index=False)
-    dijkstra_df.to_csv('/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv', index=False)
+    dijkstra_df.to_csv('/home/utlck/PycharmProjects/Dij_results/dijkstra_pois_150.csv', index=False)
 
 
 #################################################################
 
 def dijkstra_edges(max_edge_length):
     # data = pd.read_csv("G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv")
-    data = pd.read_csv("/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv")
+    data = pd.read_csv("/home/utlck/PycharmProjects/Dij_results/dijkstra_pois_150.csv")
 
     # Obtain Latitude、Longitude、Elevation、Power
     latitude = data["Latitude"].values
@@ -260,12 +260,12 @@ def dijkstra_edges(max_edge_length):
     weight_df = pd.DataFrame(weight_matrix)
     # weight_df.to_csv(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h.csv", index=False, header=True)
     weight_df.to_csv(
-        f"/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length / 1000)}_{speed}km_h_1_5.csv",
+        f"/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length / 1000)}_{speed}km_h_1_5_150.csv",
         index=False, header=True)
 
     # save map
     # m.save(f"G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h.html")
-    m.save(f"/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length / 1000)}_{speed}km_h_1_5.html")
+    m.save(f"/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length / 1000)}_{speed}km_h_1_5_150.html")
 
 
 # dijkstra_pois()

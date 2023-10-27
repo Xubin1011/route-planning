@@ -24,7 +24,7 @@ eta_m, eta_battery = 0.8, 0.8
 
 max_edge_length = 100000 # in m
 speed = 80
-cs_path = '/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv'
+cs_path = '/home/utlck/PycharmProjects/Dij_results/dijkstra_pois_150.csv'
 p_path = 'parking_bbox.csv'
 # dij_pois_path = 'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_pois.csv'
 # # route_path = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}.csv'
@@ -34,10 +34,10 @@ p_path = 'parking_bbox.csv'
 # weights_path = f'G:\OneDrive\Thesis\Code\Dij_results\dijkstra_edges_{int(max_edge_length/1000)}_6080km_h.csv'
 # map_name = f'G:\OneDrive\Thesis\Code\Dij_results\dij_path_{int(max_edge_length/1000)}_6080km_h.html'
 ##########Linux
-dij_pois_path = '/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv'
-route_path = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_{speed}km_h_1_5.csv'
-weights_path = f'/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h_1_5.csv'
-map_name = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_{speed}km_h_1_5.html'
+dij_pois_path = '/home/utlck/PycharmProjects/Dij_results/dijkstra_pois_150.csv'
+route_path = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_{speed}km_h_1_5_150.csv'
+weights_path = f'/home/utlck/PycharmProjects/Dij_results/dijkstra_edges_{int(max_edge_length/1000)}_{speed}km_h_1_5_150.csv'
+map_name = f'/home/utlck/PycharmProjects/Dij_results/dij_path_{int(max_edge_length/1000)}_{speed}km_h_1_5_150.html'
 
 stay_list = [0]
 distance = [0]
