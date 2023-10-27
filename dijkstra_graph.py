@@ -29,7 +29,7 @@ a = 0
 eta_m = 0.82
 eta_battery = 0.82
 
-max_edge_length = 100000 # in m
+max_edge_length = 50000 # in m
 speed = 80 # in km/h
 ####################################################################
 def bounding_box(source_lat, source_lon, target_lat, target_lon):

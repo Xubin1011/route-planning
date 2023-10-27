@@ -22,7 +22,7 @@ c_d = 0.7
 a = 0
 eta_m, eta_battery = 0.8, 0.8
 
-max_edge_length = 100000 # in m
+max_edge_length = 50000 # in m
 speed = 80
 cs_path = '/home/utlck/PycharmProjects/Dij_results/dijkstra_pois_150.csv'
 p_path = 'parking_bbox.csv'

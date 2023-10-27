@@ -1,6 +1,6 @@
 #!/bin/bash
 
-try_number=116
+try_number=113
 
 interpreter="/home/utlck/.conda/envs/rp/bin/python"
 script="/home/utlck/PycharmProjects/route-planning/dqn_noloops.py"

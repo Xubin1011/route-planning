@@ -15,7 +15,7 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-key_number = "115_500epis"
+key_number = "113_500epis"
 key_randomly = "01"
 weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
 route_path = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs.csv"
@@ -130,11 +130,11 @@ def visualization(cs_path, p_path, route_path, source_lat, source_lon, target_la
         latitude, longitude = row['Latitude'], row['Longitude']
         folium.CircleMarker(location=[latitude, longitude], radius=1, color='yellow', fill=True,
                             fill_color='yellow').add_to(map_object)
-    # # Read data from p_path and add blue markers for data points
-    # for _, row in data2.iterrows():
-    #     latitude, longitude = row['Latitude'], row['Longitude']
-    #     folium.CircleMarker(location=[latitude, longitude], radius=1, color='blue', fill=True,
-    #                         fill_color='blue').add_to(map_object)
+    # Read data from p_path and add blue markers for data points
+    for _, row in data2.iterrows():
+        latitude, longitude = row['Latitude'], row['Longitude']
+        folium.CircleMarker(location=[latitude, longitude], radius=1, color='blue', fill=True,
+                            fill_color='blue').add_to(map_object)
     # Read data from route_path as path coordinates
     path_data = pd.read_csv(route_path)
     path_coords = list(zip(path_data['Latitude'], path_data['Longitude']))
