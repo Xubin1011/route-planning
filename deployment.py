@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import sys
+import math
 import folium
 from env_deploy import rp_env
 from way_noloops import way, reset_df
@@ -16,7 +17,7 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-key_number = "113_500epis"
+key_number = "120_500epis"
 key_randomly = "01"
 weights_path =f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
 route_path = f"/home/utlck/PycharmProjects/Tunning_results/dqn_route_{key_number}_{key_randomly}.csv"
@@ -163,12 +164,18 @@ def visu_list(aver_speed_list, aver_consum_list, length_list, speed_comsum_png_p
     plt.ylabel('value')
     # plt.title(table_name)
     for i, v in enumerate(aver_speed_list):
+        if math.isnan(v):
+            continue
         plt.text(x_value[i], v, f'{int(v)}', ha='right', va='bottom')
 
     for i, v in enumerate(aver_consum_list):
+        if math.isnan(v):
+            continue
         plt.text(x_value[i], v, f'{int(v)}', ha='right', va='top')
 
     for i, v in enumerate(length_list):
+        if math.isnan(v):
+            continue
         plt.text(x_value[i], v, f'{int(v)}', ha='right', va='top')
 
     plt.grid(True)

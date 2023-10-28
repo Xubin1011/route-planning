@@ -147,6 +147,9 @@ class way():
             nearest_poi = self.nearest_location(poi_file, x_current, y_current, n)
             nearest_n_tem = nearest_poi.values.tolist()
             if len(nearest_n_tem) < n:
+
+                # nearest_n.append(nearest_n_tem[-1])
+
                 for _ in range(len(nearest_n_tem), n):
                     if poi_file == file_path_ch:
                         nearest_n.append([self.x_target_ch, self.y_target_ch, 0])
@@ -204,27 +207,27 @@ class way():
                 #     (data_p["Latitude"] == x_current) & (data_p["Longitude"] == y_current) & (data_p["Altitude"] == alti_current)].index.values[0]
                 # data_p = data_p.drop(index_current)
 
-        # delete all selected nearest node
-        for poi_file, n in zip(poi_files, n_values):
-            # global data_ch, data_p
-            if poi_file == file_path_ch:
-                for t in range(0, n):
-                    select_x, select_y,_ = nearest_n[t]
-                    if select_x == self.x_target_ch and select_y == self.y_target_ch:
-                        continue
-                    else:
-                        match = data_ch[(data_ch['Latitude'] == select_x) & (data_ch['Longitude'] == select_y)]
-                        if not match.empty:
-                            data_ch = data_ch.drop(match.index)
-            else:
-                for t in range(self.n_ch, self.n_pois):
-                    select_x, select_y,_ = nearest_n[t]
-                    if select_x == self.x_target_p and select_y == self.y_target_p:
-                        continue
-                    else:
-                        match = data_p[(data_p['Latitude'] == select_x) & (data_p['Longitude'] == select_y)]
-                        if not match.empty:
-                            data_p = data_p.drop(match.index)
+        # # delete all selected nearest node
+        # for poi_file, n in zip(poi_files, n_values):
+        #     # global data_ch, data_p
+        #     if poi_file == file_path_ch:
+        #         for t in range(0, n):
+        #             select_x, select_y,_ = nearest_n[t]
+        #             if select_x == self.x_target_ch and select_y == self.y_target_ch:
+        #                 continue
+        #             else:
+        #                 match = data_ch[(data_ch['Latitude'] == select_x) & (data_ch['Longitude'] == select_y)]
+        #                 if not match.empty:
+        #                     data_ch = data_ch.drop(match.index)
+        #     else:
+        #         for t in range(self.n_ch, self.n_pois):
+        #             select_x, select_y,_ = nearest_n[t]
+        #             if select_x == self.x_target_p and select_y == self.y_target_p:
+        #                 continue
+        #             else:
+        #                 match = data_p[(data_p['Latitude'] == select_x) & (data_p['Longitude'] == select_y)]
+        #                 if not match.empty:
+        #                     data_p = data_p.drop(match.index)
 
 
         return (index_next, next_x, next_y, d_next, power_next, consumption, typical_duration, length_meters)

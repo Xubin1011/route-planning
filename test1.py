@@ -1,8 +1,10 @@
-from findclosest_cs_p import test1
+from way_deploy_cs import  way
+from global_var_dij import file_path_ch, file_path_p
 
-env = test1()
+myway = way()
+nearest_location = myway.nearest_location(file_path_ch, 51.2750583, 8.8710819, 6)
+print(nearest_location)
 
-env.a = 2
-print(env.a)
-print(env.b)
-env.com(env.a, env.b)
+# from consumption_duration import haversine
+# dis = haversine()
+

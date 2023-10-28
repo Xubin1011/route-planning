@@ -45,14 +45,14 @@ else:
 env = rp_env()
 env.w_distance = 6000  # value range -1~+1
 env.w_energy = 1000  # -6~1
-env.w_driving = 20  # -100~0 , 1
-env.w_charge = 1  # -250~0 , 1
-env.w_parking = 10  # -100~0
+env.w_driving = 10  # -100~0 , 1
+env.w_charge = 10  # -250~0 , 1
+env.w_parking = 1  # -100~0
 env.w_target = 0  # 1 or 0
 # env.w_loop = 0 # 1 or -1000
 env.w_power = 0 # 1 0.5 0.1 -1
 w_num_charges = 0  # number of charges
-env.w_end_soc = 1000  # 1/soc
+env.w_end_soc = 0  # 1/soc
 
 theway = way()
 # theway.n_ch = 6  # Number of nearest charging station

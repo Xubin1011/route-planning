@@ -15,14 +15,15 @@ myway = way()
 #########################################################
 # try_number = 47
 ##############Linux##################
-key_number = "113_500epis"
+key_number = "120_500epis"
 key_randomly = "01"
+speed = "random"
 weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
-route_path = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs.csv"
-map_name = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs.html"
+route_path = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs_{speed}.csv"
+map_name = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs_{speed}.html"
 # aver_speed_path = f"/home/utlck/PycharmProjects/Tunning_results/aver_apeed_{key_number}_{key_randomly}.png"
 # consumption_path = f"/home/utlck/PycharmProjects/Tunning_results/consumpution_{key_number}_{key_randomly}.png"
-speed_comsum_png_path = f"/home/utlck/PycharmProjects/Dij_results/s_c_{key_number}_{key_randomly}.png"
+speed_comsum_png_path = f"/home/utlck/PycharmProjects/Dij_results/s_c_{key_number}_{key_randomly}_{speed}.png"
 
 ##############Win10#################################
 # weights_path =f"G:\Tuning_results\weights_047_101.pth"
@@ -254,8 +255,7 @@ for i in range(0, max_steps):  # loop for steps
         if action == None:
             continue
         else:
-            observation, terminated, d_next, length_meters, aver_speed, aver_consumption, consumption, typical_duration = env.step(
-                action)
+            observation, terminated, d_next, length_meters, aver_speed, aver_consumption, consumption, typical_duration = env.step(action)
             current_node, index_current, soc, _, _, _, _ = observation
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
 
