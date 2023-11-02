@@ -2,9 +2,9 @@
 
 interpreter="/home/utlck/.conda/envs/rp/bin/python"
 script="/home/utlck/PycharmProjects/route-planning/deployment.py"
-log_prefix="deploy_109_500epis_rondom_100"
+log_prefix="deploy_109_500epis_rondom_1000"
 
-for ((i=1; i<=100; i++)); do
+for ((i=1; i<=1000; i++)); do
     log_name="${log_prefix}_$i.txt"
     $interpreter $script >> "/home/utlck/PycharmProjects/Tunning_results/$log_name" 2>&1 &
 

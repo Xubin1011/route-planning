@@ -5,7 +5,7 @@
 interpreter="/home/utlck/.conda/envs/rp/bin/python"
 script="/home/utlck/PycharmProjects/route-planning/deployment_cs_150.py"
 #log_name="deploy_${try_number}.txt"
-log_name="deploy_115_500epis_01_cs_150.txt"
+log_name="deploy_109_500epis_01_cs_150.txt"
 $interpreter $script > /home/utlck/PycharmProjects/Dij_results/"$log_name" 2>&1 &
 
 python_pid=$!
