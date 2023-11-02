@@ -6,9 +6,9 @@ import pandas as pd
 import numpy as np
 import sys
 import folium
-from env_deploy_cs import rp_env
-from way_deploy_cs import way, reset_df
-from global_var_dij import initial_data_p, initial_data_ch, data_p, data_ch
+from env_deploy_cs_150 import rp_env
+from way_deploy_cs_150 import way, reset_df
+from global_var_150 import initial_data_p, initial_data_ch, data_p, data_ch
 
 env = rp_env()
 myway = way()
@@ -16,21 +16,20 @@ myway = way()
 # try_number = 47
 ##############Linux##################
 key_number = "109_500epis"
-key_randomly = "04"
-speed = "random"
+key_randomly = "09"
 weights_path = f"/home/utlck/PycharmProjects/Tunning_results/weights_{key_number}.pth"
-route_path = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs_{speed}.csv"
-map_name = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs_{speed}.html"
+route_path = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs_150.csv"
+map_name = f"/home/utlck/PycharmProjects/Dij_results/dqn_route_{key_number}_{key_randomly}_cs_150.html"
 # aver_speed_path = f"/home/utlck/PycharmProjects/Tunning_results/aver_apeed_{key_number}_{key_randomly}.png"
 # consumption_path = f"/home/utlck/PycharmProjects/Tunning_results/consumpution_{key_number}_{key_randomly}.png"
-speed_comsum_png_path = f"/home/utlck/PycharmProjects/Dij_results/s_c_{key_number}_{key_randomly}_{speed}.png"
+speed_comsum_png_path = f"/home/utlck/PycharmProjects/Dij_results/s_c_{key_number}_{key_randomly}_150.png"
 
 ##############Win10#################################
 # weights_path =f"G:\Tuning_results\weights_047_101.pth"
 # route_path = f"G:\Tuning_results\dqn_route_047_101.csv"
 # map_name = f"G:\Tuning_results\dqn_route_047_101.html"
 
-cs_path = "/home/utlck/PycharmProjects/Dij_results/dijkstra_pois.csv"
+cs_path = "cs_combo_150_bbox.csv"
 p_path = "parking_bbox.csv"
 
 
@@ -231,13 +230,13 @@ length = 0
 charge_rest_time = 0
 total_consumption = 0
 driving_time = 0
-charge_time = 0
 # step_flag = False  # no terminated, "True": Violate constrains,terminated
 target_flag = False  # not arrival target
 step_back = False
 consumption_list = []
 aver_speed_list = []
 length_list = []
+charge_time = 0
 ##################################################
 # main loop
 for i in range(0, max_steps):  # loop for steps
@@ -256,7 +255,8 @@ for i in range(0, max_steps):  # loop for steps
         if action == None:
             continue
         else:
-            observation, terminated, d_next, length_meters, aver_speed, aver_consumption, consumption, typical_duration = env.step(action)
+            observation, terminated, d_next, length_meters, aver_speed, aver_consumption, consumption, typical_duration = env.step(
+                action)
             current_node, index_current, soc, _, _, _, _ = observation
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
 
@@ -273,11 +273,6 @@ for i in range(0, max_steps):  # loop for steps
                 total_consumption += consumption
                 break
             else:
-
-                ##calculate the soc before recharge
-                if current_node in range(0, myway.n_ch):
-                    Latitude, Longitude, Altitude, power = geo_coord(current_node, int(index_current))
-                    soc = soc - (t_stay / 3600 * power) / env.battery_capacity
 
                 if d_next <= 25000 and soc >= 0:  # Arrival target
                     state_history.append(next_state)
@@ -321,9 +316,9 @@ for i in range(0, max_steps):  # loop for steps
             # state = (node, index, soc, t_stay, t_secd, t_secr, t_secch)
             first_two_and_fourth_values = (state[0, 0], state[0, 1], state[0, 3])
             node, index, t_stay = list(first_two_and_fourth_values)
+            charge_rest_time += t_stay
             if node in range(0, 6):
                 charge_time += t_stay
-            charge_rest_time += t_stay
             x, y, alti, power, = geo_coord(int(node), int(index))
             save_pois(int(node), x, y, alti, float(t_stay / 60), power)
         visualization(cs_path, p_path, route_path, myway.x_source, myway.y_source, myway.x_target, myway.y_target,

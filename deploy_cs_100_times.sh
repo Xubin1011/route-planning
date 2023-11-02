@@ -1,10 +1,10 @@
 #!/bin/bash
 
 interpreter="/home/utlck/.conda/envs/rp/bin/python"
-script="/home/utlck/PycharmProjects/route-planning/deployment.py"
-log_prefix="deploy_109_500epis_rondom"
+script="/home/utlck/PycharmProjects/route-planning/deployment_cs_150_compare.py"
+log_prefix="deploy_109_500epis_cs_150"
 
-for ((i=1; i<=1000; i++)); do
+for ((i=1; i<=100; i++)); do
     log_name="${log_prefix}_$i.txt"
     $interpreter $script >> "/home/utlck/PycharmProjects/Tunning_results/compare/$log_name" 2>&1 &
 

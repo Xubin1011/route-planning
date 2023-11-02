@@ -11,7 +11,7 @@ for ((i=1; i<=1000; i++)); do
     file_name="/home/utlck/PycharmProjects/Tunning_results/deploy_109_500epis_rondom_1000_$i.txt"
 
     # 使用grep来查找 "None, None" 字符串
-    if grep -E -q "None, None(, None){0,44}" "$file_name"; then
+    if grep -E -q "None, None(, None){0,42}" "$file_name"; then
         echo "File $file_name contains 'None, None' or variations"
         file_with_none_count=$((file_with_none_count + 1))
     fi
